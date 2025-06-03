@@ -1,0 +1,4 @@
+Student Login: http://localhost:3000/login/student
+Teacher Login: http://localhost:3000/login/teacher
+Admin Login: http://localhost:3000/login/admin
+Parent Login: http://localhost:3000/login/parent
