@@ -21,7 +21,7 @@ const mockStudentData = {
   name: 'Krishna N Acharya',
   usn: 'NNM22AD026',
   phone: '+91 8088022968',
-  email: 'john.doe@student.college.edu',
+  email: 'nnm22ad026@nmamit.in',
   college_name: 'NMAM Institute of Technology',
   semester: 6,
   department: 'Artificial Intelligence and Data Science',
