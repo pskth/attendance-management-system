@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 
 interface LoginFormProps {
-  role: "student" | "teacher" | "admin" | "parent" | "report_viewers"
+  role: "student" | "teacher" | "admin" | "report_viewers"
 }
 
 const roleConfig = {
@@ -30,12 +30,6 @@ const roleConfig = {
     icon: "⚙️",
     subtitle: "System administration panel",
     gradient: "from-red-500 to-red-600"
-  },
-  parent: {
-    title: "Parent Portal",
-    icon: "👪", 
-    subtitle: "Monitor your child's progress",
-    gradient: "from-purple-500 to-purple-600"
   },
   report_viewers: {
     title: "Analytics Portal",

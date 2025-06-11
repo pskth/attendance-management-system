@@ -28,15 +28,6 @@ export default function Home() {
       shadow: "shadow-red-500/20",
     },
     {
-      role: "parent",
-      title: "Parent Portal",
-      icon: "👪",
-      description: "Monitor your child's academic progress and activities",
-      color:
-        "from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700",
-      shadow: "shadow-purple-500/20",
-    },
-    {
       role: "report_viewers",
       title: "Analytics Portal",
       icon: "📊",
@@ -65,9 +56,9 @@ export default function Home() {
         </div>
 
         {/* Login Portals Grid */}
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
-            {userRoles.map((portal, index) => (
+        <div className="max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {userRoles.map((portal) => (
               <Link key={portal.role} href={`/login/${portal.role}`} className="group block h-full">
                 <div
                   className={`
