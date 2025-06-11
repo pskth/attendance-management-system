@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -49,6 +50,7 @@ export default function LoginForm({ role }: LoginFormProps) {
   const [password, setPassword] = useState("")
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({})
   const [isLoading, setIsLoading] = useState(false)
+  const router = useRouter()
 
   const config = roleConfig[role]
 
@@ -78,15 +80,18 @@ export default function LoginForm({ role }: LoginFormProps) {
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors)
       return
-    }
-
-    setIsLoading(true)
+    }    setIsLoading(true)
     
     try {
       console.log("Login attempt:", { email, password, role })
       await new Promise(resolve => setTimeout(resolve, 1500))
-      // Replace with actual authentication logic
-      alert(`Welcome to ${config.title}!`)
+      
+      // Simulate successful login and redirect based on role
+      if (role === 'student') {
+        router.push('/student/dashboard')
+      } else {
+        alert(`Welcome to ${config.title}!`)
+      }
     } catch (error) {
       console.error("Login failed:", error)
       setErrors({ email: "Invalid credentials. Please try again." })
