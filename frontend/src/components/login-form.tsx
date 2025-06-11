@@ -79,10 +79,11 @@ export default function LoginForm({ role }: LoginFormProps) {
     try {
       console.log("Login attempt:", { email, password, role })
       await new Promise(resolve => setTimeout(resolve, 1500))
-      
-      // Simulate successful login and redirect based on role
+        // Simulate successful login and redirect based on role
       if (role === 'student') {
         router.push('/student/dashboard')
+      } else if (role === 'teacher') {
+        router.push('/teacher/dashboard')
       } else {
         alert(`Welcome to ${config.title}!`)
       }

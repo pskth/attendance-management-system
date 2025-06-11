@@ -112,3 +112,61 @@ export interface MonthlyAttendanceData {
     }>
   }
 }
+
+// Additional interfaces for teacher dashboard
+export interface TeacherData {
+  teacher_id: string
+  user_id: string
+  name: string
+  phone?: string
+  department: string
+  designation?: string
+  employee_id?: string
+  college_name?: string
+  photo_url?: string
+}
+
+export interface StudentEnrollment {
+  enrollment_id: string
+  student_id: string
+  offering_id: string
+  attempt_number: number
+  academic_year: string
+  student: Student
+}
+
+export interface CourseOfferingWithStats {
+  offering_id: string
+  course_id: string
+  teacher_id: string
+  class_section: string
+  academic_year: string
+  semester: number
+  department: string
+  course_code: string
+  course_name: string
+  course_type: 'core' | 'department_elective' | 'open_elective'
+  total_students: number
+  total_classes_held: number
+  syllabus_completion: number
+  attendance_percentage: number
+}
+
+export interface YearData {
+  year: string
+  academic_year: string
+  semester: number
+  total_students: number
+  total_courses: number
+}
+
+export interface DepartmentData {
+  department: string
+  short_name: string
+  total_students: number
+  total_courses: number
+  active_classes_today: number
+  color: string
+  icon_bg: string
+  icon_color: string
+}
