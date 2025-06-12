@@ -2,9 +2,9 @@
 
 import { useState } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { UserManagement } from '@/components/admin/user-management'
-import { CourseManagement } from '@/components/admin/course-management'
-import { DepartmentManagement } from '@/components/admin/department-management'
+import { UserManagement } from '@/app/admin/user-management'
+import { CourseManagement } from '@/app/admin/course-management'
+import { DepartmentManagement } from '@/app/admin/department-management'
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('users')

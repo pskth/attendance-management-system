@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { AttendanceCalendar } from '@/components/student/attendance-calendar'
-import { DailyAttendanceCheck } from '@/components/student/daily-attendance-check'
-import { AttendanceStats } from '@/components/student/attendance-stats'
+import { AttendanceCalendar } from '@/app/student/attendance-calendar'
+import { DailyAttendanceCheck } from '@/app/student/daily-attendance-check'
+import { AttendanceStats } from '@/app/student/attendance-stats'
 import { 
   User, 
   TrendingUp, 

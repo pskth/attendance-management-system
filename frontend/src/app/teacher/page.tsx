@@ -2,12 +2,12 @@
 
 import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { YearSelector } from '@/components/teacher/year-selector'
-import { DepartmentSelector } from '@/components/teacher/department-selector'
-import { CourseSelector } from '@/components/teacher/course-selector'
-import { CourseManagement } from '@/components/teacher/course-management'
-import { MasterSearch } from '@/components/teacher/master-search'
-import { OpenElectives } from '@/components/teacher/open-electives'
+import { YearSelector } from '@/app/teacher/year-selector'
+import { DepartmentSelector } from '@/app/teacher/department-selector'
+import { CourseSelector } from '@/app/teacher/course-selector'
+import { CourseManagement } from '@/app/teacher/course-management'
+import { MasterSearch } from '@/app/teacher/master-search'
+import { OpenElectives } from '@/app/teacher/open-electives'
 import { 
   User, 
   GraduationCap,
