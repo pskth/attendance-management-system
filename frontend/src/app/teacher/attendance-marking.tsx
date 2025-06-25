@@ -164,43 +164,43 @@ export function AttendanceMarking({
   }
 
   return (
-    <div className="space-y-6">      {/* Header Card */}
+    <div className="space-y-4 sm:space-y-6">      {/* Header Card */}
       <Card>
         <CardHeader className="pb-2">
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="text-xl">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            <div className="min-w-0">
+              <CardTitle className="text-lg sm:text-xl truncate">
                 {courseOffering.course_code} - {courseOffering.course_name}
               </CardTitle>
-              <CardDescription className="text-base">
+              <CardDescription className="text-sm sm:text-base">
                 Section {selectedSection.section_name} • {selectedDepartment} • {selectedYear}
               </CardDescription>
             </div>
-            <div className="flex items-center justify-between space-x-8">
+            <div className="flex flex-wrap items-center justify-between gap-4 sm:gap-6 lg:gap-8">
               <div className="flex items-center space-x-2">
-                <Users className="w-5 h-5 text-blue-500" />
+                <Users className="w-5 h-5 text-blue-500 flex-shrink-0" />
                 <div className="text-center">
-                  <p className="font-medium text-lg">{students.length}</p>
-                  <p className="text-sm text-gray-600">Total Students</p>
+                  <p className="font-medium text-base sm:text-lg">{students.length}</p>
+                  <p className="text-xs sm:text-sm text-gray-600">Total Students</p>
                 </div>
               </div>
               <div className="flex items-center space-x-2">
-                <UserCheck className="w-5 h-5 text-green-500" />
+                <UserCheck className="w-5 h-5 text-green-500 flex-shrink-0" />
                 <div className="text-center">
-                  <p className="font-medium text-green-600 text-lg">{presentCount}</p>
-                  <p className="text-sm text-gray-600">Present</p>
+                  <p className="font-medium text-green-600 text-base sm:text-lg">{presentCount}</p>
+                  <p className="text-xs sm:text-sm text-gray-600">Present</p>
                 </div>
               </div>
               <div className="flex items-center space-x-2">
-                <UserX className="w-5 h-5 text-red-500" />
+                <UserX className="w-5 h-5 text-red-500 flex-shrink-0" />
                 <div className="text-center">
-                  <p className="font-medium text-red-600 text-lg">{absentCount}</p>
-                  <p className="text-sm text-gray-600">Absent</p>
+                  <p className="font-medium text-red-600 text-base sm:text-lg">{absentCount}</p>
+                  <p className="text-xs sm:text-sm text-gray-600">Absent</p>
                 </div>
               </div>
               <button
                 onClick={markAllPresent}
-                className="px-4 py-2 bg-green-100 text-green-700 rounded text-base font-medium hover:bg-green-200 transition-colors ml-4"
+                className="px-3 sm:px-4 py-2 bg-green-100 text-green-700 rounded text-sm sm:text-base font-medium hover:bg-green-200 transition-colors whitespace-nowrap"
               >
                 Reset All to Present
               </button>
@@ -210,7 +210,7 @@ export function AttendanceMarking({
         <CardContent className="pt-0 pb-3">
           {/* Attendance Percentage */}
           <div>
-            <div className="flex justify-between text-base text-gray-600 mb-1">
+            <div className="flex justify-between text-sm sm:text-base text-gray-600 mb-1">
               <span>Class Attendance</span>
               <span>{attendancePercentage.toFixed(1)}%</span>
             </div>            <div className="w-full bg-gray-200 rounded-full h-1 overflow-hidden">
@@ -233,13 +233,13 @@ export function AttendanceMarking({
       {/* Topic and Hours Input */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-xl">Class Details</CardTitle>
-          <CardDescription className="text-base">Enter the topic covered and hours taken for this class</CardDescription>
+          <CardTitle className="text-lg sm:text-xl">Class Details</CardTitle>
+          <CardDescription className="text-sm sm:text-base">Enter the topic covered and hours taken for this class</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="md:col-span-2">
-              <label htmlFor="topicCovered" className="block text-base font-medium text-gray-700 mb-1">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <div className="lg:col-span-2">
+              <label htmlFor="topicCovered" className="block text-sm sm:text-base font-medium text-gray-700 mb-1">
                 Topic Covered
               </label>
               <textarea
@@ -247,12 +247,12 @@ export function AttendanceMarking({
                 value={topicCovered}
                 onChange={(e) => setTopicCovered(e.target.value)}
                 placeholder="Enter the topic(s) covered in this class..."
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                 rows={3}
               />
             </div>
             <div>
-              <label htmlFor="hoursTaken" className="block text-base font-medium text-gray-700 mb-1">
+              <label htmlFor="hoursTaken" className="block text-sm sm:text-base font-medium text-gray-700 mb-1">
                 Hours Taken
               </label>
               <input
@@ -264,7 +264,7 @@ export function AttendanceMarking({
                 min="1"
                 max="8"
                 step="1"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
               />
             </div>
           </div>
@@ -274,17 +274,17 @@ export function AttendanceMarking({
       {/* Student List */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-xl">Student Attendance</CardTitle>
-          <CardDescription className="text-base">Mark attendance for each student</CardDescription>
+          <CardTitle className="text-lg sm:text-xl">Student Attendance</CardTitle>
+          <CardDescription className="text-sm sm:text-base">Mark attendance for each student</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="w-full min-w-[500px]">
               <thead>
                 <tr className="border-b">
-                  <th className="text-left py-3 px-4 text-lg font-medium">USN</th>
-                  <th className="text-left py-3 px-4 text-lg font-medium">Name</th>
-                  <th className="text-center py-3 px-4 text-lg font-medium">Status</th>
+                  <th className="text-left py-3 px-2 sm:px-4 text-base sm:text-lg font-medium">USN</th>
+                  <th className="text-left py-3 px-2 sm:px-4 text-base sm:text-lg font-medium">Name</th>
+                  <th className="text-center py-3 px-2 sm:px-4 text-base sm:text-lg font-medium">Status</th>
                 </tr>
               </thead>
               <tbody>
@@ -293,12 +293,12 @@ export function AttendanceMarking({
                     key={student.student_id}
                     className="border-b border-gray-100 hover:bg-gray-50"
                   >
-                    <td className="py-3 px-4 text-base">{student.usn}</td>
-                    <td className="py-3 px-4 text-base font-medium">{student.name}</td>
-                    <td className="py-3 px-4 text-center">
+                    <td className="py-3 px-2 sm:px-4 text-sm sm:text-base">{student.usn}</td>
+                    <td className="py-3 px-2 sm:px-4 text-sm sm:text-base font-medium truncate max-w-0">{student.name}</td>
+                    <td className="py-3 px-2 sm:px-4 text-center">
                       <button
                         onClick={() => markAttendance(student.student_id, student.attendance_status === 'present' ? 'absent' : 'present')}
-                        className={`px-4 py-2 rounded text-base font-medium transition-colors ${
+                        className={`px-3 sm:px-4 py-2 rounded text-sm sm:text-base font-medium transition-colors whitespace-nowrap ${
                           student.attendance_status === 'present'
                             ? 'bg-green-600 text-white hover:bg-green-700'
                             : 'bg-red-600 text-white hover:bg-red-700'

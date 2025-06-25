@@ -1,56 +1,79 @@
 {
-  "CSE": [
-    {
-      "course_id": "1",
-      "course_code": "CS301",
-      "course_name": "Data Structures and Algorithms",
-      "department_id": "CSE",
-      "total_students": 60,
-      "classes_completed": 28,
-      "total_classes": 45,
-      "attendance_percentage": 85.2
-    },
-    {
-      "course_id": "2",
-      "course_code": "CS302",
-      "course_name": "Database Management Systems",
-      "department_id": "CSE",
-      "total_students": 60,
-      "classes_completed": 25,
-      "total_classes": 40,
-      "attendance_percentage": 78.5
-    },
-    {
-      "course_id": "3",
-      "course_code": "CS303",
-      "course_name": "Computer Networks",
-      "department_id": "CSE",
-      "total_students": 58,
-      "classes_completed": 22,
-      "total_classes": 38,
-      "attendance_percentage": 92.1
-    }
-  ],
-  "ISE": [
-    {
-      "course_id": "4",
-      "course_code": "IS301",
-      "course_name": "Software Engineering",
-      "department_id": "ISE",
-      "total_students": 55,
-      "classes_completed": 30,
-      "total_classes": 42,
-      "attendance_percentage": 88.7
-    },
-    {
-      "course_id": "5",
-      "course_code": "IS302",
-      "course_name": "Web Technologies",
-      "department_id": "ISE",
-      "total_students": 55,
-      "classes_completed": 26,
-      "total_classes": 40,
-      "attendance_percentage": 81.3
-    }
-  ]
-}
+    "CSE": [
+      {
+        "course_id": "1",
+        "course_code": "CS301",
+        "course_name": "Data Structures and Algorithms",
+        "department_id": "CSE",
+        "total_students": 60,
+        "classes_completed": 28,
+        "total_classes": 45,
+        "attendance_percentage": 85.2,
+        "has_theory_component": true,
+        "has_lab_component": false
+      },
+      {
+        "course_id": "2",
+        "course_code": "CS302",
+        "course_name": "Database Management Systems",
+        "department_id": "CSE",
+        "total_students": 60,
+        "classes_completed": 25,
+        "total_classes": 40,
+        "attendance_percentage": 78.5,
+        "has_theory_component": true,
+        "has_lab_component": true
+      },
+      {
+        "course_id": "3",
+        "course_code": "CS303",
+        "course_name": "Computer Networks",
+        "department_id": "CSE",
+        "total_students": 58,
+        "classes_completed": 22,
+        "total_classes": 38,
+        "attendance_percentage": 92.1,
+        "has_theory_component": true,
+        "has_lab_component": false
+      },
+      {
+        "course_id": "4",
+        "course_code": "CS304",
+        "course_name": "Full Stack Development",
+        "department_id": "CSE",
+        "total_students": 45,
+        "classes_completed": 18,
+        "total_classes": 30,
+        "attendance_percentage": 94.2,
+        "has_theory_component": false,
+        "has_lab_component": true
+      }
+    ],
+    "ISE": [
+      {
+        "course_id": "5",
+        "course_code": "IS301",
+        "course_name": "Software Engineering",
+        "department_id": "ISE",
+        "total_students": 55,
+        "classes_completed": 30,
+        "total_classes": 42,
+        "attendance_percentage": 88.7,
+        "has_theory_component": true,
+        "has_lab_component": false
+      },
+      {
+        "course_id": "6",
+        "course_code": "IS302",
+        "course_name": "Web Technologies",
+        "department_id": "ISE",
+        "total_students": 55,
+        "classes_completed": 26,
+        "total_classes": 40,
+        "attendance_percentage": 81.3,
+        "has_theory_component": true,
+        "has_lab_component": false
+      }
+    ]
+  }
+  

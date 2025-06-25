@@ -83,7 +83,7 @@ export function AttendanceAnalytics({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
       <Card>
         <CardHeader className="pb-4">
@@ -106,7 +106,7 @@ export function AttendanceAnalytics({
       </Card>
 
       {/* Summary Statistics */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <Card>
           <CardContent className="p-3">
             <div className="flex items-center space-x-3">

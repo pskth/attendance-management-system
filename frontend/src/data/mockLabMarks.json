@@ -1,0 +1,90 @@
+[
+  {
+    "enrollment_id": "1",
+    "student_id": "1",
+    "usn": "NNM22CS001",
+    "student_name": "Aditya Sharma",
+    "record_marks": 9,
+    "continuous_evaluation_marks": 18,
+    "lab_mse_marks": 19,
+    "total_marks": 46,
+    "last_updated_at": "2024-12-15T10:30:00Z"
+  },
+  {
+    "enrollment_id": "2",
+    "student_id": "2",
+    "usn": "NNM22CS002",
+    "student_name": "Bhavana Nair",
+    "record_marks": 8,
+    "continuous_evaluation_marks": 17,
+    "lab_mse_marks": 18,
+    "total_marks": 43,
+    "last_updated_at": "2024-12-15T10:30:00Z"
+  },
+  {
+    "enrollment_id": "3",
+    "student_id": "3",
+    "usn": "NNM22CS003",
+    "student_name": "Chetan Kumar",
+    "record_marks": 7,
+    "continuous_evaluation_marks": 15,
+    "lab_mse_marks": 16,
+    "total_marks": 38,
+    "last_updated_at": "2024-12-15T10:30:00Z"
+  },
+  {
+    "enrollment_id": "4",
+    "student_id": "4",
+    "usn": "NNM22CS004",
+    "student_name": "Divya Rao",
+    "record_marks": 10,
+    "continuous_evaluation_marks": 19,
+    "lab_mse_marks": 20,
+    "total_marks": 49,
+    "last_updated_at": "2024-12-15T10:30:00Z"
+  },
+  {
+    "enrollment_id": "5",
+    "student_id": "5",
+    "usn": "NNM22CS005",
+    "student_name": "Eshan Joshi",
+    "record_marks": 8,
+    "continuous_evaluation_marks": 16,
+    "lab_mse_marks": 17,
+    "total_marks": 41,
+    "last_updated_at": "2024-12-15T10:30:00Z"
+  },
+  {
+    "enrollment_id": "6",
+    "student_id": "6",
+    "usn": "NNM22CS006",
+    "student_name": "Fatima Khan",
+    "record_marks": 9,
+    "continuous_evaluation_marks": 18,
+    "lab_mse_marks": 19,
+    "total_marks": 46,
+    "last_updated_at": "2024-12-15T10:30:00Z"
+  },
+  {
+    "enrollment_id": "7",
+    "student_id": "7",
+    "usn": "NNM22CS007",
+    "student_name": "Ganesh Reddy",
+    "record_marks": 6,
+    "continuous_evaluation_marks": 14,
+    "lab_mse_marks": 15,
+    "total_marks": 35,
+    "last_updated_at": "2024-12-15T10:30:00Z"
+  },
+  {
+    "enrollment_id": "8",
+    "student_id": "8",
+    "usn": "NNM22CS008",
+    "student_name": "Harini Shetty",
+    "record_marks": 9,
+    "continuous_evaluation_marks": 17,
+    "lab_mse_marks": 18,
+    "total_marks": 44,
+    "last_updated_at": "2024-12-15T10:30:00Z"
+  }
+]

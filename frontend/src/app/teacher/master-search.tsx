@@ -203,15 +203,17 @@ export function MasterSearch({ onNavigate, placeholder = "Search years, departme
   return (
     <div ref={searchRef} className="relative w-full max-w-2xl z-[70]">
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />        <input
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 sm:w-5 sm:h-5" />
+        <input
           ref={inputRef}
           type="text"
           value={searchTerm}
           onChange={handleInputChange}
           onFocus={() => searchTerm && setIsOpen(true)}
           placeholder={placeholder}
-          className="w-full pl-10 pr-10 py-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white shadow-sm text-base font-medium text-gray-900 placeholder-gray-400 focus:placeholder-gray-300"
-        />{searchTerm && (
+          className="w-full pl-9 sm:pl-10 pr-9 sm:pr-10 py-3 sm:py-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white shadow-sm text-sm sm:text-base font-medium text-gray-900 placeholder-gray-400 focus:placeholder-gray-300"
+        />
+        {searchTerm && (
           <button
             onClick={clearSearch}
             title="Clear search"
@@ -228,25 +230,26 @@ export function MasterSearch({ onNavigate, placeholder = "Search years, departme
       </div>
 
       {isOpen && results.length > 0 && (
-        <Card className="absolute top-full left-0 right-0 mt-2 shadow-lg border z-[70] max-h-96 overflow-y-auto">
+        <Card className="absolute top-full left-0 right-0 mt-2 shadow-lg border z-[70] max-h-80 sm:max-h-96 overflow-y-auto">
           <CardContent className="p-0">
             <div className="py-2">
-              {results.map((result, index) => (                <button
+              {results.map((result, index) => (
+                <button
                   key={result.id}
                   onClick={() => handleResultClick(result)}
                   title={`Navigate to ${result.title}`}
-                  className={`w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors ${
+                  className={`w-full px-3 sm:px-4 py-2 sm:py-3 text-left hover:bg-gray-50 transition-colors ${
                     index === selectedIndex ? 'bg-emerald-50' : ''
                   }`}
                 >
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3 flex-1">
+                    <div className="flex items-center space-x-2 sm:space-x-3 flex-1 min-w-0">
                       <div className="flex-shrink-0">
                         {getResultIcon(result.type)}
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center space-x-2">
-                          <p className="text-sm font-medium text-gray-900 truncate">
+                          <p className="text-xs sm:text-sm font-medium text-gray-900 truncate">
                             {result.title}
                           </p>
                           <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">

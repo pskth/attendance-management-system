@@ -45,6 +45,8 @@ export interface Course {
   attendance_percentage: number
   course_type?: 'regular' | 'open_elective'
   is_open_elective?: boolean
+  has_theory_component?: boolean
+  has_lab_component?: boolean
 }
 
 export interface Section {
@@ -180,26 +182,26 @@ export function DropdownNavigation({
 
   return (
     <Card className="w-full relative z-50">
-      <CardContent className="p-6">
-        <div className="flex flex-col lg:flex-row gap-4">
+      <CardContent className="p-3 sm:p-6">
+        <div className="flex flex-col lg:flex-row gap-3 lg:gap-4">
           {/* Year Dropdown */}
           <div ref={yearRef} className="relative flex-1">
             <Button
               variant={selectedYear ? "default" : "outline"}
-              className={`w-full justify-between h-auto p-4 ${
+              className={`w-full justify-between h-auto p-3 sm:p-4 ${
                 selectedYear ? 'bg-emerald-600 hover:bg-emerald-700' : ''
               }`}
               onClick={() => setYearDropdownOpen(!yearDropdownOpen)}
             >
-              <div className="flex items-center space-x-3">
-                <GraduationCap className="w-5 h-5" />
-                <div className="text-left">
-                  <div className="font-medium">
+              <div className="flex items-center space-x-2 sm:space-x-3">
+                <GraduationCap className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
+                <div className="text-left min-w-0">
+                  <div className="font-medium text-sm sm:text-base truncate">
                     {selectedYear || 'Select Year'}
                   </div>
                 </div>
               </div>
-              <ChevronDown className={`w-4 h-4 transition-transform ${
+              <ChevronDown className={`w-4 h-4 transition-transform flex-shrink-0 ${
                 yearDropdownOpen ? 'rotate-180' : ''
               }`} />
             </Button>
@@ -210,10 +212,10 @@ export function DropdownNavigation({
                   {years.map((year) => (
                     <button
                       key={year.year}
-                      className="w-full text-left p-3 rounded-md hover:bg-gray-50 transition-colors"
+                      className="w-full text-left p-2 sm:p-3 rounded-md hover:bg-gray-50 transition-colors"
                       onClick={() => handleYearSelect(year.year)}
                     >
-                      <div className="font-medium text-gray-900">{year.year}</div>
+                      <div className="font-medium text-gray-900 text-sm sm:text-base">{year.year}</div>
                     </button>
                   ))}
                 </div>
@@ -225,16 +227,16 @@ export function DropdownNavigation({
           <div ref={deptRef} className="relative flex-1">
             <Button
               variant={selectedDepartment ? "default" : "outline"}
-              className={`w-full justify-between h-auto p-4 ${
+              className={`w-full justify-between h-auto p-3 sm:p-4 ${
                 selectedDepartment ? 'bg-emerald-600 hover:bg-emerald-700' : ''
               } ${!selectedYear ? 'opacity-50 cursor-not-allowed' : ''}`}
               onClick={() => selectedYear && setDeptDropdownOpen(!deptDropdownOpen)}
               disabled={!selectedYear}
             >
-              <div className="flex items-center space-x-3">
-                <Building2 className="w-5 h-5" />
-                <div className="text-left">
-                  <div className="font-medium">
+              <div className="flex items-center space-x-2 sm:space-x-3">
+                <Building2 className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
+                <div className="text-left min-w-0">
+                  <div className="font-medium text-sm sm:text-base truncate">
                     {selectedDepartment ? 
                       `${departments.find(d => d.department_id === selectedDepartment)?.short_name}: ${departments.find(d => d.department_id === selectedDepartment)?.department_name}` || selectedDepartment
                       : 'Select Department'
@@ -242,7 +244,7 @@ export function DropdownNavigation({
                   </div>
                 </div>
               </div>
-              <ChevronDown className={`w-4 h-4 transition-transform ${
+              <ChevronDown className={`w-4 h-4 transition-transform flex-shrink-0 ${
                 deptDropdownOpen ? 'rotate-180' : ''
               }`} />
             </Button>
@@ -268,21 +270,21 @@ export function DropdownNavigation({
           <div ref={sectionRef} className="relative flex-1">
             <Button
               variant={selectedSection ? "default" : "outline"}
-              className={`w-full justify-between h-auto p-4 ${
+              className={`w-full justify-between h-auto p-3 sm:p-4 ${
                 selectedSection ? 'bg-emerald-600 hover:bg-emerald-700' : ''
               } ${!selectedYear ? 'opacity-50 cursor-not-allowed' : ''}`}
               onClick={() => selectedYear && setSectionDropdownOpen(!sectionDropdownOpen)}
               disabled={!selectedYear}
             >
-              <div className="flex items-center space-x-3">
-                <Users className="w-5 h-5" />
-                <div className="text-left">
-                  <div className="font-medium">
+              <div className="flex items-center space-x-2 sm:space-x-3">
+                <Users className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
+                <div className="text-left min-w-0">
+                  <div className="font-medium text-sm sm:text-base truncate">
                     {selectedSection ? `Section ${selectedSection.section_name}` : 'Select Section'}
                   </div>
                 </div>
               </div>
-              <ChevronDown className={`w-4 h-4 transition-transform ${
+              <ChevronDown className={`w-4 h-4 transition-transform flex-shrink-0 ${
                 sectionDropdownOpen ? 'rotate-180' : ''
               }`} />
             </Button>
@@ -293,16 +295,16 @@ export function DropdownNavigation({
                   {sections.length > 0 ? sections.map((section) => (
                     <button
                       key={section.section_id}
-                      className="w-full text-left p-3 rounded-md hover:bg-gray-50 transition-colors"
+                      className="w-full text-left p-2 sm:p-3 rounded-md hover:bg-gray-50 transition-colors"
                       onClick={() => handleSectionSelect(section)}
                     >
-                      <div className="font-medium text-gray-900">Section {section.section_name}</div>
+                      <div className="font-medium text-gray-900 text-sm sm:text-base">Section {section.section_name}</div>
                       {section.section_id === 'MIXED' && (
-                        <div className="text-sm text-emerald-600">Open Elective Section</div>
+                        <div className="text-xs sm:text-sm text-emerald-600">Open Elective Section</div>
                       )}
                     </button>
                   )) : (
-                    <div className="p-3 text-center text-gray-500 text-sm">
+                    <div className="p-2 sm:p-3 text-center text-gray-500 text-xs sm:text-sm">
                       {selectedCourse ? 'Select a course first' : 'No sections available'}
                     </div>
                   )}
@@ -315,21 +317,21 @@ export function DropdownNavigation({
           <div ref={courseRef} className="relative flex-1">
             <Button
               variant={selectedCourse ? "default" : "outline"}
-              className={`w-full justify-between h-auto p-4 ${
+              className={`w-full justify-between h-auto p-3 sm:p-4 ${
                 selectedCourse ? 'bg-emerald-600 hover:bg-emerald-700' : ''
               } ${!selectedYear ? 'opacity-50 cursor-not-allowed' : ''}`}
               onClick={() => selectedYear && setCourseDropdownOpen(!courseDropdownOpen)}
               disabled={!selectedYear}
             >
-              <div className="flex items-center space-x-3">
-                <BookOpen className="w-5 h-5" />
-                <div className="text-left">
-                  <div className="font-medium">
+              <div className="flex items-center space-x-2 sm:space-x-3">
+                <BookOpen className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
+                <div className="text-left min-w-0">
+                  <div className="font-medium text-sm sm:text-base truncate">
                     {selectedCourse ? `${selectedCourse.course_code}: ${selectedCourse.course_name}` : 'Select Course'}
                   </div>
                 </div>
               </div>
-              <ChevronDown className={`w-4 h-4 transition-transform ${
+              <ChevronDown className={`w-4 h-4 transition-transform flex-shrink-0 ${
                 courseDropdownOpen ? 'rotate-180' : ''
               }`} />
             </Button>
@@ -345,11 +347,11 @@ export function DropdownNavigation({
                           {courses.filter(course => !course.is_open_elective).map((course) => (
                             <button
                               key={course.course_id}
-                              className="w-full text-left p-3 rounded-md hover:bg-gray-50 transition-colors"
+                              className="w-full text-left p-2 sm:p-3 rounded-md hover:bg-gray-50 transition-colors"
                               onClick={() => handleCourseSelect(course)}
                             >
-                              <div className="font-medium text-gray-900">{course.course_code}: {course.course_name}</div>
-                              <div className="text-sm text-gray-500">{course.department_id}</div>
+                              <div className="font-medium text-gray-900 text-sm sm:text-base truncate">{course.course_code}: {course.course_name}</div>
+                              <div className="text-xs sm:text-sm text-gray-500">{course.department_id}</div>
                             </button>
                           ))}
                           {courses.filter(course => course.is_open_elective).length > 0 && (
@@ -361,24 +363,24 @@ export function DropdownNavigation({
                       {/* Open Electives */}
                       {courses.filter(course => course.is_open_elective).length > 0 && (
                         <>
-                          <div className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                          <div className="px-2 sm:px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
                             Open Electives
                           </div>
                           {courses.filter(course => course.is_open_elective).map((course) => (
                             <button
                               key={course.course_id}
-                              className="w-full text-left p-3 rounded-md hover:bg-gray-50 transition-colors"
+                              className="w-full text-left p-2 sm:p-3 rounded-md hover:bg-gray-50 transition-colors"
                               onClick={() => handleCourseSelect(course)}
                             >
-                              <div className="font-medium text-gray-900">{course.course_code}: {course.course_name}</div>
-                              <div className="text-sm text-emerald-600">Open Elective • Mixed Sections</div>
+                              <div className="font-medium text-gray-900 text-sm sm:text-base truncate">{course.course_code}: {course.course_name}</div>
+                              <div className="text-xs sm:text-sm text-emerald-600">Open Elective • Mixed Sections</div>
                             </button>
                           ))}
                         </>
                       )}
                     </>
                   ) : (
-                    <div className="p-3 text-center text-gray-500 text-sm">
+                    <div className="p-2 sm:p-3 text-center text-gray-500 text-xs sm:text-sm">
                       No courses available
                     </div>
                   )}

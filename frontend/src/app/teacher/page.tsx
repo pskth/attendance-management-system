@@ -146,19 +146,20 @@ export default function TeacherDashboard() {  const [teacherData] = useState(moc
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-green-50 p-6">
-      <div className="max-w-7xl mx-auto space-y-6">        {/* Header */}
-        <div className="flex items-center justify-between">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-green-50 p-3 sm:p-6">
+      <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6">        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Teacher Dashboard</h1>
-            <p className="text-gray-600 mt-1">Attendance Management System</p>
-          </div></div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Teacher Dashboard</h1>
+            <p className="text-gray-600 mt-1 text-sm sm:text-base">Attendance Management System</p>
+          </div>
+        </div>
 
         {/* Teacher Profile Card */}
         <Card className="bg-gradient-to-r from-emerald-600 to-green-700 text-white">
           <CardHeader className="pb-2">
-            <div className="flex items-center space-x-3">
-              <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+            <div className="flex items-start sm:items-center gap-3">
+              <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0">
                 {teacherData.photo_url ? (
                   <Image 
                     src={teacherData.photo_url} 
@@ -171,13 +172,15 @@ export default function TeacherDashboard() {  const [teacherData] = useState(moc
                   <User className="w-6 h-6 text-white" />
                 )}
               </div>
-              <div className="flex-1">
-                <div className="flex items-center justify-between text-white">
-                  <span className="text-lg font-medium">Welcome, {teacherData.name}</span>
-                  <span className="text-sm text-emerald-100">{teacherData.employee_id}</span>
-                  <div className="flex items-center space-x-2 text-sm text-emerald-100">
-                    <GraduationCap className="w-4 h-4" />
-                    <span>{teacherData.college_name}</span>
+              <div className="flex-1 min-w-0">
+                <div className="flex flex-col gap-1">
+                  <span className="text-base sm:text-lg font-medium truncate">Welcome, {teacherData.name}</span>
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-xs sm:text-sm text-emerald-100">
+                    <span>{teacherData.employee_id}</span>
+                    <div className="flex items-center space-x-1 sm:space-x-2">
+                      <GraduationCap className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                      <span className="truncate">{teacherData.college_name}</span>
+                    </div>
                   </div>
                 </div>
               </div>
