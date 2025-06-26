@@ -180,57 +180,58 @@ export default function MarksAnalytics({ academicYear }: MarksAnalyticsProps) {
 
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <Card>
-        <CardHeader>
-          <CardTitle>Department-wise Academic Performance</CardTitle>
-          <CardDescription>
+        <CardHeader className="pb-4 sm:pb-6">
+          <CardTitle className="text-base sm:text-lg">Department-wise Academic Performance</CardTitle>
+          <CardDescription className="text-sm">
             Click on departments to view section-wise and course-wise marks details for {academicYear}
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-2">
+          <div className="space-y-3">
             {departmentWiseData.map((dept, index) => (
               <div key={index} className="border rounded-lg overflow-hidden">
                 {/* Department Header - Clickable */}
                 <div 
-                  className="flex items-center justify-between p-4 hover:bg-gray-50 cursor-pointer transition-colors"
+                  className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 hover:bg-gray-50 cursor-pointer transition-colors space-y-3 sm:space-y-0"
                   onClick={() => toggleDepartment(dept.code)}
                 >
-                  <div className="flex items-center space-x-4">
+                  <div className="flex items-center space-x-3 sm:space-x-4">
                     <div className="flex items-center space-x-2">
                       {expandedDepts.includes(dept.code) ? (
                         <ChevronDown className="h-4 w-4 text-gray-500" />
                       ) : (
                         <ChevronRight className="h-4 w-4 text-gray-500" />
                       )}
-                      <div className={`w-4 h-4 rounded-full ${dept.code === 'CSE' ? 'bg-blue-500' : dept.code === 'AIDS' ? 'bg-green-500' : dept.code === 'ISE' ? 'bg-yellow-500' : 'bg-red-500'}`}></div>
+                      <div className={`w-3 h-3 sm:w-4 sm:h-4 rounded-full ${dept.code === 'CSE' ? 'bg-blue-500' : dept.code === 'AIDS' ? 'bg-green-500' : dept.code === 'ISE' ? 'bg-yellow-500' : 'bg-red-500'}`}></div>
                     </div>
-                    <div>
-                      <h3 className="font-medium text-gray-900">{dept.name}</h3>
-                      <p className="text-sm text-gray-500">{dept.code} • {dept.students} students • {dept.sections.length} sections</p>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-medium text-sm sm:text-base text-gray-900 truncate">{dept.name}</h3>
+                      <p className="text-xs sm:text-sm text-gray-500">{dept.code} • {dept.students} students • {dept.sections.length} sections</p>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <div className="flex items-center space-x-8">
-                      <div className="text-center">
-                        <div className={`text-lg font-semibold ${getMarksColor(dept.avgMarks)}`}>
-                          {dept.avgMarks}%
-                        </div>
-                        <div className="text-xs text-gray-500">Average</div>
+                  <div className="grid grid-cols-3 gap-3 sm:flex sm:items-center sm:justify-end sm:space-x-6">
+                    <div className="text-center">
+                      <div className="sm:hidden text-xs text-gray-500 mb-1">Avg:</div>
+                      <div className={`text-sm sm:text-lg font-semibold ${getMarksColor(dept.avgMarks)}`}>
+                        {dept.avgMarks}%
                       </div>
-                      <div className="text-center">
-                        <div className={`text-lg font-semibold ${getPassRateColor(dept.passRate)}`}>
-                          {dept.passRate}%
-                        </div>
-                        <div className="text-xs text-gray-500">Pass Rate</div>
+                      <div className="hidden sm:block text-xs text-gray-500">Average</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="sm:hidden text-xs text-gray-500 mb-1">Pass:</div>
+                      <div className={`text-sm sm:text-lg font-semibold ${getPassRateColor(dept.passRate)}`}>
+                        {dept.passRate}%
                       </div>
-                      <div className="text-center">
-                        <div className="text-lg font-semibold text-red-600">
-                          {(100 - dept.passRate).toFixed(1)}%
-                        </div>
-                        <div className="text-xs text-gray-500">Fail Rate</div>
+                      <div className="hidden sm:block text-xs text-gray-500">Pass Rate</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="sm:hidden text-xs text-gray-500 mb-1">Fail:</div>
+                      <div className="text-sm sm:text-lg font-semibold text-red-600">
+                        {(100 - dept.passRate).toFixed(1)}%
                       </div>
+                      <div className="hidden sm:block text-xs text-gray-500">Fail Rate</div>
                     </div>
                   </div>
                 </div>
@@ -240,28 +241,30 @@ export default function MarksAnalytics({ academicYear }: MarksAnalyticsProps) {
                   <div className="border-t bg-gray-50">
                     {/* Section-wise Performance */}
                     <div className="p-4">
-                      <h4 className="font-medium text-gray-900 mb-3">Section-wise Academic Performance</h4>
-                      <div className="space-y-3">
+                      <h4 className="font-medium text-sm sm:text-base text-gray-900 mb-3">Section-wise Academic Performance</h4>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                         {dept.sections.map((section, sectionIndex) => (
-                          <div key={sectionIndex} className="flex items-center justify-between p-3 bg-white rounded border">
-                            <div>
-                              <div className="font-medium text-sm">{section.section}</div>
-                              <div className="text-xs text-gray-500">{section.students} students</div>
+                          <div key={sectionIndex} className="p-3 bg-white rounded-lg border">
+                            <div className="flex items-center justify-between mb-2">
+                              <div className="flex-1 min-w-0">
+                                <div className="font-medium text-sm truncate">{section.section}</div>
+                                <div className="text-xs text-gray-500">{section.students} students</div>
+                              </div>
                             </div>
-                            <div className="flex items-center space-x-6">
-                              <div className="text-center">
+                            <div className="grid grid-cols-3 gap-2 text-center">
+                              <div>
                                 <div className={`text-sm font-semibold ${getMarksColor(section.avgMarks)}`}>
                                   {section.avgMarks}%
                                 </div>
                                 <div className="text-xs text-gray-500">Avg</div>
                               </div>
-                              <div className="text-center">
+                              <div>
                                 <div className={`text-sm font-semibold ${getPassRateColor(section.passRate)}`}>
                                   {section.passRate}%
                                 </div>
                                 <div className="text-xs text-gray-500">Pass</div>
                               </div>
-                              <div className="text-center">
+                              <div>
                                 <div className="text-sm font-semibold text-red-600">
                                   {(100 - section.passRate).toFixed(1)}%
                                 </div>
@@ -275,22 +278,22 @@ export default function MarksAnalytics({ academicYear }: MarksAnalyticsProps) {
 
                     {/* Course-wise Performance per Section */}
                     <div className="p-4 border-t">
-                      <h4 className="font-medium text-gray-900 mb-3">Course-wise Academic Performance by Section</h4>
+                      <h4 className="font-medium text-sm sm:text-base text-gray-900 mb-3">Course-wise Academic Performance by Section</h4>
                       <div className="space-y-3">
                         {dept.sections.map((section, sectionIndex) => (
-                          <div key={sectionIndex} className="bg-white rounded border">
+                          <div key={sectionIndex} className="bg-white rounded-lg border overflow-hidden">
                             <div className="p-3 border-b bg-gray-50">
                               <h5 className="font-medium text-sm text-gray-800">{section.section}</h5>
                             </div>
                             <div className="p-3">
-                              <div className="space-y-2">
+                              <div className="space-y-3">
                                 {section.courseStats.map((course, courseIndex) => (
-                                  <div key={courseIndex} className="flex items-center justify-between py-2">
-                                    <div>
-                                      <div className="text-sm font-medium">{course.code}</div>
-                                      <div className="text-xs text-gray-500">{course.name}</div>
+                                  <div key={courseIndex} className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
+                                    <div className="flex-1 min-w-0">
+                                      <div className="text-sm font-medium truncate">{course.code}</div>
+                                      <div className="text-xs text-gray-500 truncate">{course.name}</div>
                                     </div>
-                                    <div className="flex items-center space-x-4">
+                                    <div className="grid grid-cols-3 gap-3 sm:flex sm:items-center sm:space-x-4">
                                       <div className="text-center">
                                         <div className={`text-sm font-semibold ${getMarksColor(course.avgMarks)}`}>
                                           {course.avgMarks}%

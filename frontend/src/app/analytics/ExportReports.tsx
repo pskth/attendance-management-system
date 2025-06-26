@@ -37,15 +37,15 @@ export default function ExportReports({ filters }: ExportReportsProps) {
 
   return (
     <div className="flex flex-col space-y-2">
-      <div className="flex flex-wrap gap-2">
+      <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2">
         <Button
           onClick={() => handleExport('pdf')}
           disabled={isExporting}
           variant="outline"
           size="sm"
-          className="flex items-center space-x-1"
+          className="flex items-center justify-center space-x-1 text-xs sm:text-sm"
         >
-          <FileText className="h-4 w-4" />
+          <FileText className="h-3 w-3 sm:h-4 sm:w-4" />
           <span>PDF</span>
         </Button>
         
@@ -54,9 +54,9 @@ export default function ExportReports({ filters }: ExportReportsProps) {
           disabled={isExporting}
           variant="outline"
           size="sm"
-          className="flex items-center space-x-1"
+          className="flex items-center justify-center space-x-1 text-xs sm:text-sm"
         >
-          <FileSpreadsheet className="h-4 w-4" />
+          <FileSpreadsheet className="h-3 w-3 sm:h-4 sm:w-4" />
           <span>Excel</span>
         </Button>
         
@@ -65,9 +65,9 @@ export default function ExportReports({ filters }: ExportReportsProps) {
           disabled={isExporting}
           variant="outline"
           size="sm"
-          className="flex items-center space-x-1"
+          className="flex items-center justify-center space-x-1 text-xs sm:text-sm"
         >
-          <Download className="h-4 w-4" />
+          <Download className="h-3 w-3 sm:h-4 sm:w-4" />
           <span>CSV</span>
         </Button>
         
@@ -75,9 +75,9 @@ export default function ExportReports({ filters }: ExportReportsProps) {
           onClick={handlePrint}
           variant="outline"
           size="sm"
-          className="flex items-center space-x-1"
+          className="flex items-center justify-center space-x-1 text-xs sm:text-sm"
         >
-          <Printer className="h-4 w-4" />
+          <Printer className="h-3 w-3 sm:h-4 sm:w-4" />
           <span>Print</span>
         </Button>
       </div>
