@@ -35,6 +35,7 @@ interface User {
   usn?: string
   employeeId?: string
   role: 'student' | 'teacher' | 'admin'
+  roles?: string[]  // Additional roles for multi-role users
   department?: string  // Optional for admins
   year?: string  // Academic year for students and teachers
   section?: string  // Class section for students
@@ -169,6 +170,40 @@ const mockUsers: User[] = [
     section: 'B',
     courses: ['IS401', 'IS402', 'IS403', 'CS401'],
     createdAt: '2022-01-22'
+  },
+  {
+    id: '12',
+    name: 'Prof. Rahul Mehta',
+    email: 'rahul.mehta@nnm.ac.in',
+    employeeId: 'TCH004',
+    role: 'teacher',
+    roles: ['teacher', 'admin'],
+    department: 'CSE',
+    year: '3rd Year',
+    courses: ['CS301', 'CS401'],
+    createdAt: '2022-08-15'
+  },
+  {
+    id: '13',
+    name: 'Dr. Anita Sharma',
+    email: 'anita.sharma@nnm.ac.in',
+    employeeId: 'TCH005',
+    role: 'teacher',
+    roles: ['teacher', 'admin'],
+    department: 'ECE',
+    year: '4th Year',
+    courses: ['EC401', 'EC501'],
+    createdAt: '2021-07-10'
+  },
+  {
+    id: '14',
+    name: 'System Admin',
+    email: 'system@nnm.ac.in',
+    employeeId: 'SYS001',
+    role: 'admin',
+    roles: ['admin', 'teacher'],
+    department: 'Computer Center',
+    createdAt: '2020-01-01'
   }
 ]
 
@@ -303,6 +338,16 @@ export function UserManagement({ initialFilters }: UserManagementProps = {}) {
     }
   }
 
+  // Get role badge style
+  const getRoleBadgeStyle = (role: string) => {
+    switch (role) {
+      case 'student': return 'bg-blue-100 text-blue-800 border-blue-200'
+      case 'teacher': return 'bg-green-100 text-green-800 border-green-200'
+      case 'admin': return 'bg-purple-100 text-purple-800 border-purple-200'
+      default: return 'bg-gray-100 text-gray-800 border-gray-200'
+    }
+  }
+
   return (
     <div className="space-y-6">
       {/* Header Actions */}
@@ -311,7 +356,9 @@ export function UserManagement({ initialFilters }: UserManagementProps = {}) {
           <div className="flex items-center justify-between">
             <div>
               <CardTitle>User Management</CardTitle>
-              <CardDescription>Manage students, teachers, and administrators</CardDescription>
+              <CardDescription>
+                Total: {filteredUsers.length} users
+              </CardDescription>
             </div>
             <div className="flex items-center space-x-2">
               <Button onClick={() => fileInputRef.current?.click()} variant="outline">
@@ -341,7 +388,7 @@ export function UserManagement({ initialFilters }: UserManagementProps = {}) {
       />      {/* Filters */}
       <Card>
         <CardContent className="pt-6">
-          <div className={`grid grid-cols-1 gap-4 ${selectedRole === 'student' ? 'md:grid-cols-7' : 'md:grid-cols-6'}`}>
+          <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
             <div className="relative">
               <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
               <Input
@@ -404,21 +451,19 @@ export function UserManagement({ initialFilters }: UserManagementProps = {}) {
                 <option key={course} value={course}>{course}</option>
               ))}
             </select>
-            {selectedRole === 'student' && (
-              <select
-                value={selectedSection}
-                onChange={(e) => setSelectedSection(e.target.value)}
-                className="rounded-md border border-gray-300 px-3 py-2 text-sm"
-                aria-label="Filter by section"
-              >
-                <option value="all">All Sections</option>
-                <option value="A">Section A</option>
-                <option value="B">Section B</option>
-              </select>
-            )}
-            <div className="text-sm text-gray-600 flex items-center">
-              Total: {filteredUsers.length} users
-            </div>
+            <select
+              value={selectedSection}
+              onChange={(e) => setSelectedSection(e.target.value)}
+              className={`rounded-md border border-gray-300 px-3 py-2 text-sm ${
+                selectedRole !== 'student' ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
+              aria-label="Filter by section"
+              disabled={selectedRole !== 'student'}
+            >
+              <option value="all">All Sections</option>
+              <option value="A">Section A</option>
+              <option value="B">Section B</option>
+            </select>
           </div>
         </CardContent>
       </Card>
@@ -465,9 +510,20 @@ export function UserManagement({ initialFilters }: UserManagementProps = {}) {
                       {user.usn || user.employeeId || '-'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center space-x-2">
-                        {getRoleIcon(user.role)}
-                        <span className="text-sm text-gray-900 capitalize">{user.role}</span>
+                      <div className="flex flex-wrap gap-1">
+                        {user.roles && user.roles.length > 0 ? (
+                          user.roles.map((role, index) => (
+                            <div key={index} className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${getRoleBadgeStyle(role)}`}>
+                              {getRoleIcon(role)}
+                              <span className="ml-1 capitalize">{role}</span>
+                            </div>
+                          ))
+                        ) : (
+                          <div className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${getRoleBadgeStyle(user.role)}`}>
+                            {getRoleIcon(user.role)}
+                            <span className="ml-1 capitalize">{user.role}</span>
+                          </div>
+                        )}
                       </div>
                     </td>                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {user.department || '-'}

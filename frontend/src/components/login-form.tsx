@@ -85,7 +85,9 @@ export default function LoginForm({ role }: LoginFormProps) {
         router.push('/teacher/')
       } else if (role === 'admin') {
         router.push('/admin/')
-      } else {
+      } else if (role === 'report_viewers') {
+        router.push('/analytics/')
+      }else {
         alert(`Welcome to ${config.title}!`)
       }
     } catch (error) {

@@ -151,9 +151,7 @@ export function DepartmentManagement({
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle>Department Management</CardTitle>
-              <CardDescription>Manage academic departments and their resources for {selectedYear}</CardDescription>
-            </div>
+              <CardTitle>Department Management</CardTitle>            </div>
             <div className="flex items-center space-x-2">
               <Button onClick={() => setShowAddForm(true)}>
                 <Plus className="w-4 h-4 mr-2" />

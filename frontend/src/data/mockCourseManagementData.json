@@ -1,0 +1,92 @@
+[
+  {
+    "course_id": "550e8400-e29b-41d4-a716-446655440001",
+    "course_code": "CS301",
+    "course_name": "Data Structures and Algorithms",
+    "department_id": "550e8400-e29b-41d4-a716-446655440001",
+    "course_type": "core",
+    "has_theory_component": true,
+    "has_lab_component": true
+  },
+  {
+    "course_id": "550e8400-e29b-41d4-a716-446655440002",
+    "course_code": "CS302",
+    "course_name": "Database Management Systems",
+    "department_id": "550e8400-e29b-41d4-a716-446655440001",
+    "course_type": "core",
+    "has_theory_component": true,
+    "has_lab_component": true
+  },
+  {
+    "course_id": "550e8400-e29b-41d4-a716-446655440003",
+    "course_code": "CS303",
+    "course_name": "Operating Systems",
+    "department_id": "550e8400-e29b-41d4-a716-446655440001",
+    "course_type": "core",
+    "has_theory_component": true,
+    "has_lab_component": false
+  },
+  {
+    "course_id": "550e8400-e29b-41d4-a716-446655440004",
+    "course_code": "CS401",
+    "course_name": "Computer Networks",
+    "department_id": "550e8400-e29b-41d4-a716-446655440001",
+    "course_type": "core",
+    "has_theory_component": true,
+    "has_lab_component": true
+  },
+  {
+    "course_id": "550e8400-e29b-41d4-a716-446655440005",
+    "course_code": "CS402",
+    "course_name": "Machine Learning",
+    "department_id": "550e8400-e29b-41d4-a716-446655440001",
+    "course_type": "department_elective",
+    "has_theory_component": true,
+    "has_lab_component": false
+  },
+  {
+    "course_id": "550e8400-e29b-41d4-a716-446655440006",
+    "course_code": "ECE201",
+    "course_name": "Digital Electronics",
+    "department_id": "550e8400-e29b-41d4-a716-446655440002",
+    "course_type": "core",
+    "has_theory_component": true,
+    "has_lab_component": true
+  },
+  {
+    "course_id": "550e8400-e29b-41d4-a716-446655440007",
+    "course_code": "ECE301",
+    "course_name": "Communication Systems",
+    "department_id": "550e8400-e29b-41d4-a716-446655440002",
+    "course_type": "core",
+    "has_theory_component": true,
+    "has_lab_component": false
+  },
+  {
+    "course_id": "550e8400-e29b-41d4-a716-446655440008",
+    "course_code": "ME201",
+    "course_name": "Thermodynamics",
+    "department_id": "550e8400-e29b-41d4-a716-446655440003",
+    "course_type": "core",
+    "has_theory_component": true,
+    "has_lab_component": false
+  },
+  {
+    "course_id": "550e8400-e29b-41d4-a716-446655440009",
+    "course_code": "ME301",
+    "course_name": "Fluid Mechanics",
+    "department_id": "550e8400-e29b-41d4-a716-446655440003",
+    "course_type": "core",
+    "has_theory_component": true,
+    "has_lab_component": true
+  },
+  {
+    "course_id": "550e8400-e29b-41d4-a716-446655440010",
+    "course_code": "OE101",
+    "course_name": "Environmental Science",
+    "department_id": "550e8400-e29b-41d4-a716-446655440004",
+    "course_type": "open_elective",
+    "has_theory_component": true,
+    "has_lab_component": false
+  }
+]

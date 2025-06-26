@@ -1,0 +1,42 @@
+[
+  {
+    "department_id": "550e8400-e29b-41d4-a716-446655440001",
+    "department_name": "Computer Science Engineering",
+    "department_code": "CSE"
+  },
+  {
+    "department_id": "550e8400-e29b-41d4-a716-446655440002",
+    "department_name": "Electronics & Communication Engineering",
+    "department_code": "ECE"
+  },
+  {
+    "department_id": "550e8400-e29b-41d4-a716-446655440003",
+    "department_name": "Mechanical Engineering",
+    "department_code": "ME"
+  },
+  {
+    "department_id": "550e8400-e29b-41d4-a716-446655440004",
+    "department_name": "Civil Engineering",
+    "department_code": "CE"
+  },
+  {
+    "department_id": "550e8400-e29b-41d4-a716-446655440005",
+    "department_name": "Artificial Intelligence & Data Science",
+    "department_code": "AIDS"
+  },
+  {
+    "department_id": "550e8400-e29b-41d4-a716-446655440006",
+    "department_name": "Information Science Engineering",
+    "department_code": "ISE"
+  },
+  {
+    "department_id": "550e8400-e29b-41d4-a716-446655440007",
+    "department_name": "Electrical & Electronics Engineering",
+    "department_code": "EEE"
+  },
+  {
+    "department_id": "550e8400-e29b-41d4-a716-446655440008",
+    "department_name": "Chemical Engineering",
+    "department_code": "CHE"
+  }
+]

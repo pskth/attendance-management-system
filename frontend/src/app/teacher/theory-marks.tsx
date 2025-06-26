@@ -211,8 +211,7 @@ export function TheoryMarksManagement({
             <table className="w-full">
               <thead>
                 <tr className="border-b border-gray-200">
-                  <th className="text-left py-2 px-3 text-sm font-semibold text-gray-900">USN</th>
-                  <th className="text-left py-2 px-3 text-sm font-semibold text-gray-900">Name</th>
+                  <th className="text-left py-2 px-3 text-sm font-semibold text-gray-900">Student</th>
                   <th className="text-center py-2 px-3 text-sm font-semibold text-gray-900">MSE1<br/><span className="text-xs text-gray-500">(0-20)</span></th>
                   <th className="text-center py-2 px-3 text-sm font-semibold text-gray-900">MSE2<br/><span className="text-xs text-gray-500">(0-20)</span></th>
                   <th className="text-center py-2 px-3 text-sm font-semibold text-gray-900">MSE3<br/><span className="text-xs text-gray-500">(0-20)</span></th>
@@ -230,10 +229,11 @@ export function TheoryMarksManagement({
                     className="border-b border-gray-100 hover:bg-gray-50"
                   >
                     <td className="py-3 px-3">
-                      <span className="text-sm font-medium text-gray-900">{student.usn}</span>
-                    </td>
-                    <td className="py-3 px-3">
-                      <span className="text-sm font-medium text-gray-900">{student.student_name}</span>
+                      <div>
+                        <span className="text-sm font-medium text-gray-900">{student.student_name}</span>
+                        <br />
+                        <span className="text-xs text-gray-500">{student.usn}</span>
+                      </div>
                     </td>
                     
                     {/* MSE1 */}

@@ -31,186 +31,110 @@ interface CourseManagementProps {
 }
 
 interface Course {
-  id: string
-  courseCode: string
-  courseName: string
-  department: string
-  semester: number
-  credits: number
-  type: 'core' | 'elective' | 'open_elective'
-  teacherId?: string
-  teacherName?: string
-  year: string  // Academic year the course is offered
-  createdAt: string
-  enrolledStudents?: Student[]
-}
-
-interface Student {
-  id: string
-  name: string
-  usn: string
-  department: string
-  year: string
-  section: string
+  course_id: string
+  course_code: string
+  course_name: string
+  department_id: string
+  course_type: 'core' | 'department_elective' | 'open_elective'
+  has_theory_component: boolean
+  has_lab_component: boolean
 }
 
 // Mock data
 const mockCourses: Course[] = [
   {
-    id: '1',
-    courseCode: 'CS301',
-    courseName: 'Data Structures and Algorithms',
-    department: 'CSE',
-    semester: 3,
-    credits: 4,
-    type: 'core',
-    teacherId: 't1',
-    teacherName: 'Dr. Priya Kumar',
-    year: '2nd Year',
-    createdAt: '2024-01-15',
-    enrolledStudents: [
-      { id: '1', name: 'Aditya Sharma', usn: 'NNM22CS001', department: 'CSE', year: '2nd Year', section: 'A' },
-      { id: '9', name: 'Rajesh Nair', usn: 'NNM22CS009', department: 'CSE', year: '2nd Year', section: 'B' },
-    ]
+    course_id: '550e8400-e29b-41d4-a716-446655440001',
+    course_code: 'CS301',
+    course_name: 'Data Structures and Algorithms',
+    department_id: '550e8400-e29b-41d4-a716-446655440001',
+    course_type: 'core',
+    has_theory_component: true,
+    has_lab_component: true
   },
   {
-    id: '2',
-    courseCode: 'CS302',
-    courseName: 'Database Management Systems',
-    department: 'CSE',
-    semester: 4,
-    credits: 4,
-    type: 'core',
-    teacherId: 't2',
-    teacherName: 'Prof. Rajesh Sharma',
-    year: '2nd Year',
-    createdAt: '2024-01-16',
-    enrolledStudents: [
-      { id: '1', name: 'Aditya Sharma', usn: 'NNM22CS001', department: 'CSE', year: '2nd Year', section: 'A' },
-      { id: '2', name: 'Bhavana Nair', usn: 'NNM22AIDS002', department: 'AIDS', year: '2nd Year', section: 'A' },
-      { id: '9', name: 'Rajesh Nair', usn: 'NNM22CS009', department: 'CSE', year: '2nd Year', section: 'B' },
-    ]
+    course_id: '550e8400-e29b-41d4-a716-446655440002',
+    course_code: 'CS302',
+    course_name: 'Database Management Systems',
+    department_id: '550e8400-e29b-41d4-a716-446655440001',
+    course_type: 'core',
+    has_theory_component: true,
+    has_lab_component: true
   },
   {
-    id: '3',
-    courseCode: 'CS501',
-    courseName: 'Advanced Algorithms',
-    department: 'CSE',
-    semester: 5,
-    credits: 4,
-    type: 'core',
-    teacherId: 't3',
-    teacherName: 'Dr. Suresh Nair',
-    year: '3rd Year',
-    createdAt: '2023-01-15',
-    enrolledStudents: [
-      { id: '3', name: 'Chetan Kumar', usn: 'NNM22ISE003', department: 'ISE', year: '3rd Year', section: 'B' },
-      { id: '4', name: 'Divya Rao', usn: 'NNM22ECE004', department: 'ECE', year: '3rd Year', section: 'A' },
-      { id: '8', name: 'Sneha Patel', usn: 'NNM21AIDS010', department: 'AIDS', year: '3rd Year', section: 'A' },
-    ]
+    course_id: '550e8400-e29b-41d4-a716-446655440003',
+    course_code: 'CS501',
+    course_name: 'Advanced Algorithms',
+    department_id: '550e8400-e29b-41d4-a716-446655440001',
+    course_type: 'core',
+    has_theory_component: true,
+    has_lab_component: false
   },
   {
-    id: '4',
-    courseCode: 'CS701',
-    courseName: 'Software Engineering',
-    department: 'CSE',
-    semester: 7,
-    credits: 4,
-    type: 'core',
-    teacherId: 't4',
-    teacherName: 'Prof. Kavita Reddy',
-    year: '4th Year',
-    createdAt: '2022-01-15',
-    enrolledStudents: [
-      { id: '5', name: 'Rahul Verma', usn: 'NNM22ME005', department: 'ME', year: '4th Year', section: 'B' },
-      { id: '6', name: 'Priya Singh', usn: 'NNM22CE006', department: 'CE', year: '4th Year', section: 'A' },
-      { id: '11', name: 'Vikram Joshi', usn: 'NNM20ISE011', department: 'ISE', year: '4th Year', section: 'B' },
-    ]
+    course_id: '550e8400-e29b-41d4-a716-446655440004',
+    course_code: 'OE101',
+    course_name: 'Machine Learning Fundamentals',
+    department_id: '550e8400-e29b-41d4-a716-446655440001',
+    course_type: 'open_elective',
+    has_theory_component: true,
+    has_lab_component: false
   },
   {
-    id: '5',
-    courseCode: 'OE101',
-    courseName: 'Machine Learning Fundamentals',
-    department: 'Open Elective',
-    semester: 5,
-    credits: 3,
-    type: 'open_elective',
-    teacherId: 't3',
-    teacherName: 'Dr. Anita Desai',
-    year: '3rd Year',
-    createdAt: '2023-02-01',
-    enrolledStudents: [
-      { id: '3', name: 'Chetan Kumar', usn: 'NNM22ISE003', department: 'ISE', year: '3rd Year', section: 'B' },
-      { id: '4', name: 'Divya Rao', usn: 'NNM22ECE004', department: 'ECE', year: '3rd Year', section: 'A' },
-      { id: '8', name: 'Sneha Patel', usn: 'NNM21AIDS010', department: 'AIDS', year: '3rd Year', section: 'A' },
-      { id: '5', name: 'Rahul Verma', usn: 'NNM22ME005', department: 'ME', year: '4th Year', section: 'B' },
-      { id: '6', name: 'Priya Singh', usn: 'NNM22CE006', department: 'CE', year: '4th Year', section: 'A' },
-    ]
+    course_id: '550e8400-e29b-41d4-a716-446655440005',
+    course_code: 'ECE401',
+    course_name: 'Digital Signal Processing',
+    department_id: '550e8400-e29b-41d4-a716-446655440002',
+    course_type: 'core',
+    has_theory_component: true,
+    has_lab_component: true
   },
   {
-    id: '6',
-    courseCode: 'ECE401',
-    courseName: 'Digital Signal Processing',
-    department: 'ECE',
-    semester: 7,
-    credits: 4,
-    type: 'core',
-    teacherId: 't4',
-    teacherName: 'Dr. Kavita Rao',
-    year: '4th Year',
-    createdAt: '2022-02-05',
-    enrolledStudents: [
-      { id: '4', name: 'Divya Rao', usn: 'NNM22ECE004', department: 'ECE', year: '3rd Year', section: 'A' },
-    ]
-  },
-  {
-    id: '7',
-    courseCode: 'ME501',
-    courseName: 'Thermal Engineering',
-    department: 'ME',
-    semester: 5,
-    credits: 3,
-    type: 'elective',
-    teacherId: 't5',
-    teacherName: 'Prof. Suresh Kumar',
-    year: '3rd Year',
-    createdAt: '2023-02-10',
-    enrolledStudents: [
-      { id: '5', name: 'Rahul Verma', usn: 'NNM22ME005', department: 'ME', year: '4th Year', section: 'B' },
-    ]
+    course_id: '550e8400-e29b-41d4-a716-446655440006',
+    course_code: 'ME501',
+    course_name: 'Thermal Engineering',
+    department_id: '550e8400-e29b-41d4-a716-446655440003',
+    course_type: 'department_elective',
+    has_theory_component: true,
+    has_lab_component: false
   }
 ]
 
 export function CourseManagement({ onNavigateToUsers, initialFilters }: CourseManagementProps = {}) {
   const [courses, setCourses] = useState<Course[]>(mockCourses)
   const [searchTerm, setSearchTerm] = useState('')
-  const [selectedYear, setSelectedYear] = useState<string>(initialFilters?.year || 'all')
   const [selectedDepartment, setSelectedDepartment] = useState<string>(initialFilters?.department || 'all')
   const [selectedType, setSelectedType] = useState<string>('all')
   const [showAddForm, setShowAddForm] = useState(false) // eslint-disable-line @typescript-eslint/no-unused-vars
   const [editingCourse, setEditingCourse] = useState<Course | null>(null) // eslint-disable-line @typescript-eslint/no-unused-vars
 
+  // Helper to get department code from department_id
+  const getDepartmentCode = (departmentId: string) => {
+    const deptMap: { [key: string]: string } = {
+      '550e8400-e29b-41d4-a716-446655440001': 'CSE',
+      '550e8400-e29b-41d4-a716-446655440002': 'ECE',
+      '550e8400-e29b-41d4-a716-446655440003': 'ME',
+      '550e8400-e29b-41d4-a716-446655440004': 'CE',
+      '550e8400-e29b-41d4-a716-446655440005': 'AIDS',
+      '550e8400-e29b-41d4-a716-446655440006': 'ISE'
+    }
+    return deptMap[departmentId] || 'Unknown'
+  }
+
   // Compute filtered courses directly
   const filteredCourses = courses.filter(course => {
-    // Year filter
-    if (selectedYear !== 'all' && course.year !== selectedYear) {
-      return false
-    }
-
     // Search filter
     if (searchTerm) {
-      const matchesSearch = course.courseCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           course.courseName.toLowerCase().includes(searchTerm.toLowerCase())
+      const matchesSearch = course.course_code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           course.course_name.toLowerCase().includes(searchTerm.toLowerCase())
       if (!matchesSearch) return false
     }
 
     // Department filter
-    if (selectedDepartment !== 'all' && course.department !== selectedDepartment) {
+    if (selectedDepartment !== 'all' && getDepartmentCode(course.department_id) !== selectedDepartment) {
       return false
     }
 
     // Type filter
-    if (selectedType !== 'all' && course.type !== selectedType) {
+    if (selectedType !== 'all' && course.course_type !== selectedType) {
       return false
     }
 
@@ -220,7 +144,7 @@ export function CourseManagement({ onNavigateToUsers, initialFilters }: CourseMa
   // Delete course
   const deleteCourse = (courseId: string) => {
     if (confirm('Are you sure you want to delete this course? This will affect all enrolled students.')) {
-      setCourses(prev => prev.filter(course => course.id !== courseId))
+      setCourses(prev => prev.filter(course => course.course_id !== courseId))
     }
   }
 
@@ -228,7 +152,7 @@ export function CourseManagement({ onNavigateToUsers, initialFilters }: CourseMa
   const getTypeBadge = (type: string) => {
     switch (type) {
       case 'core': return 'bg-blue-100 text-blue-800'
-      case 'elective': return 'bg-green-100 text-green-800'
+      case 'department_elective': return 'bg-green-100 text-green-800'
       case 'open_elective': return 'bg-purple-100 text-purple-800'
       default: return 'bg-gray-100 text-gray-800'
     }
@@ -243,7 +167,7 @@ export function CourseManagement({ onNavigateToUsers, initialFilters }: CourseMa
             <div>
               <CardTitle className="text-xl">Course Management</CardTitle>
               <CardDescription>
-                Manage courses, subjects, and curriculum for {selectedYear}
+                Manage courses and curriculum (Schema-compliant view)
               </CardDescription>
             </div>
             <Button onClick={() => setShowAddForm(true)}>
@@ -267,17 +191,6 @@ export function CourseManagement({ onNavigateToUsers, initialFilters }: CourseMa
               </div>
             </div>
             <select
-              aria-label="Filter by year"
-              value={selectedYear}
-              onChange={(e) => setSelectedYear(e.target.value)}
-              className="rounded-md border border-gray-300 px-3 py-2 text-sm"
-            >
-              <option value="all">All Years</option>
-              <option value="2nd Year">2nd Year</option>
-              <option value="3rd Year">3rd Year</option>
-              <option value="4th Year">4th Year</option>
-            </select>
-            <select
               aria-label="Filter by department"
               value={selectedDepartment}
               onChange={(e) => setSelectedDepartment(e.target.value)}
@@ -290,7 +203,6 @@ export function CourseManagement({ onNavigateToUsers, initialFilters }: CourseMa
               <option value="CE">Civil</option>
               <option value="AIDS">AI & Data Science</option>
               <option value="ISE">Information Science</option>
-              <option value="Open Elective">Open Elective</option>
             </select>
             <select
               aria-label="Filter by course type"
@@ -300,7 +212,7 @@ export function CourseManagement({ onNavigateToUsers, initialFilters }: CourseMa
             >
               <option value="all">All Types</option>
               <option value="core">Core Courses</option>
-              <option value="elective">Department Electives</option>
+              <option value="department_elective">Department Electives</option>
               <option value="open_elective">Open Electives</option>
             </select>
             <div className="text-sm text-gray-600 flex items-center">
@@ -313,35 +225,38 @@ export function CourseManagement({ onNavigateToUsers, initialFilters }: CourseMa
       {/* Courses List */}
       <div className="space-y-4">
         {filteredCourses.length > 0 ? (
-          filteredCourses.map((course) => (            <Card key={course.id}>
+          filteredCourses.map((course) => (
+            <Card key={course.course_id}>
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-4">
                     <BookOpen className="w-5 h-5 text-blue-500" />
                     <div>
                       <CardTitle className="text-lg">
-                        {course.courseCode} - {course.courseName}
-                      </CardTitle>                      <CardDescription>
-                        {course.department} • Semester {course.semester}
-                        {course.teacherName && ` • ${course.teacherName}`}
+                        {course.course_code} - {course.course_name}
+                      </CardTitle>
+                      <CardDescription>
+                        {getDepartmentCode(course.department_id)} • 
+                        {course.has_theory_component && ' Theory'}{course.has_theory_component && course.has_lab_component && ' &'}
+                        {course.has_lab_component && ' Lab'}
                       </CardDescription>
                     </div>
-                    <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getTypeBadge(course.type)}`}>
-                      {course.type.replace('_', ' ')}
+                    <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getTypeBadge(course.course_type)}`}>
+                      {course.course_type.replace('_', ' ')}
                     </span>
-                  </div>                  <div className="flex items-center space-x-2">
+                  </div>
+                  <div className="flex items-center space-x-2">
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => onNavigateToUsers?.({
-                        course: course.courseCode,
-                        department: course.department,
-                        year: course.year
+                        course: course.course_code,
+                        department: getDepartmentCode(course.department_id)
                       })}
                       className="flex items-center space-x-1"
                     >
                       <Users className="w-3 h-3" />
-                      <span className="text-xs">View Students ({course.enrolledStudents?.length || 0})</span>
+                      <span className="text-xs">View Students</span>
                     </Button>
                     <Button
                       variant="outline"
@@ -353,7 +268,7 @@ export function CourseManagement({ onNavigateToUsers, initialFilters }: CourseMa
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => deleteCourse(course.id)}
+                      onClick={() => deleteCourse(course.course_id)}
                     >
                       <Trash2 className="w-4 h-4" />
                     </Button>
@@ -380,7 +295,7 @@ export function CourseManagement({ onNavigateToUsers, initialFilters }: CourseMa
             <div className="flex items-center space-x-2">
               <BookOpen className="w-5 h-5 text-blue-500" />
               <div>
-                <p className="text-2xl font-bold">{filteredCourses.filter(c => c.type === 'core').length}</p>
+                <p className="text-2xl font-bold">{filteredCourses.filter(c => c.course_type === 'core').length}</p>
                 <p className="text-xs text-gray-600">Core Courses</p>
               </div>
             </div>
@@ -392,8 +307,8 @@ export function CourseManagement({ onNavigateToUsers, initialFilters }: CourseMa
             <div className="flex items-center space-x-2">
               <Building2 className="w-5 h-5 text-green-500" />
               <div>
-                <p className="text-2xl font-bold">{filteredCourses.filter(c => c.type === 'elective').length}</p>
-                <p className="text-xs text-gray-600">Electives</p>
+                <p className="text-2xl font-bold">{filteredCourses.filter(c => c.course_type === 'department_elective').length}</p>
+                <p className="text-xs text-gray-600">Department Electives</p>
               </div>
             </div>
           </CardContent>
@@ -404,7 +319,7 @@ export function CourseManagement({ onNavigateToUsers, initialFilters }: CourseMa
             <div className="flex items-center space-x-2">
               <BookOpen className="w-5 h-5 text-purple-500" />
               <div>
-                <p className="text-2xl font-bold">{filteredCourses.filter(c => c.type === 'open_elective').length}</p>
+                <p className="text-2xl font-bold">{filteredCourses.filter(c => c.course_type === 'open_elective').length}</p>
                 <p className="text-xs text-gray-600">Open Electives</p>
               </div>
             </div>
