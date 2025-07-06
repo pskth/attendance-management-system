@@ -125,6 +125,13 @@ export const adminApi = {
     })
   },
 
+  async updateUser(userId: string, data: { name: string; email: string; username: string; phone: string; role: string }): Promise<any> {
+    return apiRequest<any>(`/api/users/${userId}`, {
+      method: 'PUT',
+      body: JSON.stringify(data)
+    })
+  },
+
   // Course management
   async getAllCourses(): Promise<any> {
     return apiRequest<any>('/api/courses')
@@ -154,6 +161,38 @@ export const adminApi = {
     })
   },
 
+  async updateCourse(courseId: string, data: { 
+    code: string; 
+    name: string; 
+    department: string; 
+    year?: string;
+    type: 'core' | 'department_elective' | 'open_elective'; 
+    hasTheoryComponent: boolean; 
+    hasLabComponent: boolean;
+    restrictedDepartments?: string[];
+  }): Promise<any> {
+    return apiRequest<any>(`/api/courses/${courseId}`, {
+      method: 'PUT',
+      body: JSON.stringify(data)
+    })
+  },
+
+  async createCourse(data: { 
+    code: string; 
+    name: string; 
+    department: string; 
+    year: string;
+    type: 'core' | 'elective'; 
+    hasTheoryComponent: boolean; 
+    hasLabComponent: boolean;
+    restrictedDepartments?: string[]; // Add restricted departments for open electives
+  }): Promise<any> {
+    return apiRequest<any>('/api/courses', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    })
+  },
+
   // Department management
   async getAllDepartments(): Promise<any> {
     return apiRequest<any>('/api/departments')
@@ -169,6 +208,20 @@ export const adminApi = {
 
   async getDepartmentStats(departmentId: string): Promise<any> {
     return apiRequest<any>(`/api/departments/${departmentId}/stats`)
+  },
+
+  async createDepartment(departmentData: { name: string; code: string; college: string }): Promise<any> {
+    return apiRequest<any>('/api/departments', {
+      method: 'POST',
+      body: JSON.stringify(departmentData)
+    })
+  },
+
+  async updateDepartment(departmentId: string, departmentData: { name: string; code: string; college: string; sections?: any[] }): Promise<any> {
+    return apiRequest<any>(`/api/departments/${departmentId}`, {
+      method: 'PUT',
+      body: JSON.stringify(departmentData)
+    })
   },
 
   async deleteDepartment(departmentId: string): Promise<any> {
@@ -205,6 +258,20 @@ export const adminApi = {
   async forceDeleteCollege(collegeId: string): Promise<any> {
     return apiRequest<any>(`/api/colleges/${collegeId}/force`, {
       method: 'DELETE'
+    })
+  },
+
+  async updateCollege(collegeId: string, data: { name: string; code: string }): Promise<any> {
+    return apiRequest<any>(`/api/colleges/${collegeId}`, {
+      method: 'PUT',
+      body: JSON.stringify(data)
+    })
+  },
+
+  async createCollege(data: { name: string; code: string }): Promise<any> {
+    return apiRequest<any>('/api/colleges', {
+      method: 'POST',
+      body: JSON.stringify(data)
     })
   },
 

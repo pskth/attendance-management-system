@@ -51,6 +51,11 @@ export default function CollegeManagement({
   const [searchTerm, setSearchTerm] = useState('')
   const [showAddForm, setShowAddForm] = useState(false)
   const [newCollege, setNewCollege] = useState({ name: '', code: '' })
+  
+  // Edit functionality state
+  const [editingCollege, setEditingCollege] = useState<College | null>(null)
+  const [showEditForm, setShowEditForm] = useState(false)
+  const [editFormData, setEditFormData] = useState({ name: '', code: '' })
 
   // Fetch colleges from API
   useEffect(() => {
@@ -104,27 +109,59 @@ export default function CollegeManagement({
     e.preventDefault()
     if (newCollege.name.trim() && newCollege.code.trim()) {
       try {
-        // Create college via API (when backend endpoint is ready)
-        // const response = await adminApi.createCollege(newCollege)
+        const response = await adminApi.createCollege(newCollege)
         
-        // For now, add locally
-        const college: College = {
-          id: Date.now().toString(),
-          name: newCollege.name.trim(),
-          code: newCollege.code.trim().toUpperCase(),
-          stats: {
-            totalStudents: 0,
-            totalTeachers: 0,
-            totalDepartments: 0,
-            totalCourses: 0
+        if (response.status === 'success') {
+          const college: College = {
+            id: response.data.id,
+            name: response.data.name,
+            code: response.data.code,
+            stats: {
+              totalStudents: 0,
+              totalTeachers: 0,
+              totalDepartments: 0,
+              totalCourses: 0
+            }
           }
+          setColleges(prev => [...prev, college])
+          setNewCollege({ name: '', code: '' })
+          setShowAddForm(false)
+          alert('College created successfully')
+        } else {
+          alert('Failed to create college: ' + (response.error || 'Unknown error'))
         }
-        setColleges(prev => [...prev, college])
-        setNewCollege({ name: '', code: '' })
-        setShowAddForm(false)
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to create college')
+        const errorMsg = err instanceof Error ? err.message : 'Unknown error'
+        alert('Error creating college: ' + errorMsg)
       }
+    }
+  }
+
+  // Edit college
+  const handleEditCollege = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    if (!editingCollege) return
+    
+    try {
+      const response = await adminApi.updateCollege(editingCollege.id, editFormData)
+      
+      if (response.status === 'success') {
+        setColleges(prev => prev.map(college => 
+          college.id === editingCollege.id 
+            ? { ...college, name: editFormData.name, code: editFormData.code }
+            : college
+        ))
+        setShowEditForm(false)
+        setEditingCollege(null)
+        setEditFormData({ name: '', code: '' })
+        alert('College updated successfully')
+      } else {
+        alert('Failed to update college: ' + (response.error || 'Unknown error'))
+      }
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : 'Unknown error'
+      alert('Error updating college: ' + errorMsg)
     }
   }
 
@@ -185,6 +222,19 @@ export default function CollegeManagement({
       const errorMsg = error instanceof Error ? error.message : 'Unknown error'
       alert('Error force deleting college: ' + errorMsg)
     }
+  }
+
+  // Edit college functionality
+  const startEditCollege = (college: College) => {
+    setEditingCollege(college)
+    setEditFormData({ name: college.name, code: college.code })
+    setShowEditForm(true)
+  }
+
+  const cancelEdit = () => {
+    setShowEditForm(false)
+    setEditingCollege(null)
+    setEditFormData({ name: '', code: '' })
   }
 
   // Show loading state
@@ -317,6 +367,60 @@ export default function CollegeManagement({
         </Card>
       )}
 
+      {/* Edit College Form */}
+      {showEditForm && editingCollege && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Edit College</CardTitle>
+            <CardDescription className="text-gray-800">
+              Update the college information below
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleEditCollege} className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="editCollegeName" className="block text-sm font-medium mb-1">
+                    College Name
+                  </label>
+                  <Input
+                    id="editCollegeName"
+                    placeholder="e.g., National Institute of Technology"
+                    value={editFormData.name}
+                    onChange={(e) => setEditFormData(prev => ({ ...prev, name: e.target.value }))}
+                    required
+                  />
+                </div>
+                <div>
+                  <label htmlFor="editCollegeCode" className="block text-sm font-medium mb-1">
+                    College Code
+                  </label>
+                  <Input
+                    id="editCollegeCode"
+                    placeholder="e.g., NIT"
+                    value={editFormData.code}
+                    onChange={(e) => setEditFormData(prev => ({ ...prev, code: e.target.value.toUpperCase() }))}
+                    required
+                  />
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <Button type="submit">
+                  Update College
+                </Button>
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={cancelEdit}
+                >
+                  Cancel
+                </Button>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Colleges Grid */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {filteredColleges.map((college) => (
@@ -328,7 +432,15 @@ export default function CollegeManagement({
                   <CardDescription className="text-gray-800">Code: {college.code}</CardDescription>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Button size="sm" variant="outline">
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    onClick={() => {
+                      setEditingCollege(college)
+                      setEditFormData({ name: college.name, code: college.code })
+                      setShowEditForm(true)
+                    }}
+                  >
                     <Edit className="h-4 w-4" />
                   </Button>
                   <Button 

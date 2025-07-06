@@ -63,6 +63,17 @@ export default function UserManagement({ initialFilters }: UserManagementProps) 
   const [selectedCourse, setSelectedCourse] = useState<string>(initialFilters?.course || 'all')
   const [selectedCollege, setSelectedCollege] = useState<string>('all')
   const fileInputRef = useRef<HTMLInputElement>(null)
+  
+  // Edit functionality state
+  const [editingUser, setEditingUser] = useState<User | null>(null)
+  const [showEditForm, setShowEditForm] = useState(false)
+  const [editFormData, setEditFormData] = useState({
+    name: '',
+    email: '',
+    username: '',
+    phone: '',
+    role: 'student' as 'student' | 'teacher' | 'admin'
+  })
 
   // Fetch users from API
   useEffect(() => {
@@ -358,6 +369,52 @@ export default function UserManagement({ initialFilters }: UserManagementProps) 
     }
   }
 
+  // Edit user functionality
+  const startEditUser = (user: User) => {
+    setEditingUser(user)
+    setEditFormData({
+      name: user.name,
+      email: user.email || '',
+      username: user.username,
+      phone: user.phone || '',
+      role: user.role
+    })
+    setShowEditForm(true)
+  }
+
+  const handleEditUser = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    if (!editingUser) return
+    
+    try {
+      const response = await adminApi.updateUser(editingUser.id, editFormData)
+      
+      if (response.status === 'success') {
+        setUsers(prev => prev.map(user => 
+          user.id === editingUser.id 
+            ? { ...user, ...editFormData }
+            : user
+        ))
+        setShowEditForm(false)
+        setEditingUser(null)
+        setEditFormData({ name: '', email: '', username: '', phone: '', role: 'student' })
+        alert('User updated successfully')
+      } else {
+        alert('Failed to update user: ' + (response.error || 'Unknown error'))
+      }
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : 'Unknown error'
+      alert('Error updating user: ' + errorMsg)
+    }
+  }
+
+  const cancelEdit = () => {
+    setShowEditForm(false)
+    setEditingUser(null)
+    setEditFormData({ name: '', email: '', username: '', phone: '', role: 'student' })
+  }
+
   // Get role icon
   const getRoleIcon = (role: string) => {
     switch (role) {
@@ -612,6 +669,17 @@ export default function UserManagement({ initialFilters }: UserManagementProps) 
                       <Button
                         variant="outline"
                         size="sm"
+                        onClick={() => {
+                          setEditingUser(user)
+                          setEditFormData({
+                            name: user.name,
+                            email: user.email || '',
+                            username: user.username,
+                            phone: user.phone || '',
+                            role: user.role as 'student' | 'teacher' | 'admin'
+                          })
+                          setShowEditForm(true)
+                        }}
                       >
                         <Edit className="w-4 h-4" />
                       </Button>
@@ -630,6 +698,102 @@ export default function UserManagement({ initialFilters }: UserManagementProps) 
           </div>
         </CardContent>
       </Card>
+
+      {/* Edit User Form */}
+      {showEditForm && editingUser && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Edit User</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Name
+                </label>
+                <Input
+                  value={editFormData.name}
+                  onChange={(e) => setEditFormData({ ...editFormData, name: e.target.value })}
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Email
+                </label>
+                <Input
+                  type="email"
+                  value={editFormData.email}
+                  onChange={(e) => setEditFormData({ ...editFormData, email: e.target.value })}
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Username
+                </label>
+                <Input
+                  value={editFormData.username}
+                  onChange={(e) => setEditFormData({ ...editFormData, username: e.target.value })}
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Phone
+                </label>
+                <Input
+                  value={editFormData.phone}
+                  onChange={(e) => setEditFormData({ ...editFormData, phone: e.target.value })}
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Role
+                </label>
+                <select
+                  value={editFormData.role}
+                  onChange={(e) => setEditFormData({ ...editFormData, role: e.target.value as 'student' | 'teacher' | 'admin' })}
+                  className="rounded-md border border-gray-300 px-3 py-2 text-sm mt-1"
+                  aria-label="Edit user role"
+                >
+                  <option value="student">Student</option>
+                  <option value="teacher">Teacher</option>
+                  <option value="admin">Admin</option>
+                </select>
+              </div>
+              <div className="flex justify-end space-x-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowEditForm(false)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={async () => {
+                    try {
+                      const response = await adminApi.updateUser(editingUser.id, editFormData)
+                      if (response.status === 'success') {
+                        setUsers(prev => prev.map(user => user.id === editingUser.id ? { ...user, ...editFormData } : user))
+                        setShowEditForm(false)
+                        alert('User updated successfully')
+                      } else {
+                        alert('Failed to update user: ' + (response.error || 'Unknown error'))
+                      }
+                    } catch (error) {
+                      const errorMsg = error instanceof Error ? error.message : 'Unknown error'
+                      alert('Error updating user: ' + errorMsg)
+                    }
+                  }}
+                >
+                  Save
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* CSV Import Instructions */}
       <Card>

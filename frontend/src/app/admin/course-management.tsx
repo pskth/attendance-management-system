@@ -34,6 +34,7 @@ interface Course {
   id: string
   code: string
   name: string
+  year?: number // Add year field that comes from backend
   department: {
     id: string
     name: string
@@ -47,31 +48,100 @@ interface Course {
   hasTheoryComponent: boolean
   hasLabComponent: boolean
   offerings?: any[]
+  openElectiveRestrictions?: {
+    restrictedDepartment: {
+      id: string
+      code: string
+      name: string
+    }
+  }[]
+}
+
+// Helper function to extract year from course - now uses backend year data
+const getCourseYear = (course: Course): string => {
+  // First, try to use the year from backend
+  if (course.year) {
+    switch (course.year) {
+      case 1: return '1st'
+      case 2: return '2nd'
+      case 3: return '3rd'
+      case 4: return '4th'
+      default: return '1st'
+    }
+  }
+  
+  // Fallback to extracting from course code if no year field
+  const yearMatch = course.code.match(/[A-Z]{2,4}([1-4])[0-9]{2,3}/)
+  if (yearMatch) {
+    const yearNum = parseInt(yearMatch[1])
+    switch (yearNum) {
+      case 1: return '1st'
+      case 2: return '2nd'
+      case 3: return '3rd'
+      case 4: return '4th'
+      default: return '1st'
+    }
+  }
+  
+  // Default to 1st if no pattern matches
+  return '1st'
 }
 
 export default function CourseManagement({ onNavigateToUsers, initialFilters }: CourseManagementProps) {
   const [courses, setCourses] = useState<Course[]>([])
+  const [departments, setDepartments] = useState<{ id: string; code: string; name: string }[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedDepartment, setSelectedDepartment] = useState('all')
   const [selectedType, setSelectedType] = useState('all')
+  const [selectedYear, setSelectedYear] = useState('all')
   const [showAddForm, setShowAddForm] = useState(false)
+  const [newCourse, setNewCourse] = useState({
+    code: '',
+    name: '',
+    department: '',
+    year: '1', // Add year field with default value
+    type: 'core' as 'core' | 'department_elective' | 'open_elective',
+    hasTheoryComponent: true,
+    hasLabComponent: false,
+    restrictedDepartments: [] as string[] // Add restricted departments for open electives
+  })
+  
+  // Edit functionality state
+  const [editingCourse, setEditingCourse] = useState<Course | null>(null)
+  const [showEditForm, setShowEditForm] = useState(false)
+  const [editFormData, setEditFormData] = useState({
+    code: '',
+    name: '',
+    department: '',
+    year: '1',
+    type: 'core' as 'core' | 'department_elective' | 'open_elective',
+    hasTheoryComponent: true,
+    hasLabComponent: false,
+    restrictedDepartments: [] as string[]
+  })
 
   // Fetch courses from API
   useEffect(() => {
-    const fetchCourses = async () => {
+    const fetchData = async () => {
       try {
         setLoading(true)
         setError(null)
-        const response = await adminApi.getAllCourses()
         
-        if (response.status === 'success') {
+        // Fetch both courses and departments
+        const [coursesResponse, departmentsResponse] = await Promise.all([
+          adminApi.getAllCourses(),
+          adminApi.getAllDepartments()
+        ])
+        
+        if (coursesResponse.status === 'success') {
           // Transform API data to match our Course interface
-          const transformedCourses: Course[] = response.data.map((course: any) => ({
+          const transformedCourses: Course[] = coursesResponse.data.map((course: any) => ({
             id: course.id,
             code: course.code,
             name: course.name,
+            year: course.year || 1, // Include year from backend
             department: {
               id: course.department?.id || '',
               name: course.department?.name || '',
@@ -84,21 +154,30 @@ export default function CourseManagement({ onNavigateToUsers, initialFilters }: 
             type: course.type || 'core',
             hasTheoryComponent: course.hasTheoryComponent || true,
             hasLabComponent: course.hasLabComponent || false,
-            offerings: course.courseOfferings || []
+            offerings: course.courseOfferings || [],
+            openElectiveRestrictions: course.openElectiveRestrictions || []
           }))
           
           setCourses(transformedCourses)
         } else {
-          setError(response.error || 'Failed to fetch courses')
+          setError(coursesResponse.error || 'Failed to fetch courses')
+        }
+        
+        if (departmentsResponse.status === 'success') {
+          setDepartments(departmentsResponse.data.map((dept: any) => ({
+            id: dept.id,
+            code: dept.code,
+            name: dept.name
+          })))
         }
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred while fetching courses')
+        setError(err instanceof Error ? err.message : 'An error occurred while fetching data')
       } finally {
         setLoading(false)
       }
     }
 
-    fetchCourses()
+    fetchData()
   }, [])
 
   // Apply filters based on initialFilters
@@ -124,25 +203,53 @@ export default function CourseManagement({ onNavigateToUsers, initialFilters }: 
       return false
     }
 
+    if (selectedYear !== 'all') {
+      // Use the same logic as getCourseYear to extract year consistently
+      const courseYear = getCourseYear(course)
+      const expectedYear = selectedYear === '1' ? '1st' : 
+                          selectedYear === '2' ? '2nd' : 
+                          selectedYear === '3' ? '3rd' : 
+                          selectedYear === '4' ? '4th' : 
+                          '1st' // default fallback
+      
+      if (courseYear !== expectedYear) {
+        return false
+      }
+    }
+
     return true
   })
 
   // Get unique departments for filter
   const allDepartments = Array.from(new Set(courses.map(course => course.department.code).filter(Boolean))).sort()
 
+  // Get unique years for filter (extract using getCourseYear function)
+  const allYears = Array.from(new Set(
+    courses.map(course => {
+      const yearString = getCourseYear(course)
+      // Extract number from "1st", "2nd", "3rd", "4th"
+      const yearMatch = yearString.match(/(\d+)/)
+      return yearMatch ? yearMatch[1] : '1' // default to 1 if no match
+    })
+  )).sort()
+
   // Refresh data
   const refreshData = () => {
     setLoading(true)
     setError(null)
-    const fetchCourses = async () => {
+    const fetchData = async () => {
       try {
-        const response = await adminApi.getAllCourses()
+        const [coursesResponse, departmentsResponse] = await Promise.all([
+          adminApi.getAllCourses(),
+          adminApi.getAllDepartments()
+        ])
         
-        if (response.status === 'success') {
-          const transformedCourses: Course[] = response.data.map((course: any) => ({
+        if (coursesResponse.status === 'success') {
+          const transformedCourses: Course[] = coursesResponse.data.map((course: any) => ({
             id: course.id,
             code: course.code,
             name: course.name,
+            year: course.year || 1, // Include year from backend
             department: {
               id: course.department?.id || '',
               name: course.department?.name || '',
@@ -155,21 +262,30 @@ export default function CourseManagement({ onNavigateToUsers, initialFilters }: 
             type: course.type || 'core',
             hasTheoryComponent: course.hasTheoryComponent || true,
             hasLabComponent: course.hasLabComponent || false,
-            offerings: course.courseOfferings || []
+            offerings: course.courseOfferings || [],
+            openElectiveRestrictions: course.openElectiveRestrictions || []
           }))
           
           setCourses(transformedCourses)
         } else {
-          setError(response.error || 'Failed to fetch courses')
+          setError(coursesResponse.error || 'Failed to fetch courses')
+        }
+        
+        if (departmentsResponse.status === 'success') {
+          setDepartments(departmentsResponse.data.map((dept: any) => ({
+            id: dept.id,
+            code: dept.code,
+            name: dept.name
+          })))
         }
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred while fetching courses')
+        setError(err instanceof Error ? err.message : 'An error occurred while fetching data')
       } finally {
         setLoading(false)
       }
     }
 
-    fetchCourses()
+    fetchData()
   }
 
   // Delete course
@@ -228,6 +344,129 @@ export default function CourseManagement({ onNavigateToUsers, initialFilters }: 
     }
   }
 
+  // Open edit form
+  const openEditForm = (course: Course) => {
+    setEditingCourse(course)
+    
+    // Extract year as string from course year or course code
+    let yearString = '1'; // default
+    if (course.year) {
+      yearString = course.year.toString();
+    } else {
+      // Extract from course code as fallback
+      const yearMatch = course.code.match(/[A-Z]{2,4}([1-4])[0-9]{2,3}/);
+      if (yearMatch) {
+        yearString = yearMatch[1];
+      }
+    }
+    
+    setEditFormData({
+      code: course.code,
+      name: course.name,
+      department: course.department.code,
+      year: yearString,
+      type: course.type,
+      hasTheoryComponent: course.hasTheoryComponent,
+      hasLabComponent: course.hasLabComponent,
+      restrictedDepartments: course.openElectiveRestrictions?.map(r => r.restrictedDepartment.code) || []
+    })
+    setShowEditForm(true)
+  }
+
+  // Submit edit form
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!editingCourse) return
+
+    try {
+      const response = await adminApi.updateCourse(editingCourse.id, {
+        code: editFormData.code,
+        name: editFormData.name,
+        department: editFormData.department,
+        year: editFormData.year,
+        type: editFormData.type,
+        hasTheoryComponent: editFormData.hasTheoryComponent,
+        hasLabComponent: editFormData.hasLabComponent,
+        restrictedDepartments: editFormData.restrictedDepartments
+      })
+      
+      if (response.status === 'success') {
+        // Refresh the data instead of trying to merge form data
+        refreshData()
+        alert('Course updated successfully')
+        setShowEditForm(false)
+        setEditingCourse(null)
+      } else {
+        alert('Failed to update course: ' + (response.error || 'Unknown error'))
+      }
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : 'Unknown error'
+      alert('Error updating course: ' + errorMsg)
+    }
+  }
+
+  // Add new course
+  const handleAddCourse = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (newCourse.code.trim() && newCourse.name.trim() && newCourse.department && newCourse.year) {
+      try {
+        const response = await adminApi.createCourse({
+          code: newCourse.code.trim(),
+          name: newCourse.name.trim(),
+          department: newCourse.department,
+          year: newCourse.year,
+          type: newCourse.type,
+          hasTheoryComponent: newCourse.hasTheoryComponent,
+          hasLabComponent: newCourse.hasLabComponent,
+          restrictedDepartments: newCourse.restrictedDepartments
+        })
+        
+        if (response.status === 'success') {
+          // Add the new course to the list
+          const newCourseData: Course = {
+            id: response.data.id,
+            code: response.data.code,
+            name: response.data.name,
+            department: {
+              id: response.data.department?.id || '',
+              name: response.data.department?.name || '',
+              code: response.data.department?.code || newCourse.department,
+              college: {
+                name: response.data.department?.college?.name || '',
+                code: response.data.department?.college?.code || ''
+              }
+            },
+            type: response.data.type || newCourse.type,
+            hasTheoryComponent: response.data.hasTheoryComponent || newCourse.hasTheoryComponent,
+            hasLabComponent: response.data.hasLabComponent || newCourse.hasLabComponent,
+            offerings: []
+          }
+          
+          setCourses(prev => [...prev, newCourseData])
+          setNewCourse({
+            code: '',
+            name: '',
+            department: '',
+            year: '1',
+            type: 'core',
+            hasTheoryComponent: true,
+            hasLabComponent: false,
+            restrictedDepartments: []
+          })
+          setShowAddForm(false)
+          alert('Course created successfully')
+        } else {
+          alert('Failed to create course: ' + (response.error || 'Unknown error'))
+        }
+      } catch (err) {
+        const errorMsg = err instanceof Error ? err.message : 'Unknown error'
+        alert('Error creating course: ' + errorMsg)
+      }
+    } else {
+      alert('Please fill in all required fields')
+    }
+  }
+
   if (loading) {
     return (
       <div className="p-6">
@@ -279,7 +518,7 @@ export default function CourseManagement({ onNavigateToUsers, initialFilters }: 
       {/* Filters */}
       <div className="bg-white rounded-lg shadow-sm border p-4 mb-6">
         <div className="flex flex-wrap gap-4 items-center">
-          <div className="flex-1 min-w-[200px]">
+          <div className="flex-1 min-w-[200px] max-w-[700px]">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-600" />
               <Input
@@ -294,7 +533,7 @@ export default function CourseManagement({ onNavigateToUsers, initialFilters }: 
           <select
             value={selectedDepartment}
             onChange={(e) => setSelectedDepartment(e.target.value)}
-            className="px-3 py-2 border rounded-md"
+            className="px-3 py-2 border rounded-md bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
             title="Filter by department"
           >
             <option value="all">All Departments</option>
@@ -306,13 +545,25 @@ export default function CourseManagement({ onNavigateToUsers, initialFilters }: 
           <select
             value={selectedType}
             onChange={(e) => setSelectedType(e.target.value)}
-            className="px-3 py-2 border rounded-md"
+            className="px-3 py-2 border rounded-md bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
             title="Filter by course type"
           >
             <option value="all">All Types</option>
             <option value="core">Core</option>
             <option value="department_elective">Department Elective</option>
             <option value="open_elective">Open Elective</option>
+          </select>
+
+          <select
+            value={selectedYear}
+            onChange={(e) => setSelectedYear(e.target.value)}
+            className="px-3 py-2 border rounded-md bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            title="Filter by year"
+          >
+            <option value="all">All Years</option>
+            {allYears.map(year => (
+              <option key={year} value={year}>Year {year}</option>
+            ))}
           </select>
         </div>
       </div>
@@ -371,9 +622,11 @@ export default function CourseManagement({ onNavigateToUsers, initialFilters }: 
                 <tr className="border-b">
                   <th className="text-left p-4 font-medium text-gray-900">Code</th>
                   <th className="text-left p-4 font-medium text-gray-900">Name</th>
+                  <th className="text-left p-4 font-medium text-gray-900">Year</th>
                   <th className="text-left p-4 font-medium text-gray-900">Department</th>
                   <th className="text-left p-4 font-medium text-gray-900">Type</th>
                   <th className="text-left p-4 font-medium text-gray-900">Components</th>
+                  <th className="text-left p-4 font-medium text-gray-900">Restrictions</th>
                   <th className="text-left p-4 font-medium text-gray-900">Actions</th>
                 </tr>
               </thead>
@@ -385,6 +638,11 @@ export default function CourseManagement({ onNavigateToUsers, initialFilters }: 
                     </td>
                     <td className="p-4">
                       <div className="font-medium">{course.name}</div>
+                    </td>
+                    <td className="p-4">
+                      <div className="text-sm text-gray-800 font-medium">
+                        {getCourseYear(course)}
+                      </div>
                     </td>
                     <td className="p-4">
                       <div className="text-sm text-gray-800">
@@ -409,8 +667,26 @@ export default function CourseManagement({ onNavigateToUsers, initialFilters }: 
                       </div>
                     </td>
                     <td className="p-4">
+                      <div className="text-sm text-gray-800">
+                        {course.type === 'open_elective' ? (
+                          course.openElectiveRestrictions && course.openElectiveRestrictions.length > 0 ? (
+                            <div className="text-red-600">
+                              <span className="font-medium">{course.openElectiveRestrictions.length} restricted</span>
+                              <div className="text-xs text-gray-600 mt-1">
+                                {course.openElectiveRestrictions.map(r => r.restrictedDepartment.code).join(', ')}
+                              </div>
+                            </div>
+                          ) : (
+                            <span className="text-green-600">No restrictions</span>
+                          )
+                        ) : (
+                          <span className="text-gray-400">N/A</span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="p-4">
                       <div className="flex gap-2">
-                        <Button size="sm" variant="outline">
+                        <Button size="sm" variant="outline" onClick={() => openEditForm(course)}>
                           <Edit className="h-4 w-4" />
                         </Button>
                         <Button size="sm" variant="outline" onClick={() => deleteCourse(course.id)}>
@@ -431,19 +707,37 @@ export default function CourseManagement({ onNavigateToUsers, initialFilters }: 
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6">
-              <h2 className="text-xl font-bold mb-4">Add New Course</h2>
-              <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
+              <h2 className="text-xl font-bold text-gray-900 mb-4">Add New Course</h2>
+              <form onSubmit={handleAddCourse} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1">Course Code</label>
-                  <Input placeholder="e.g., CS301" />
+                  <label className="block text-sm font-medium text-gray-900 mb-1">Course Code</label>
+                  <Input 
+                    placeholder="e.g., CS301"
+                    value={newCourse.code}
+                    onChange={(e) => setNewCourse(prev => ({ ...prev, code: e.target.value }))}
+                    className="text-gray-900"
+                    required
+                  />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">Course Name</label>
-                  <Input placeholder="e.g., Data Structures" />
+                  <label className="block text-sm font-medium text-gray-900 mb-1">Course Name</label>
+                  <Input 
+                    placeholder="e.g., Data Structures"
+                    value={newCourse.name}
+                    onChange={(e) => setNewCourse(prev => ({ ...prev, name: e.target.value }))}
+                    className="text-gray-900"
+                    required
+                  />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">Department</label>
-                  <select className="w-full px-3 py-2 border rounded-md">
+                  <label className="block text-sm font-medium text-gray-900 mb-1">Department</label>
+                  <select 
+                    className="w-full px-3 py-2 border rounded-md bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    title="Select Department"
+                    value={newCourse.department}
+                    onChange={(e) => setNewCourse(prev => ({ ...prev, department: e.target.value }))}
+                    required
+                  >
                     <option value="">Select Department</option>
                     {allDepartments.map(dept => (
                       <option key={dept} value={dept}>{dept}</option>
@@ -451,20 +745,96 @@ export default function CourseManagement({ onNavigateToUsers, initialFilters }: 
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">Course Type</label>
-                  <select className="w-full px-3 py-2 border rounded-md">
+                  <label className="block text-sm font-medium text-gray-900 mb-1">Batch Year</label>
+                  <select 
+                    className="w-full px-3 py-2 border rounded-md bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    title="Select Batch Year"
+                    value={newCourse.year}
+                    onChange={(e) => setNewCourse(prev => ({ ...prev, year: e.target.value }))}
+                    required
+                  >
+                    <option value="1">1st Year</option>
+                    <option value="2">2nd Year</option>
+                    <option value="3">3rd Year</option>
+                    <option value="4">4th Year</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-900 mb-1">Course Type</label>
+                  <select 
+                    className="w-full px-3 py-2 border rounded-md bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    title="Select Course Type"
+                    value={newCourse.type}
+                    onChange={(e) => setNewCourse(prev => ({ ...prev, type: e.target.value as 'core' | 'department_elective' | 'open_elective' }))}
+                  >
                     <option value="core">Core</option>
                     <option value="department_elective">Department Elective</option>
                     <option value="open_elective">Open Elective</option>
                   </select>
                 </div>
+                
+                {/* Restricted Departments for Open Electives */}
+                {newCourse.type === 'open_elective' && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-900 mb-1">
+                      Restricted Departments
+                      <span className="text-sm font-normal text-gray-600 ml-1">(departments that cannot take this course)</span>
+                    </label>
+                    <div className="border rounded-md p-3 bg-gray-50 max-h-40 overflow-y-auto">
+                      {departments.length === 0 ? (
+                        <p className="text-gray-500 text-sm">Loading departments...</p>
+                      ) : (
+                        departments.map(dept => (
+                          <label key={dept.id} className="flex items-center text-gray-900 mb-2">
+                            <input
+                              type="checkbox"
+                              className="mr-2"
+                              checked={newCourse.restrictedDepartments.includes(dept.code)}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setNewCourse(prev => ({
+                                    ...prev,
+                                    restrictedDepartments: [...prev.restrictedDepartments, dept.code]
+                                  }))
+                                } else {
+                                  setNewCourse(prev => ({
+                                    ...prev,
+                                    restrictedDepartments: prev.restrictedDepartments.filter(code => code !== dept.code)
+                                  }))
+                                }
+                              }}
+                            />
+                            <span className="text-sm">{dept.name} ({dept.code})</span>
+                          </label>
+                        ))
+                      )}
+                    </div>
+                    {newCourse.restrictedDepartments.length === 0 ? (
+                      <p className="text-sm text-gray-600 mt-1">No restrictions - all departments can take this course</p>
+                    ) : (
+                      <p className="text-sm text-gray-600 mt-1">
+                        {newCourse.restrictedDepartments.length} department(s) restricted
+                      </p>
+                    )}
+                  </div>
+                )}
                 <div className="flex items-center gap-4">
-                  <label className="flex items-center">
-                    <input type="checkbox" className="mr-2" defaultChecked />
+                  <label className="flex items-center text-gray-900">
+                    <input 
+                      type="checkbox" 
+                      className="mr-2"
+                      checked={newCourse.hasTheoryComponent}
+                      onChange={(e) => setNewCourse(prev => ({ ...prev, hasTheoryComponent: e.target.checked }))}
+                    />
                     Theory Component
                   </label>
-                  <label className="flex items-center">
-                    <input type="checkbox" className="mr-2" />
+                  <label className="flex items-center text-gray-900">
+                    <input 
+                      type="checkbox" 
+                      className="mr-2"
+                      checked={newCourse.hasLabComponent}
+                      onChange={(e) => setNewCourse(prev => ({ ...prev, hasLabComponent: e.target.checked }))}
+                    />
                     Lab Component
                   </label>
                 </div>
@@ -472,7 +842,163 @@ export default function CourseManagement({ onNavigateToUsers, initialFilters }: 
                   <Button type="submit" className="flex-1">
                     Add Course
                   </Button>
-                  <Button type="button" variant="outline" onClick={() => setShowAddForm(false)}>
+                  <Button type="button" variant="outline" onClick={() => {
+                    setShowAddForm(false)
+                    setNewCourse({
+                      code: '',
+                      name: '',
+                      department: '',
+                      year: '1',
+                      type: 'core',
+                      hasTheoryComponent: true,
+                      hasLabComponent: false,
+                      restrictedDepartments: []
+                    })
+                  }}>
+                    Cancel
+                  </Button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Course Form Modal */}
+      {showEditForm && editingCourse && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <h2 className="text-xl font-bold text-gray-900 mb-4">Edit Course</h2>
+              <form onSubmit={handleEditSubmit} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-900 mb-1">Course Code</label>
+                  <Input
+                    placeholder="e.g., CS301"
+                    value={editFormData.code}
+                    onChange={(e) => setEditFormData({ ...editFormData, code: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-900 mb-1">Course Name</label>
+                  <Input
+                    placeholder="e.g., Data Structures"
+                    value={editFormData.name}
+                    onChange={(e) => setEditFormData({ ...editFormData, name: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-900 mb-1">Department</label>
+                  <select
+                    className="w-full px-3 py-2 border rounded-md bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    value={editFormData.department}
+                    onChange={(e) => setEditFormData({ ...editFormData, department: e.target.value })}
+                    title="Select Department"
+                  >
+                    <option value="">Select Department</option>
+                    {allDepartments.map(dept => (
+                      <option key={dept} value={dept}>{dept}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-900 mb-1">Batch Year</label>
+                  <select
+                    className="w-full px-3 py-2 border rounded-md bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    value={editFormData.year}
+                    onChange={(e) => setEditFormData({ ...editFormData, year: e.target.value })}
+                    title="Select Batch Year"
+                  >
+                    <option value="1">1st Year</option>
+                    <option value="2">2nd Year</option>
+                    <option value="3">3rd Year</option>
+                    <option value="4">4th Year</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-900 mb-1">Course Type</label>
+                  <select
+                    className="w-full px-3 py-2 border rounded-md bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    value={editFormData.type}
+                    onChange={(e) => setEditFormData({ ...editFormData, type: e.target.value as 'core' | 'department_elective' | 'open_elective' })}
+                    title="Select Course Type"
+                  >
+                    <option value="core">Core</option>
+                    <option value="department_elective">Department Elective</option>
+                    <option value="open_elective">Open Elective</option>
+                  </select>
+                </div>
+                
+                {/* Restricted Departments for Open Electives */}
+                {editFormData.type === 'open_elective' && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-900 mb-1">
+                      Restricted Departments
+                      <span className="text-sm font-normal text-gray-600 ml-1">(departments that cannot take this course)</span>
+                    </label>
+                    <div className="border rounded-md p-3 bg-gray-50 max-h-40 overflow-y-auto">
+                      {departments.length === 0 ? (
+                        <p className="text-gray-500 text-sm">Loading departments...</p>
+                      ) : (
+                        departments.map(dept => (
+                          <label key={dept.id} className="flex items-center text-gray-900 mb-2">
+                            <input
+                              type="checkbox"
+                              className="mr-2"
+                              checked={editFormData.restrictedDepartments.includes(dept.code)}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setEditFormData(prev => ({
+                                    ...prev,
+                                    restrictedDepartments: [...prev.restrictedDepartments, dept.code]
+                                  }))
+                                } else {
+                                  setEditFormData(prev => ({
+                                    ...prev,
+                                    restrictedDepartments: prev.restrictedDepartments.filter(code => code !== dept.code)
+                                  }))
+                                }
+                              }}
+                            />
+                            <span className="text-sm">{dept.name} ({dept.code})</span>
+                          </label>
+                        ))
+                      )}
+                    </div>
+                    {editFormData.restrictedDepartments.length === 0 ? (
+                      <p className="text-sm text-gray-600 mt-1">No restrictions - all departments can take this course</p>
+                    ) : (
+                      <p className="text-sm text-gray-600 mt-1">
+                        {editFormData.restrictedDepartments.length} department(s) restricted
+                      </p>
+                    )}
+                  </div>
+                )}
+                <div className="flex items-center gap-4">
+                  <label className="flex items-center text-gray-900">
+                    <input
+                      type="checkbox"
+                      className="mr-2"
+                      checked={editFormData.hasTheoryComponent}
+                      onChange={(e) => setEditFormData({ ...editFormData, hasTheoryComponent: e.target.checked })}
+                    />
+                    Theory Component
+                  </label>
+                  <label className="flex items-center text-gray-900">
+                    <input
+                      type="checkbox"
+                      className="mr-2"
+                      checked={editFormData.hasLabComponent}
+                      onChange={(e) => setEditFormData({ ...editFormData, hasLabComponent: e.target.checked })}
+                    />
+                    Lab Component
+                  </label>
+                </div>
+                <div className="flex gap-2 pt-4">
+                  <Button type="submit" className="flex-1">
+                    Update Course
+                  </Button>
+                  <Button type="button" variant="outline" onClick={() => setShowEditForm(false)}>
                     Cancel
                   </Button>
                 </div>

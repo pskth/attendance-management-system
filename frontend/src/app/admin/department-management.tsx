@@ -63,6 +63,41 @@ export default function DepartmentManagement({
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCollege, setSelectedCollege] = useState('all')
   const [showAddForm, setShowAddForm] = useState(false)
+  const [newDepartment, setNewDepartment] = useState({
+    name: '',
+    code: '',
+    college: ''
+  })
+  
+  // Edit functionality state
+  const [editingDepartment, setEditingDepartment] = useState<Department | null>(null)
+  const [showEditForm, setShowEditForm] = useState(false)
+  const [editFormData, setEditFormData] = useState({
+    name: '',
+    code: '',
+    college: ''
+  })
+  
+  // Section management state (department-specific)
+  const [sections, setSections] = useState<{[key: string]: string[]}>({
+    '1': [],
+    '2': [],
+    '3': [],
+    '4': []
+  })
+  const [newSectionNames, setNewSectionNames] = useState<{[key: string]: string}>({
+    '1': '',
+    '2': '',
+    '3': '',
+    '4': ''
+  })
+
+  // Helper function to get ordinal numbers
+  const getOrdinal = (num: string) => {
+    const n = parseInt(num)
+    const suffix = ['th', 'st', 'nd', 'rd'][n] || 'th'
+    return suffix
+  }
 
   // Fetch departments from API
   useEffect(() => {
@@ -174,6 +209,153 @@ export default function DepartmentManagement({
     }
 
     fetchDepartments()
+  }
+
+  // Add new department
+  const handleAddDepartment = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (newDepartment.name.trim() && newDepartment.code.trim() && newDepartment.college) {
+      try {
+        const response = await adminApi.createDepartment({
+          name: newDepartment.name.trim(),
+          code: newDepartment.code.trim(),
+          college: newDepartment.college
+        })
+        
+        if (response.status === 'success') {
+          // Add the new department to the list
+          const newDept: Department = {
+            id: response.data.id,
+            name: response.data.name,
+            code: response.data.code,
+            college: {
+              name: response.data.college?.name || '',
+              code: response.data.college?.code || newDepartment.college
+            },
+            courses: [],
+            sections: [],
+            students: [],
+            teachers: [],
+            _count: {
+              students: 0,
+              teachers: 0,
+              courses: 0,
+              sections: 0
+            }
+          }
+          
+          setDepartments(prev => [...prev, newDept])
+          setNewDepartment({ name: '', code: '', college: '' })
+          setShowAddForm(false)
+          alert('Department created successfully')
+        } else {
+          alert('Failed to create department: ' + (response.error || 'Unknown error'))
+        }
+      } catch (err) {
+        const errorMsg = err instanceof Error ? err.message : 'Unknown error'
+        alert('Error creating department: ' + errorMsg)
+      }
+    } else {
+      alert('Please fill in all required fields')
+    }
+  }
+
+  // Open edit form
+  const openEditForm = (department: Department) => {
+    setEditingDepartment(department)
+    setEditFormData({
+      name: department.name,
+      code: department.code,
+      college: department.college.code
+    })
+    
+    // Load existing sections grouped by year
+    const sectionsByYear: {[key: string]: string[]} = {
+      '1': [],
+      '2': [],
+      '3': [],
+      '4': []
+    }
+    
+    // Group sections by year (extract year from section name if possible)
+    department.sections.forEach((section: { section_name?: string; name?: string }) => {
+      const sectionName = section.section_name || section.name
+      if (sectionName) {
+        const yearMatch = sectionName.match(/^(\d)/)
+        const year = yearMatch ? yearMatch[1] : '1'
+        const sectionWithoutYear = sectionName.replace(/^(\d)/, '')
+        if (sectionsByYear[year] && sectionWithoutYear) {
+          sectionsByYear[year].push(sectionWithoutYear)
+        }
+      }
+    })
+    
+    setSections(sectionsByYear)
+    setNewSectionNames({ '1': '', '2': '', '3': '', '4': '' })
+    setShowEditForm(true)
+  }
+
+  // Submit edit form
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!editingDepartment) return
+
+    try {
+      // Flatten sections into a single array for the backend
+      // Include year information in the section name
+      const allSections = Object.entries(sections).flatMap(([year, sectionList]) => 
+        sectionList.map(sectionName => ({
+          name: `${year}${sectionName}`
+        }))
+      )
+
+      const response = await adminApi.updateDepartment(editingDepartment.id, {
+        name: editFormData.name,
+        code: editFormData.code,
+        college: editFormData.college,
+        sections: allSections
+      })
+      
+      if (response.status === 'success') {
+        setDepartments(prev => prev.map(dept => 
+          dept.id === editingDepartment.id 
+            ? { ...dept, name: editFormData.name, code: editFormData.code, college: { ...dept.college, code: editFormData.college } }
+            : dept
+        ))
+        alert('Department and sections updated successfully')
+        setShowEditForm(false)
+        setEditingDepartment(null)
+        refreshData() // Refresh to get updated data from server
+      } else {
+        alert('Failed to update department: ' + (response.error || 'Unknown error'))
+      }
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : 'Unknown error'
+      alert('Error updating department: ' + errorMsg)
+    }
+  }
+
+  // Add section to specific year
+  const addSectionToYear = (year: string) => {
+    const sectionName = newSectionNames[year]
+    if (sectionName && sectionName.trim()) {
+      setSections(prev => ({
+        ...prev,
+        [year]: [...(prev[year] || []), sectionName.trim()]
+      }))
+      setNewSectionNames(prev => ({
+        ...prev,
+        [year]: ''
+      }))
+    }
+  }
+
+  // Remove section from specific year
+  const removeSectionFromYear = (year: string, sectionIndex: number) => {
+    setSections(prev => ({
+      ...prev,
+      [year]: prev[year].filter((_, index) => index !== sectionIndex)
+    }))
   }
 
   // Delete department
@@ -298,7 +480,7 @@ export default function DepartmentManagement({
           <select
             value={selectedCollege}
             onChange={(e) => setSelectedCollege(e.target.value)}
-            className="px-3 py-2 border rounded-md"
+            className="px-3 py-2 border rounded-md bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
             title="Filter by college"
           >
             <option value="all">All Colleges</option>
@@ -429,11 +611,32 @@ export default function DepartmentManagement({
                       </button>
                     </td>
                     <td className="p-4">
-                      <span className="text-gray-700">{dept._count?.sections || 0}</span>
+                      <div className="text-sm text-gray-800">
+                        {(() => {
+                          // Group sections by year and show breakdown
+                          const sectionsByYear: {[key: string]: number} = { '1': 0, '2': 0, '3': 0, '4': 0 }
+                          dept.sections.forEach((section: { section_name?: string; name?: string }) => {
+                            const sectionName = section.section_name || section.name
+                            if (sectionName) {
+                              const yearMatch = sectionName.match(/(\d)/)
+                              const year = yearMatch ? yearMatch[1] : '1'
+                              if (sectionsByYear[year] !== undefined) {
+                                sectionsByYear[year]++
+                              }
+                            }
+                          })
+                          
+                          const yearBreakdown = Object.entries(sectionsByYear)
+                            .filter(([, count]) => count > 0)
+                            .map(([year, count]) => `${year}${getOrdinal(year)} year: ${count}`)
+                          
+                          return yearBreakdown.length > 0 ? yearBreakdown.join(', ') : '0 sections'
+                        })()}
+                      </div>
                     </td>
                     <td className="p-4">
                       <div className="flex gap-2">
-                        <Button size="sm" variant="outline">
+                        <Button size="sm" variant="outline" onClick={() => openEditForm(dept)}>
                           <Edit className="h-4 w-4" />
                         </Button>
                         <Button size="sm" variant="outline" onClick={() => deleteDepartment(dept.id)}>
@@ -454,19 +657,37 @@ export default function DepartmentManagement({
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6">
-              <h2 className="text-xl font-bold mb-4">Add New Department</h2>
-              <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
+              <h2 className="text-xl font-bold text-gray-900 mb-4">Add New Department</h2>
+              <form onSubmit={handleAddDepartment} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1">Department Name</label>
-                  <Input placeholder="e.g., Computer Science and Engineering" />
+                  <label className="block text-sm font-medium text-gray-900 mb-1">Department Name</label>
+                  <Input 
+                    placeholder="e.g., Computer Science and Engineering"
+                    value={newDepartment.name}
+                    onChange={(e) => setNewDepartment(prev => ({ ...prev, name: e.target.value }))}
+                    className="text-gray-900"
+                    required
+                  />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">Department Code</label>
-                  <Input placeholder="e.g., CSE" />
+                  <label className="block text-sm font-medium text-gray-900 mb-1">Department Code</label>
+                  <Input 
+                    placeholder="e.g., CSE"
+                    value={newDepartment.code}
+                    onChange={(e) => setNewDepartment(prev => ({ ...prev, code: e.target.value.toUpperCase() }))}
+                    className="text-gray-900"
+                    required
+                  />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">College</label>
-                  <select className="w-full px-3 py-2 border rounded-md">
+                  <label className="block text-sm font-medium text-gray-900 mb-1">College</label>
+                  <select 
+                    className="w-full px-3 py-2 border rounded-md bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    title="Select College"
+                    value={newDepartment.college}
+                    onChange={(e) => setNewDepartment(prev => ({ ...prev, college: e.target.value }))}
+                    required
+                  >
                     <option value="">Select College</option>
                     {allColleges.map(college => (
                       <option key={college} value={college}>{college}</option>
@@ -477,7 +698,130 @@ export default function DepartmentManagement({
                   <Button type="submit" className="flex-1">
                     Add Department
                   </Button>
-                  <Button type="button" variant="outline" onClick={() => setShowAddForm(false)}>
+                  <Button type="button" variant="outline" onClick={() => {
+                    setShowAddForm(false)
+                    setNewDepartment({ name: '', code: '', college: '' })
+                  }}>
+                    Cancel
+                  </Button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Department Form Modal */}
+      {showEditForm && editingDepartment && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <h2 className="text-xl font-bold text-gray-900 mb-4">Edit Department</h2>
+              <form onSubmit={handleEditSubmit} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-900 mb-1">Department Name</label>
+                  <Input
+                    placeholder="e.g., Computer Science and Engineering"
+                    value={editFormData.name}
+                    onChange={(e) => setEditFormData({ ...editFormData, name: e.target.value })}
+                    className="text-gray-900"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-900 mb-1">Department Code</label>
+                  <Input
+                    placeholder="e.g., CSE"
+                    value={editFormData.code}
+                    onChange={(e) => setEditFormData({ ...editFormData, code: e.target.value.toUpperCase() })}
+                    className="text-gray-900"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-900 mb-1">College</label>
+                  <select
+                    className="w-full px-3 py-2 border rounded-md bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    value={editFormData.college}
+                    onChange={(e) => setEditFormData({ ...editFormData, college: e.target.value })}
+                    title="Select College"
+                    required
+                  >
+                    <option value="">Select College</option>
+                    {allColleges.map(college => (
+                      <option key={college} value={college}>{college}</option>
+                    ))}
+                  </select>
+                </div>
+                
+                {/* Section Management */}
+                <div className="border-t pt-4">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3">Section Management</h3>
+                  <p className="text-sm text-gray-600 mb-3">
+                    Add or remove sections for each year. Changes will be saved when you update the department.
+                  </p>
+                  <div className="space-y-4">
+                    {['1', '2', '3', '4'].map(year => (
+                      <div key={year} className="border rounded-lg p-4">
+                        <div className="flex items-center justify-between mb-2">
+                          <h4 className="font-medium text-gray-900">Year {year}</h4>
+                          <span className="text-sm text-gray-600">{sections[year]?.length || 0} sections</span>
+                        </div>
+                        
+                        {/* Existing sections */}
+                        <div className="flex flex-wrap gap-2 mb-2">
+                          {sections[year]?.map((section, index) => (
+                            <div key={index} className="flex items-center bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm">
+                              <span>{section}</span>
+                              <button
+                                type="button"
+                                onClick={() => removeSectionFromYear(year, index)}
+                                className="ml-2 text-red-500 hover:text-red-700"
+                              >
+                                ×
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                        
+                        {/* Add new section */}
+                        <div className="flex gap-2">
+                          <Input
+                            placeholder={`e.g., ${year}A, ${year}B, ${year}C`}
+                            value={newSectionNames[year] || ''}
+                            onChange={(e) => setNewSectionNames(prev => ({ ...prev, [year]: e.target.value }))}
+                            className="flex-1 text-gray-900"
+                            onKeyPress={(e) => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault()
+                                addSectionToYear(year)
+                              }
+                            }}
+                          />
+                          <Button
+                            type="button"
+                            size="sm"
+                            onClick={() => addSectionToYear(year)}
+                            disabled={!newSectionNames[year]?.trim()}
+                          >
+                            Add
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                
+                <div className="flex gap-2 pt-4">
+                  <Button type="submit" className="flex-1">
+                    Update Department
+                  </Button>
+                  <Button type="button" variant="outline" onClick={() => {
+                    setShowEditForm(false)
+                    setEditingDepartment(null)
+                    setSections({ '1': [], '2': [], '3': [], '4': [] })
+                    setNewSectionNames({ '1': '', '2': '', '3': '', '4': '' })
+                  }}>
                     Cancel
                   </Button>
                 </div>

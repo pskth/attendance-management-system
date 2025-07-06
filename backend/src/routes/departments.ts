@@ -273,6 +273,201 @@ router.get('/:id/stats', async (req, res) => {
   }
 });
 
+// Create department
+router.post('/', async (req, res) => {
+  try {
+    const { name, code, college } = req.body;
+    
+    if (!name || !code || !college) {
+      return res.status(400).json({
+        status: 'error',
+        error: 'Missing required fields: name, code, college',
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    const prisma = Database.getInstance();
+
+    // Check if department code already exists
+    const existingDept = await prisma.department.findFirst({
+      where: { code: code.toUpperCase() }
+    });
+
+    if (existingDept) {
+      return res.status(409).json({
+        status: 'error',
+        error: 'Department code already exists',
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    // Find the college
+    const collegeRecord = await prisma.college.findFirst({
+      where: { code: college }
+    });
+
+    if (!collegeRecord) {
+      return res.status(404).json({
+        status: 'error',
+        error: 'College not found',
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    // Create the department
+    const newDepartment = await prisma.department.create({
+      data: {
+        name: name.trim(),
+        code: code.toUpperCase().trim(),
+        college_id: collegeRecord.id
+      },
+      include: {
+        colleges: true,
+        _count: {
+          select: {
+            students: true,
+            teachers: true,
+            courses: true,
+            sections: true
+          }
+        }
+      }
+    });
+
+    res.status(201).json({
+      status: 'success',
+      data: newDepartment,
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    console.error('Error creating department:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+    res.status(500).json({
+      status: 'error',
+      error: errorMessage,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
+// Update department
+router.put('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, code, college, sections } = req.body;
+    
+    if (!name || !code || !college) {
+      return res.status(400).json({
+        status: 'error',
+        error: 'Missing required fields: name, code, college',
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    const prisma = Database.getInstance();
+
+    // Check if department exists
+    const existingDept = await prisma.department.findUnique({
+      where: { id }
+    });
+
+    if (!existingDept) {
+      return res.status(404).json({
+        status: 'error',
+        error: 'Department not found',
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    // Check if department code already exists (excluding current department)
+    const codeConflict = await prisma.department.findFirst({
+      where: { 
+        code: code.toUpperCase(),
+        id: { not: id }
+      }
+    });
+
+    if (codeConflict) {
+      return res.status(409).json({
+        status: 'error',
+        error: 'Department code already exists',
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    // Find the college
+    const collegeRecord = await prisma.college.findFirst({
+      where: { code: college }
+    });
+
+    if (!collegeRecord) {
+      return res.status(404).json({
+        status: 'error',
+        error: 'College not found',
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    // Update sections if provided
+    if (sections && Array.isArray(sections)) {
+      // Delete existing sections for this department
+      await prisma.sections.deleteMany({
+        where: { department_id: id }
+      });
+
+      // Create new sections
+      if (sections.length > 0) {
+        const sectionData = sections.map((section: any) => ({
+          department_id: id,
+          section_name: section.name || section.section_name
+        }));
+
+        await prisma.sections.createMany({
+          data: sectionData
+        });
+      }
+    }
+
+    // Update the department
+    const updatedDepartment = await prisma.department.update({
+      where: { id },
+      data: {
+        name: name.trim(),
+        code: code.toUpperCase().trim(),
+        college_id: collegeRecord.id
+      },
+      include: {
+        colleges: true,
+        sections: true, // Include sections in response
+        _count: {
+          select: {
+            students: true,
+            teachers: true,
+            courses: true,
+            sections: true
+          }
+        }
+      }
+    });
+
+    res.json({
+      status: 'success',
+      data: updatedDepartment,
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    console.error('Error updating department:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+    res.status(500).json({
+      status: 'error',
+      error: errorMessage,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
 // Delete department
 router.delete('/:id', async (req, res) => {
   try {
