@@ -2,31 +2,84 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import { PrismaClient } from '../generated/prisma';
+import DatabaseService from './lib/database';
+
+// Import routes
+import databaseRoutes from './routes/database';
+import usersRoutes from './routes/users';
+import coursesRoutes from './routes/courses';
+import departmentsRoutes from './routes/departments';
+import collegesRoutes from './routes/colleges';
+
+console.log('=== About to import admin routes ===');
+let adminRoutes;
+try {
+  adminRoutes = require('./routes/admin').default;
+  console.log('=== Admin routes imported successfully ===');
+} catch (error) {
+  console.error('=== Error importing admin routes ===', error);
+}
 
 dotenv.config();
 
 const app = express();
-const prisma = new PrismaClient();
+
+console.log('=== INDEX.TS LOADED ===');
 
 app.use(cors());
 app.use(express.json());
 
 const PORT = process.env.PORT || 4000;
 
+// Initialize database connection
+DatabaseService.connect().catch((error) => {
+  console.error('Failed to connect to database:', error);
+  process.exit(1);
+});
+
 app.get('/', (req, res) => {
   res.json({ 
     message: 'College ERP backend is running',
     database: 'Connected to PostgreSQL via Prisma',
-    version: '1.0.0'
+    version: '1.0.0',
+    endpoints: {
+      health: '/api/db/health',
+      summary: '/api/db/summary',
+      users: '/api/users',
+      usersByRole: '/api/users/role/:role',
+      userById: '/api/users/:id',
+      courses: '/api/courses',
+      courseById: '/api/courses/:id',
+      coursesByDepartment: '/api/courses/department/:departmentId',
+      coursesByType: '/api/courses/type/:courseType',
+      departments: '/api/departments',
+      departmentById: '/api/departments/:id',
+      departmentsByCollege: '/api/departments/college/:collegeId',
+      departmentStats: '/api/departments/:id/stats'
+    }
   });
 });
 
-// Health check endpoint
+// Routes
+app.use('/api/db', databaseRoutes);
+app.use('/api/users', usersRoutes);
+app.use('/api/courses', coursesRoutes);
+app.use('/api/departments', departmentsRoutes);
+app.use('/api/colleges', collegesRoutes);
+if (adminRoutes) {
+  app.use('/api/admin', adminRoutes);
+  console.log('=== Admin routes registered ===');
+}
+
+// Health check endpoint (legacy - also available at /api/db/health)
 app.get('/health', async (req, res) => {
   try {
-    await prisma.$queryRaw`SELECT 1`;
-    res.json({ status: 'healthy', database: 'connected' });
+    const isHealthy = await DatabaseService.healthCheck();
+    if (isHealthy) {
+      res.json({ status: 'healthy', database: 'connected' });
+    } else {
+      res.status(500).json({ status: 'unhealthy', database: 'disconnected' });
+    }
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     res.status(500).json({ status: 'unhealthy', database: 'disconnected', error: errorMessage });
@@ -35,10 +88,24 @@ app.get('/health', async (req, res) => {
 
 // Graceful shutdown
 process.on('beforeExit', async () => {
-  await prisma.$disconnect();
+  await DatabaseService.disconnect();
+});
+
+process.on('SIGINT', async () => {
+  console.log('\nReceived SIGINT. Graceful shutdown...');
+  await DatabaseService.disconnect();
+  process.exit(0);
+});
+
+process.on('SIGTERM', async () => {
+  console.log('\nReceived SIGTERM. Graceful shutdown...');
+  await DatabaseService.disconnect();
+  process.exit(0);
 });
 
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-  console.log(`Health check available at http://localhost:${PORT}/health`);
+  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`📊 Health check available at http://localhost:${PORT}/health`);
+  console.log(`📋 Database summary at http://localhost:${PORT}/api/db/summary`);
+  console.log(`👥 Users API at http://localhost:${PORT}/api/users`);
 });

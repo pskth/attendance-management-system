@@ -1,0 +1,11 @@
+username,password_hash,name,phone
+admin_user,"$2b$10$N9qo8uLOickgx2ZMRZoMy.ZT.8hKH.YAmZ5PQ0qQH9M5ZVf4nCKoS","System Admin","9999999999"
+john_doe,"$2b$10$N9qo8uLOickgx2ZMRZoMy.ZT.8hKH.YAmZ5PQ0qQH9M5ZVf4nCKoS","John Doe","8888888888"
+prof_smith,"$2b$10$N9qo8uLOickgx2ZMRZoMy.ZT.8hKH.YAmZ5PQ0qQH9M5ZVf4nCKoS","Prof. Smith","7777777777"
+prof_jones,"$2b$10$N9qo8uLOickgx2ZMRZoMy.ZT.8hKH.YAmZ5PQ0qQH9M5ZVf4nCKoS","Prof. Jones","7777777776"
+prof_wilson,"$2b$10$N9qo8uLOickgx2ZMRZoMy.ZT.8hKH.YAmZ5PQ0qQH9M5ZVf4nCKoS","Prof. Wilson","7777777775"
+student1,"$2b$10$N9qo8uLOickgx2ZMRZoMy.ZT.8hKH.YAmZ5PQ0qQH9M5ZVf4nCKoS","Arjun Kumar","6666666666"
+student2,"$2b$10$N9qo8uLOickgx2ZMRZoMy.ZT.8hKH.YAmZ5PQ0qQH9M5ZVf4nCKoS","Priya Sharma","6666666665"
+student3,"$2b$10$N9qo8uLOickgx2ZMRZoMy.ZT.8hKH.YAmZ5PQ0qQH9M5ZVf4nCKoS","Rahul Menon","6666666664"
+student4,"$2b$10$N9qo8uLOickgx2ZMRZoMy.ZT.8hKH.YAmZ5PQ0qQH9M5ZVf4nCKoS","Sneha Patel","6666666663"
+student5,"$2b$10$N9qo8uLOickgx2ZMRZoMy.ZT.8hKH.YAmZ5PQ0qQH9M5ZVf4nCKoS","Vikram Singh","6666666662"

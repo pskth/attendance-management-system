@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -13,10 +13,11 @@ import {
   Trash2,
   Users,
   GraduationCap,
-  Shield
+  Shield,
+  RefreshCw,
+  AlertCircle
 } from 'lucide-react'
-
-// No props interface needed for this component
+import { adminApi } from '@/lib/api'
 
 interface UserManagementProps {
   initialFilters?: {
@@ -31,193 +32,143 @@ interface UserManagementProps {
 interface User {
   id: string
   name: string
-  email: string
+  email?: string
+  username: string
+  phone?: string
   usn?: string
   employeeId?: string
   role: 'student' | 'teacher' | 'admin'
   roles?: string[]  // Additional roles for multi-role users
   department?: string  // Optional for admins
+  departmentCode?: string
   year?: string  // Academic year for students and teachers
   section?: string  // Class section for students
   courses?: string[]  // Enrolled courses for students or teaching courses for teachers
   createdAt: string
+  college?: string
+  collegeCode?: string
+  semester?: number
+  batchYear?: number
 }
 
-// Mock data
-const mockUsers: User[] = [
-  {
-    id: '1',
-    name: 'Aditya Sharma',
-    email: 'aditya.sharma@nnm.ac.in',
-    usn: 'NNM22CS001',
-    role: 'student',
-    department: 'CSE',
-    year: '2nd Year',
-    section: 'A',
-    courses: ['CS201', 'CS202', 'MA201', 'PH201'],
-    createdAt: '2024-01-15'
-  },
-  {
-    id: '2',
-    name: 'Bhavana Nair',
-    email: 'bhavana.nair@nnm.ac.in',
-    usn: 'NNM22AIDS002',
-    role: 'student',
-    department: 'AIDS',
-    year: '2nd Year',
-    section: 'A',
-    courses: ['CS201', 'AIDS201', 'MA201', 'ST201'],
-    createdAt: '2024-01-16'
-  },
-  {
-    id: '3',
-    name: 'Chetan Kumar',
-    email: 'chetan.kumar@nnm.ac.in',
-    usn: 'NNM21CS003',
-    role: 'student',
-    department: 'CSE',
-    year: '3rd Year',
-    section: 'B',
-    courses: ['CS301', 'CS302', 'CS303', 'CS304'],
-    createdAt: '2023-01-15'
-  },
-  {
-    id: '4',
-    name: 'Divya Rao',
-    email: 'divya.rao@nnm.ac.in',
-    usn: 'NNM20ECE004',
-    role: 'student',
-    department: 'ECE',
-    year: '4th Year',
-    section: 'A',
-    courses: ['EC401', 'EC402', 'EC403', 'EC404'],
-    createdAt: '2022-01-15'
-  },
-  {
-    id: '5',
-    name: 'Dr. Priya Kumar',
-    email: 'priya.kumar@nnm.ac.in',
-    employeeId: 'TCH001',
-    role: 'teacher',
-    department: 'CSE',
-    year: '2nd Year', // Teaching year
-    courses: ['CS201', 'CS301'], // Teaching courses
-    createdAt: '2023-08-10'
-  },
-  {
-    id: '6',
-    name: 'Prof. Rajesh Sharma',
-    email: 'rajesh.sharma@nnm.ac.in',
-    employeeId: 'TCH002',
-    role: 'teacher',
-    department: 'AIDS',
-    year: '3rd Year', // Teaching year
-    courses: ['AIDS201', 'AIDS301'],
-    createdAt: '2023-08-12'
-  },
-  {
-    id: '7',
-    name: 'Dr. Suresh Nair',
-    email: 'suresh.nair@nnm.ac.in',
-    employeeId: 'TCH003',
-    role: 'teacher',
-    department: 'ISE',
-    year: '4th Year', // Teaching year
-    courses: ['IS401', 'IS402'],
-    createdAt: '2023-08-15'
-  },
-  {
-    id: '8',
-    name: 'Admin User',
-    email: 'admin@nnm.ac.in',
-    employeeId: 'ADM001',
-    role: 'admin',
-    // No department, year, section, or courses for admin
-    createdAt: '2023-01-01'
-  },
-  {
-    id: '9',
-    name: 'Rajesh Nair',
-    email: 'rajesh.nair@nnm.ac.in',
-    usn: 'NNM22CS009',
-    role: 'student',
-    department: 'CSE',
-    year: '2nd Year',
-    section: 'B',
-    courses: ['CS201', 'CS202', 'MA201', 'PH201'],
-    createdAt: '2024-01-18'
-  },
-  {
-    id: '10',
-    name: 'Sneha Patel',
-    email: 'sneha.patel@nnm.ac.in',
-    usn: 'NNM21AIDS010',
-    role: 'student',
-    department: 'AIDS',
-    year: '3rd Year',
-    section: 'A',
-    courses: ['AIDS301', 'AIDS302', 'CS301', 'MA301'],
-    createdAt: '2023-01-20'
-  },
-  {
-    id: '11',
-    name: 'Vikram Joshi',
-    email: 'vikram.joshi@nnm.ac.in',
-    usn: 'NNM20ISE011',
-    role: 'student',
-    department: 'ISE',
-    year: '4th Year',
-    section: 'B',
-    courses: ['IS401', 'IS402', 'IS403', 'CS401'],
-    createdAt: '2022-01-22'
-  },
-  {
-    id: '12',
-    name: 'Prof. Rahul Mehta',
-    email: 'rahul.mehta@nnm.ac.in',
-    employeeId: 'TCH004',
-    role: 'teacher',
-    roles: ['teacher', 'admin'],
-    department: 'CSE',
-    year: '3rd Year',
-    courses: ['CS301', 'CS401'],
-    createdAt: '2022-08-15'
-  },
-  {
-    id: '13',
-    name: 'Dr. Anita Sharma',
-    email: 'anita.sharma@nnm.ac.in',
-    employeeId: 'TCH005',
-    role: 'teacher',
-    roles: ['teacher', 'admin'],
-    department: 'ECE',
-    year: '4th Year',
-    courses: ['EC401', 'EC501'],
-    createdAt: '2021-07-10'
-  },
-  {
-    id: '14',
-    name: 'System Admin',
-    email: 'system@nnm.ac.in',
-    employeeId: 'SYS001',
-    role: 'admin',
-    roles: ['admin', 'teacher'],
-    department: 'Computer Center',
-    createdAt: '2020-01-01'
-  }
-]
-
-export function UserManagement({ initialFilters }: UserManagementProps = {}) {
-  const [users, setUsers] = useState<User[]>(mockUsers)
+export default function UserManagement({ initialFilters }: UserManagementProps) {
+  const [users, setUsers] = useState<User[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedYear, setSelectedYear] = useState<string>(initialFilters?.year || 'all')
   const [selectedRole, setSelectedRole] = useState<string>(initialFilters?.role || 'all')
   const [selectedDepartment, setSelectedDepartment] = useState<string>(initialFilters?.department || 'all')
   const [selectedSection, setSelectedSection] = useState<string>(initialFilters?.section || 'all')
   const [selectedCourse, setSelectedCourse] = useState<string>(initialFilters?.course || 'all')
-  const [showAddForm, setShowAddForm] = useState(false) // eslint-disable-line @typescript-eslint/no-unused-vars
-  const [editingUser, setEditingUser] = useState<User | null>(null) // eslint-disable-line @typescript-eslint/no-unused-vars
-  const fileInputRef = useRef<HTMLInputElement>(null)// Compute filtered users directly
+  const [selectedCollege, setSelectedCollege] = useState<string>('all')
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  // Fetch users from API
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+        const response = await adminApi.getAllUsers()
+        
+        if (response.status === 'success') {
+          console.log('Raw API response:', response.data.slice(0, 2)); // Debug: log first 2 users
+          console.log('Total users from API:', response.data.length);
+          console.log('User roles distribution:', response.data.map(u => u.userRoles?.map(r => r.role)).flat().reduce((acc, role) => { acc[role] = (acc[role] || 0) + 1; return acc; }, {}));
+          console.log('Student departments:', response.data.filter(u => u.student).map(u => u.student.departments?.code).filter(Boolean).reduce((acc, dept) => { acc[dept] = (acc[dept] || 0) + 1; return acc; }, {}));
+          console.log('Student sections:', response.data.filter(u => u.student).map(u => u.student.sections?.section_name).filter(Boolean).reduce((acc, section) => { acc[section] = (acc[section] || 0) + 1; return acc; }, {}));
+          
+          // Transform API data to match our User interface
+          const transformedUsers: User[] = response.data.map((user: any) => {
+            const roles = user.userRoles?.map((ur: any) => ur.role) || []
+            const primaryRole = roles[0] || 'student'
+            
+            // Helper function to convert semester to academic year
+            const getAcademicYear = (semester: number): string => {
+              if (semester <= 2) return '1st year'
+              if (semester <= 4) return '2nd year'
+              if (semester <= 6) return '3rd year'
+              if (semester <= 8) return '4th year'
+              return `${Math.ceil(semester / 2)}th year`
+            }
+            
+            // Extract data based on role
+            const transformedUser: User = {
+              id: user.id,
+              name: user.name,
+              email: user.email,
+              username: user.username,
+              phone: user.phone,
+              role: primaryRole,
+              roles: roles,
+              createdAt: user.createdAt ? new Date(user.createdAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]
+            }
+
+            // Student-specific data
+            if (user.student) {
+              transformedUser.usn = user.student.usn
+              transformedUser.semester = user.student.semester
+              transformedUser.batchYear = user.student.batchYear
+              transformedUser.year = getAcademicYear(user.student.semester || 1)
+              transformedUser.department = user.student.departments?.name
+              transformedUser.departmentCode = user.student.departments?.code
+              transformedUser.section = user.student.sections?.section_name
+              transformedUser.college = user.student.colleges?.name
+              transformedUser.collegeCode = user.student.colleges?.code
+              
+              // Extract courses from enrollments
+              if (user.student.enrollments && user.student.enrollments.length > 0) {
+                transformedUser.courses = user.student.enrollments.map((enrollment: any) => 
+                  enrollment.offering?.course?.name || enrollment.offering?.course?.code
+                ).filter(Boolean)
+              }
+            }
+
+            // Teacher-specific data
+            if (user.teacher) {
+              transformedUser.employeeId = user.teacher.id
+              transformedUser.department = user.teacher.department?.name
+              transformedUser.departmentCode = user.teacher.department?.code
+              transformedUser.college = user.teacher.colleges?.name
+              transformedUser.collegeCode = user.teacher.colleges?.code
+              
+              // For teachers, we could also extract courses they teach
+              // This would require course offerings data in the API
+            }
+
+            return transformedUser
+          })
+          
+          console.log('Transformed users:', transformedUsers.slice(0, 2)); // Debug: log first 2 transformed users
+          console.log('All departments:', Array.from(new Set(transformedUsers.map(u => u.department).filter(Boolean))));
+          console.log('All years:', Array.from(new Set(transformedUsers.map(u => u.year).filter(Boolean))));
+          
+          setUsers(transformedUsers)
+        } else {
+          setError(response.error || 'Failed to fetch users')
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An error occurred while fetching users')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchUsers()
+  }, [])
+
+  // Apply filters based on initialFilters
+  useEffect(() => {
+    if (initialFilters) {
+      if (initialFilters.role) setSelectedRole(initialFilters.role)
+      if (initialFilters.department) setSelectedDepartment(initialFilters.department)
+      if (initialFilters.year) setSelectedYear(initialFilters.year)
+      if (initialFilters.course) setSelectedCourse(initialFilters.course)
+    }
+  }, [initialFilters])
+
+  // Compute filtered users directly
   const filteredUsers = users.filter(user => {
     // Year filter - only filter non-admin users
     if (selectedYear !== 'all' && user.role !== 'admin' && user.year !== selectedYear) {
@@ -227,7 +178,7 @@ export function UserManagement({ initialFilters }: UserManagementProps = {}) {
     // Search filter
     if (searchTerm) {
       const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           (user.email && user.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
                            (user.usn && user.usn.toLowerCase().includes(searchTerm.toLowerCase())) ||
                            (user.employeeId && user.employeeId.toLowerCase().includes(searchTerm.toLowerCase()))
       if (!matchesSearch) return false
@@ -243,21 +194,50 @@ export function UserManagement({ initialFilters }: UserManagementProps = {}) {
       return false
     }
 
+    // College filter
+    if (selectedCollege !== 'all' && user.college !== selectedCollege) {
+      return false
+    }
+
     // Section filter - only apply to students
     if (selectedSection !== 'all' && user.role === 'student' && user.section !== selectedSection) {
       return false
     }
 
-    // Course filter - apply to students and teachers who have courses
-    if (selectedCourse !== 'all' && user.courses && !user.courses.includes(selectedCourse)) {
-      return false
+    // Course filter - apply to students who have courses
+    if (selectedCourse !== 'all') {
+      if (user.courses && user.courses.length > 0) {
+        if (!user.courses.includes(selectedCourse)) {
+          return false
+        }
+      } else {
+        // If user has no courses, don't show them when a course filter is applied
+        return false
+      }
     }
 
     return true
   })
-  // Get unique courses from all users for the dropdown
+
+  // Get unique values for filter dropdowns from actual data
+  const allDepartments = Array.from(new Set(
+    users.map(user => user.department).filter(Boolean)
+  )).sort()
+  
+  const allYears = Array.from(new Set(
+    users.map(user => user.year).filter(Boolean)
+  )).sort()
+  
+  const allSections = Array.from(new Set(
+    users.map(user => user.section).filter(Boolean)
+  )).sort()
+  
   const allCourses = Array.from(new Set(
     users.flatMap(user => user.courses || [])
+  )).sort()
+
+  const allColleges = Array.from(new Set(
+    users.map(user => user.college).filter(Boolean)
   )).sort()
 
   // Handle CSV import
@@ -278,6 +258,7 @@ export function UserManagement({ initialFilters }: UserManagementProps = {}) {
             id: Date.now().toString() + i,
             name: values[0] || '',
             email: values[1] || '',
+            username: values[1] || '',
             usn: values[2] || undefined,
             employeeId: values[3] || undefined,
             role: (values[4] as 'student' | 'teacher' | 'admin') || 'student',
@@ -303,7 +284,7 @@ export function UserManagement({ initialFilters }: UserManagementProps = {}) {
       headers.join(','),
       ...filteredUsers.map(user => [
         user.name,
-        user.email,
+        user.email || '',
         user.usn || '',
         user.employeeId || '',
         user.role,
@@ -322,9 +303,58 @@ export function UserManagement({ initialFilters }: UserManagementProps = {}) {
   }
 
   // Delete user
-  const deleteUser = (userId: string) => {
-    if (confirm('Are you sure you want to delete this user?')) {
-      setUsers(prev => prev.filter(user => user.id !== userId))
+  const deleteUser = async (userId: string) => {
+    if (confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
+      try {
+        const response = await adminApi.deleteUser(userId)
+        if (response.status === 'success') {
+          setUsers(prev => prev.filter(user => user.id !== userId))
+          alert('User deleted successfully')
+        } else {
+          // Show more detailed error message
+          const errorMsg = response.error || 'Unknown error'
+          if (response.dependencies) {
+            const depDetails = Object.entries(response.dependencies)
+              .filter(([, count]) => (count as number) > 0)
+              .map(([type, count]) => `${count} ${type}`)
+              .join(', ')
+            
+            // Offer force delete option
+            const forceDelete = confirm(
+              `Cannot delete user: ${errorMsg}\n\nDependencies found: ${depDetails}\n\n` +
+              `⚠️ FORCE DELETE OPTION ⚠️\n` +
+              `Click OK to FORCE DELETE this user and ALL related data (enrollments, attendance, grades, etc.)\n` +
+              `⚠️ THIS WILL PERMANENTLY DELETE ALL RELATED RECORDS ⚠️\n\n` +
+              `Click Cancel to abort the deletion.`
+            )
+            
+            if (forceDelete) {
+              await forceDeleteUser(userId)
+            }
+          } else {
+            alert('Failed to delete user: ' + errorMsg)
+          }
+        }
+      } catch (error) {
+        const errorMsg = error instanceof Error ? error.message : 'Unknown error'
+        alert('Error deleting user: ' + errorMsg)
+      }
+    }
+  }
+
+  // Force delete user (cascading delete)
+  const forceDeleteUser = async (userId: string) => {
+    try {
+      const response = await adminApi.forceDeleteUser(userId)
+      if (response.status === 'success') {
+        setUsers(prev => prev.filter(user => user.id !== userId))
+        alert('User and all related data deleted successfully')
+      } else {
+        alert('Failed to force delete user: ' + (response.error || 'Unknown error'))
+      }
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : 'Unknown error'
+      alert('Error force deleting user: ' + errorMsg)
     }
   }
 
@@ -334,7 +364,7 @@ export function UserManagement({ initialFilters }: UserManagementProps = {}) {
       case 'student': return <Users className="w-4 h-4 text-blue-500" />
       case 'teacher': return <GraduationCap className="w-4 h-4 text-green-500" />
       case 'admin': return <Shield className="w-4 h-4 text-purple-500" />
-      default: return <Users className="w-4 h-4 text-gray-500" />
+      default: return <Users className="w-4 h-4 text-gray-700" />
     }
   }
 
@@ -348,6 +378,41 @@ export function UserManagement({ initialFilters }: UserManagementProps = {}) {
     }
   }
 
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <RefreshCw className="w-5 h-5 animate-spin" />
+              Loading Users...
+            </CardTitle>
+          </CardHeader>
+        </Card>
+      </div>
+    )
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-red-600">
+              <AlertCircle className="w-5 h-5" />
+              Error Loading Users
+            </CardTitle>
+            <CardDescription className="text-red-600">
+              {error}
+            </CardDescription>
+          </CardHeader>
+        </Card>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-6">
       {/* Header Actions */}
@@ -356,7 +421,7 @@ export function UserManagement({ initialFilters }: UserManagementProps = {}) {
           <div className="flex items-center justify-between">
             <div>
               <CardTitle>User Management</CardTitle>
-              <CardDescription>
+              <CardDescription className="text-gray-800">
                 Total: {filteredUsers.length} users
               </CardDescription>
             </div>
@@ -369,14 +434,16 @@ export function UserManagement({ initialFilters }: UserManagementProps = {}) {
                 <Download className="w-4 h-4 mr-2" />
                 Export CSV
               </Button>
-              <Button onClick={() => setShowAddForm(true)}>
+              <Button>
                 <Plus className="w-4 h-4 mr-2" />
                 Add User
               </Button>
             </div>
           </div>
         </CardHeader>
-      </Card>      {/* Hidden file input */}
+      </Card>
+
+      {/* Hidden file input */}
       <input
         ref={fileInputRef}
         type="file"
@@ -385,12 +452,14 @@ export function UserManagement({ initialFilters }: UserManagementProps = {}) {
         className="hidden"
         aria-label="CSV file upload"
         title="Upload CSV file"
-      />      {/* Filters */}
+      />
+
+      {/* Filters */}
       <Card>
         <CardContent className="pt-6">
-          <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-7 gap-4">
             <div className="relative">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+              <Search className="absolute left-3 top-3 h-4 w-4 text-gray-600" />
               <Input
                 placeholder="Search users..."
                 value={searchTerm}
@@ -398,17 +467,6 @@ export function UserManagement({ initialFilters }: UserManagementProps = {}) {
                 className="pl-10"
               />
             </div>
-            <select
-              value={selectedYear}
-              onChange={(e) => setSelectedYear(e.target.value)}
-              className="rounded-md border border-gray-300 px-3 py-2 text-sm"
-              aria-label="Filter by year"
-            >
-              <option value="all">All Years</option>
-              <option value="2nd Year">2nd Year</option>
-              <option value="3rd Year">3rd Year</option>
-              <option value="4th Year">4th Year</option>
-            </select>
             <select
               value={selectedRole}
               onChange={(e) => {
@@ -427,28 +485,36 @@ export function UserManagement({ initialFilters }: UserManagementProps = {}) {
               <option value="admin">Administrators</option>
             </select>
             <select
+              value={selectedCollege}
+              onChange={(e) => setSelectedCollege(e.target.value)}
+              className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+              aria-label="Filter by college"
+            >
+              <option value="all">All Colleges</option>
+              {allColleges.map(college => (
+                <option key={college} value={college}>{college}</option>
+              ))}
+            </select>
+            <select
               value={selectedDepartment}
               onChange={(e) => setSelectedDepartment(e.target.value)}
               className="rounded-md border border-gray-300 px-3 py-2 text-sm"
               aria-label="Filter by department"
             >
               <option value="all">All Departments</option>
-              <option value="CSE">Computer Science</option>
-              <option value="ECE">Electronics</option>
-              <option value="ME">Mechanical</option>
-              <option value="CE">Civil</option>
-              <option value="AIDS">AI & Data Science</option>
-              <option value="ISE">Information Science</option>
+              {allDepartments.map(dept => (
+                <option key={dept} value={dept}>{dept}</option>
+              ))}
             </select>
             <select
-              value={selectedCourse}
-              onChange={(e) => setSelectedCourse(e.target.value)}
+              value={selectedYear}
+              onChange={(e) => setSelectedYear(e.target.value)}
               className="rounded-md border border-gray-300 px-3 py-2 text-sm"
-              aria-label="Filter by course"
+              aria-label="Filter by year"
             >
-              <option value="all">All Courses</option>
-              {allCourses.map(course => (
-                <option key={course} value={course}>{course}</option>
+              <option value="all">All Years</option>
+              {allYears.map(year => (
+                <option key={year} value={year}>{year}</option>
               ))}
             </select>
             <select
@@ -461,8 +527,20 @@ export function UserManagement({ initialFilters }: UserManagementProps = {}) {
               disabled={selectedRole !== 'student'}
             >
               <option value="all">All Sections</option>
-              <option value="A">Section A</option>
-              <option value="B">Section B</option>
+              {allSections.map(section => (
+                <option key={section} value={section}>Section {section}</option>
+              ))}
+            </select>
+            <select
+              value={selectedCourse}
+              onChange={(e) => setSelectedCourse(e.target.value)}
+              className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+              aria-label="Filter by course"
+            >
+              <option value="all">All Courses</option>
+              {allCourses.map(course => (
+                <option key={course} value={course}>{course}</option>
+              ))}
             </select>
           </div>
         </CardContent>
@@ -472,27 +550,28 @@ export function UserManagement({ initialFilters }: UserManagementProps = {}) {
       <Card>
         <CardContent className="p-0">
           <div className="overflow-x-auto">
-            <table className="w-full">              <thead className="bg-gray-50">
+            <table className="w-full">
+              <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                     User
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                     ID
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                     Role
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                     Department
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                    Year/Batch
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                     Section
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Courses
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                     Actions
                   </th>
                 </tr>
@@ -503,62 +582,36 @@ export function UserManagement({ initialFilters }: UserManagementProps = {}) {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div>
                         <div className="text-sm font-medium text-gray-900">{user.name}</div>
-                        <div className="text-sm text-gray-500">{user.email}</div>
+                        <div className="text-sm text-gray-700">{user.email}</div>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {user.usn || user.employeeId || '-'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex flex-wrap gap-1">
-                        {user.roles && user.roles.length > 0 ? (
-                          user.roles.map((role, index) => (
-                            <div key={index} className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${getRoleBadgeStyle(role)}`}>
-                              {getRoleIcon(role)}
-                              <span className="ml-1 capitalize">{role}</span>
-                            </div>
-                          ))
-                        ) : (
-                          <div className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${getRoleBadgeStyle(user.role)}`}>
-                            {getRoleIcon(user.role)}
-                            <span className="ml-1 capitalize">{user.role}</span>
-                          </div>
-                        )}
+                      <div className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${getRoleBadgeStyle(user.role)}`}>
+                        {getRoleIcon(user.role)}
+                        <span className="ml-1 capitalize">{user.role}</span>
                       </div>
-                    </td>                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {user.department || '-'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {user.role === 'student' ? (user.section || '-') : '-'}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-900">
-                      {user.courses && user.courses.length > 0 ? (
-                        <div className="max-w-xs">
-                          <div className="flex flex-wrap gap-1">
-                            {user.courses.slice(0, 3).map((course, index) => (
-                              <span
-                                key={index}
-                                className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
-                              >
-                                {course}
-                              </span>
-                            ))}
-                            {user.courses.length > 3 && (
-                              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
-                                +{user.courses.length - 3} more
-                              </span>
-                            )}
-                          </div>
+                      {user.role === 'student' ? (
+                        <div>
+                          <div className="font-medium">{user.year || '-'}</div>
+                          <div className="text-xs text-gray-700">Batch: {user.batchYear || '-'}</div>
                         </div>
-                      ) : (
-                        '-'
-                      )}
+                      ) : '-'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {user.role === 'student' ? (user.section || '-') : '-'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => setEditingUser(user)}
                       >
                         <Edit className="w-4 h-4" />
                       </Button>
@@ -582,24 +635,34 @@ export function UserManagement({ initialFilters }: UserManagementProps = {}) {
       <Card>
         <CardHeader>
           <CardTitle className="text-lg">CSV Import Format</CardTitle>
-          <CardDescription>
+          <CardDescription className="text-gray-800">
             Use the following format for CSV imports
           </CardDescription>
-        </CardHeader>        <CardContent>
+        </CardHeader>
+        <CardContent>
           <div className="bg-gray-100 p-4 rounded-lg">
             <code className="text-sm">
-              Name, Email, USN, Employee ID, Role, Department, Section<br />
-              John Doe, john.doe@nnm.ac.in, NNM22CS001, , student, CSE, A<br />
-              Dr. Jane Smith, jane.smith@nnm.ac.in, , TCH002, teacher, ECE, 
+              <strong>Students CSV Format:</strong><br />
+              username,college_code,department_code,section_name,usn,semester,batch_year<br />
+              student_nit_cse_a_3rd_1,NIT,CSE,A,&quot;NIT2022CSE001&quot;,6,2022<br />
+              student_nit_ise_a_2nd_1,NIT,ISE,A,&quot;NIT2023ISE001&quot;,4,2023<br />
+              <br />
+              <strong>Teachers CSV Format:</strong><br />
+              username,college_code,department_code<br />
+              prof_cse_nit,NIT,CSE<br />
+              prof_ise_nit,NIT,ISE
             </code>
           </div>
-          <div className="mt-4 text-sm text-gray-600">
-            <p><strong>Notes:</strong></p>
+          <div className="mt-4 text-sm text-gray-700">
+            <p><strong>Student Year System Notes:</strong></p>
             <ul className="list-disc list-inside space-y-1">
-              <li>USN is required for students, Employee ID for teachers/admins</li>
-              <li>Role should be: student, teacher, or admin</li>
-              <li>Department codes: CSE, ECE, ME, CE, AIDS, ISE</li>
+              <li><strong>Semester</strong>: Current semester (1-8) determines academic year display</li>
+              <li><strong>Batch Year</strong>: Year of joining (e.g. 2021, 2022, 2023, 2024)</li>
+              <li><strong>Academic Year</strong>: Auto-calculated (sem 1-2 = 1st year, 3-4 = 2nd year, etc.)</li>
+              <li>Students are organized by academic year but retain batch year for identification</li>
+              <li>USN format should include batch year for proper identification</li>
               <li>Section is only applicable for students (A, B, etc.)</li>
+              <li>Courses should be separated by semicolons</li>
               <li>Leave empty fields blank, don&apos;t remove columns</li>
             </ul>
           </div>

@@ -8,7 +8,7 @@ import {
 } from './types'
 
 // Base API URL - should be configured from environment
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
 
 // Generic API request helper
 async function apiRequest<T>(endpoint: string, options?: RequestInit): Promise<T> {
@@ -22,11 +22,19 @@ async function apiRequest<T>(endpoint: string, options?: RequestInit): Promise<T
     ...options,
   })
 
+  const data = await response.json()
+
+  // For 409 Conflict responses (dependency issues), return the data instead of throwing
+  // This allows the calling code to handle dependencies and offer force delete
+  if (response.status === 409) {
+    return data as T
+  }
+
   if (!response.ok) {
     throw new Error(`API request failed: ${response.status} ${response.statusText}`)
   }
 
-  return response.json()
+  return data
 }
 
 // Student API functions
@@ -87,6 +95,126 @@ export const studentApi = {
   async getEnrolledCourses(studentId: string, academicYear?: string): Promise<any[]> {
     const params = academicYear ? `?academic_year=${academicYear}` : ''
     return apiRequest<any[]>(`/api/students/${studentId}/courses${params}`)
+  }
+}
+
+// Admin API functions
+export const adminApi = {
+  // User management
+  async getAllUsers(): Promise<any> {
+    return apiRequest<any>('/api/users')
+  },
+
+  async getUserById(userId: string): Promise<any> {
+    return apiRequest<any>(`/api/users/${userId}`)
+  },
+
+  async getUsersByRole(role: string): Promise<any> {
+    return apiRequest<any>(`/api/users/role/${role}`)
+  },
+
+  async deleteUser(userId: string): Promise<any> {
+    return apiRequest<any>(`/api/users/${userId}`, {
+      method: 'DELETE'
+    })
+  },
+
+  async forceDeleteUser(userId: string): Promise<any> {
+    return apiRequest<any>(`/api/users/${userId}/force`, {
+      method: 'DELETE'
+    })
+  },
+
+  // Course management
+  async getAllCourses(): Promise<any> {
+    return apiRequest<any>('/api/courses')
+  },
+
+  async getCourseById(courseId: string): Promise<any> {
+    return apiRequest<any>(`/api/courses/${courseId}`)
+  },
+
+  async getCoursesByDepartment(departmentId: string): Promise<any> {
+    return apiRequest<any>(`/api/courses/department/${departmentId}`)
+  },
+
+  async getCoursesByType(courseType: string): Promise<any> {
+    return apiRequest<any>(`/api/courses/type/${courseType}`)
+  },
+
+  async deleteCourse(courseId: string): Promise<any> {
+    return apiRequest<any>(`/api/courses/${courseId}`, {
+      method: 'DELETE'
+    })
+  },
+
+  async forceDeleteCourse(courseId: string): Promise<any> {
+    return apiRequest<any>(`/api/courses/${courseId}/force`, {
+      method: 'DELETE'
+    })
+  },
+
+  // Department management
+  async getAllDepartments(): Promise<any> {
+    return apiRequest<any>('/api/departments')
+  },
+
+  async getDepartmentById(departmentId: string): Promise<any> {
+    return apiRequest<any>(`/api/departments/${departmentId}`)
+  },
+
+  async getDepartmentsByCollege(collegeId: string): Promise<any> {
+    return apiRequest<any>(`/api/departments/college/${collegeId}`)
+  },
+
+  async getDepartmentStats(departmentId: string): Promise<any> {
+    return apiRequest<any>(`/api/departments/${departmentId}/stats`)
+  },
+
+  async deleteDepartment(departmentId: string): Promise<any> {
+    return apiRequest<any>(`/api/departments/${departmentId}`, {
+      method: 'DELETE'
+    })
+  },
+
+  async forceDeleteDepartment(departmentId: string): Promise<any> {
+    return apiRequest<any>(`/api/departments/${departmentId}/force`, {
+      method: 'DELETE'
+    })
+  },
+
+  // College management
+  async getAllColleges(): Promise<any> {
+    return apiRequest<any>('/api/colleges')
+  },
+
+  async getCollegeById(collegeId: string): Promise<any> {
+    return apiRequest<any>(`/api/colleges/${collegeId}`)
+  },
+
+  async getCollegeStats(collegeId: string): Promise<any> {
+    return apiRequest<any>(`/api/colleges/${collegeId}/stats`)
+  },
+
+  async deleteCollege(collegeId: string): Promise<any> {
+    return apiRequest<any>(`/api/colleges/${collegeId}`, {
+      method: 'DELETE'
+    })
+  },
+
+  async forceDeleteCollege(collegeId: string): Promise<any> {
+    return apiRequest<any>(`/api/colleges/${collegeId}/force`, {
+      method: 'DELETE'
+    })
+  },
+
+  // Database health
+  async getDatabaseHealth(): Promise<any> {
+    return apiRequest<any>('/api/db/health')
+  },
+
+  async getDatabaseSummary(): Promise<any> {
+    return apiRequest<any>('/api/db/summary')
   }
 }
 

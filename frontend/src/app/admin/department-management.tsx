@@ -1,273 +1,491 @@
 'use client'
 
-import { useState } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { useState, useEffect } from 'react'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { 
   Plus, 
+  Search, 
   Edit, 
   Trash2,
   Building2,
   Users,
-  GraduationCap,
-  BookOpen
+  BookOpen,
+  RefreshCw,
+  AlertCircle
 } from 'lucide-react'
+import { adminApi } from '@/lib/api'
 
 interface DepartmentManagementProps {
-  selectedYear: string
   onNavigateToUsers?: (filters: {
     department?: string
-    role?: string
+    section?: string
     year?: string
   }) => void
   onNavigateToCourses?: (filters: {
     department?: string
     year?: string
   }) => void
+  initialFilters?: {
+    college?: string
+  }
 }
 
 interface Department {
   id: string
   name: string
   code: string
-  hodName: string
-  hodId: string
-  totalStudents: number
-  totalTeachers: number
-  totalCourses: number
-  averageAttendance: number
-  establishedYear: string
-  status: 'active' | 'inactive'
-  courses: DepartmentCourse[]
-  teachers: DepartmentTeacher[]
-}
-
-interface DepartmentCourse {
-  id: string
-  courseCode: string
-  courseName: string
-  semester: number
-  enrolledStudents: number
-}
-
-interface DepartmentTeacher {
-  id: string
-  name: string
-  designation: string
-  experience: number
-  coursesAssigned: number
-}
-
-// Mock data
-const mockDepartments: Department[] = [
-  {
-    id: '1',
-    name: 'Computer Science Engineering',
-    code: 'CSE',
-    hodName: 'Dr. Rajesh Kumar',
-    hodId: 'TCH001',
-    totalStudents: 890,
-    totalTeachers: 25,
-    totalCourses: 45,
-    averageAttendance: 85.2,
-    establishedYear: '1995',
-    status: 'active',
-    courses: [
-      { id: 'c1', courseCode: 'CS101', courseName: 'Programming in C', semester: 1, enrolledStudents: 180 },
-      { id: 'c2', courseCode: 'CS201', courseName: 'Data Structures', semester: 3, enrolledStudents: 165 },
-      { id: 'c3', courseCode: 'CS301', courseName: 'Database Systems', semester: 5, enrolledStudents: 150 }
-    ],
-    teachers: [
-      { id: 't1', name: 'Dr. Priya Sharma', designation: 'Professor', experience: 15, coursesAssigned: 3 },
-      { id: 't2', name: 'Prof. Anil Kumar', designation: 'Associate Professor', experience: 10, coursesAssigned: 4 },
-      { id: 't3', name: 'Dr. Sneha Reddy', designation: 'Assistant Professor', experience: 5, coursesAssigned: 3 }
-    ]
-  },
-  {
-    id: '2',
-    name: 'Electronics & Communication Engineering',
-    code: 'ECE',
-    hodName: 'Dr. Sunita Patel',
-    hodId: 'TCH002',
-    totalStudents: 756,
-    totalTeachers: 22,
-    totalCourses: 42,
-    averageAttendance: 82.8,
-    establishedYear: '1998',
-    status: 'active',
-    courses: [
-      { id: 'c4', courseCode: 'EC101', courseName: 'Basic Electronics', semester: 1, enrolledStudents: 160 },
-      { id: 'c5', courseCode: 'EC201', courseName: 'Digital Electronics', semester: 3, enrolledStudents: 145 },
-      { id: 'c6', courseCode: 'EC301', courseName: 'Communication Systems', semester: 5, enrolledStudents: 140 }
-    ],
-    teachers: [
-      { id: 't4', name: 'Dr. Ramesh Gupta', designation: 'Professor', experience: 18, coursesAssigned: 2 },
-      { id: 't5', name: 'Prof. Kavya Menon', designation: 'Associate Professor', experience: 12, coursesAssigned: 3 }
-    ]
-  },
-  {
-    id: '3',
-    name: 'Artificial Intelligence & Data Science',
-    code: 'AIDS',
-    hodName: 'Dr. Anita Desai',
-    hodId: 'TCH003',
-    totalStudents: 650,
-    totalTeachers: 18,
-    totalCourses: 38,
-    averageAttendance: 87.5,
-    establishedYear: '2020',
-    status: 'active',
-    courses: [
-      { id: 'c7', courseCode: 'AI101', courseName: 'Introduction to AI', semester: 3, enrolledStudents: 130 },
-      { id: 'c8', courseCode: 'DS201', courseName: 'Machine Learning', semester: 5, enrolledStudents: 125 },
-      { id: 'c9', courseCode: 'DS301', courseName: 'Deep Learning', semester: 7, enrolledStudents: 120 }
-    ],
-    teachers: [
-      { id: 't6', name: 'Dr. Vikram Joshi', designation: 'Professor', experience: 14, coursesAssigned: 3 },
-      { id: 't7', name: 'Prof. Neha Singh', designation: 'Assistant Professor', experience: 6, coursesAssigned: 4 }
-    ]
+  college: {
+    name: string
+    code: string
   }
-]
+  courses: any[]
+  sections: any[]
+  students: any[]
+  teachers: any[]
+  _count?: {
+    students: number
+    teachers: number
+    courses: number
+    sections: number
+  }
+}
 
-export function DepartmentManagement({ 
+export default function DepartmentManagement({ 
   onNavigateToUsers, 
-  onNavigateToCourses 
-}: DepartmentManagementProps) {  const [departments, setDepartments] = useState<Department[]>(mockDepartments)
-  const [showAddForm, setShowAddForm] = useState(false) // eslint-disable-line @typescript-eslint/no-unused-vars
-  const [editingDepartment, setEditingDepartment] = useState<Department | null>(null) // eslint-disable-line @typescript-eslint/no-unused-vars
+  onNavigateToCourses, 
+  initialFilters 
+}: DepartmentManagementProps) {
+  const [departments, setDepartments] = useState<Department[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [searchTerm, setSearchTerm] = useState('')
+  const [selectedCollege, setSelectedCollege] = useState('all')
+  const [showAddForm, setShowAddForm] = useState(false)
+
+  // Fetch departments from API
+  useEffect(() => {
+    const fetchDepartments = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+        const response = await adminApi.getAllDepartments()
+        
+        if (response.status === 'success') {
+          // Transform API data to match our Department interface
+          const transformedDepartments: Department[] = response.data.map((dept: any) => ({
+            id: dept.id,
+            name: dept.name,
+            code: dept.code,
+            college: {
+              name: dept.colleges?.name || '',
+              code: dept.colleges?.code || ''
+            },
+            courses: dept.courses || [],
+            sections: dept.sections || [],
+            students: dept.students || [],
+            teachers: dept.teachers || [],
+            _count: dept._count || {
+              students: dept.students?.length || 0,
+              teachers: dept.teachers?.length || 0,
+              courses: dept.courses?.length || 0,
+              sections: dept.sections?.length || 0
+            }
+          }))
+          
+          setDepartments(transformedDepartments)
+        } else {
+          setError(response.error || 'Failed to fetch departments')
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An error occurred while fetching departments')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchDepartments()
+  }, [])
+
+  // Apply filters based on initialFilters
+  useEffect(() => {
+    if (initialFilters) {
+      if (initialFilters.college) setSelectedCollege(initialFilters.college)
+    }
+  }, [initialFilters])
+
+  // Get filtered departments
+  const filteredDepartments = departments.filter(dept => {
+    const matchesSearch = dept.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         dept.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         dept.college.name.toLowerCase().includes(searchTerm.toLowerCase())
+
+    if (!matchesSearch) return false
+
+    if (selectedCollege !== 'all' && dept.college.code !== selectedCollege) {
+      return false
+    }
+
+    return true
+  })
+
+  // Get unique colleges for filter
+  const allColleges = Array.from(new Set(departments.map(dept => dept.college.code).filter(Boolean))).sort()
+
+  // Refresh data
+  const refreshData = () => {
+    setLoading(true)
+    setError(null)
+    const fetchDepartments = async () => {
+      try {
+        const response = await adminApi.getAllDepartments()
+        
+        if (response.status === 'success') {
+          const transformedDepartments: Department[] = response.data.map((dept: any) => ({
+            id: dept.id,
+            name: dept.name,
+            code: dept.code,
+            college: {
+              name: dept.colleges?.name || '',
+              code: dept.colleges?.code || ''
+            },
+            courses: dept.courses || [],
+            sections: dept.sections || [],
+            students: dept.students || [],
+            teachers: dept.teachers || [],
+            _count: dept._count || {
+              students: dept.students?.length || 0,
+              teachers: dept.teachers?.length || 0,
+              courses: dept.courses?.length || 0,
+              sections: dept.sections?.length || 0
+            }
+          }))
+          
+          setDepartments(transformedDepartments)
+        } else {
+          setError(response.error || 'Failed to fetch departments')
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An error occurred while fetching departments')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchDepartments()
+  }
 
   // Delete department
-  const deleteDepartment = (deptId: string) => {
+  const deleteDepartment = async (departmentId: string) => {
     if (confirm('Are you sure you want to delete this department? This action cannot be undone.')) {
-      setDepartments(prev => prev.filter(dept => dept.id !== deptId))
+      try {
+        const response = await adminApi.deleteDepartment(departmentId)
+        if (response.status === 'success') {
+          setDepartments(prev => prev.filter(dept => dept.id !== departmentId))
+          alert('Department deleted successfully')
+        } else {
+          // Show more detailed error message
+          const errorMsg = response.error || 'Unknown error'
+          if (response.dependencies) {
+            const depDetails = Object.entries(response.dependencies)
+              .filter(([, count]) => (count as number) > 0)
+              .map(([type, count]) => `${count} ${type}`)
+              .join(', ')
+            
+            // Offer force delete option
+            const forceDelete = confirm(
+              `Cannot delete department: ${errorMsg}\n\nDependencies found: ${depDetails}\n\n` +
+              `⚠️ FORCE DELETE OPTION ⚠️\n` +
+              `Click OK to FORCE DELETE this department and ALL related data (students, teachers, courses, etc.)\n` +
+              `⚠️ THIS WILL PERMANENTLY DELETE ALL RELATED RECORDS ⚠️\n\n` +
+              `Click Cancel to abort the deletion.`
+            )
+            
+            if (forceDelete) {
+              await forceDeleteDepartment(departmentId)
+            }
+          } else {
+            alert('Failed to delete department: ' + errorMsg)
+          }
+        }
+      } catch (error) {
+        const errorMsg = error instanceof Error ? error.message : 'Unknown error'
+        alert('Error deleting department: ' + errorMsg)
+      }
     }
   }
 
+  // Force delete department (cascading delete)
+  const forceDeleteDepartment = async (departmentId: string) => {
+    try {
+      const response = await adminApi.forceDeleteDepartment(departmentId)
+      if (response.status === 'success') {
+        setDepartments(prev => prev.filter(dept => dept.id !== departmentId))
+        alert('Department and all related data deleted successfully')
+      } else {
+        alert('Failed to force delete department: ' + (response.error || 'Unknown error'))
+      }
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : 'Unknown error'
+      alert('Error force deleting department: ' + errorMsg)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="p-6">
+        <div className="flex items-center justify-center py-8">
+          <RefreshCw className="h-6 w-6 animate-spin mr-2" />
+          <span>Loading departments...</span>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="p-6">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <div className="flex items-center">
+            <AlertCircle className="h-5 w-5 text-red-600 mr-2" />
+            <span className="text-red-800 font-medium">Error loading departments</span>
+          </div>
+          <p className="text-red-700 mt-2">{error}</p>
+          <Button onClick={refreshData} variant="outline" className="mt-4">
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Retry
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <div className="space-y-6">
-      {/* Header Actions */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>Department Management</CardTitle>            </div>
-            <div className="flex items-center space-x-2">
-              <Button onClick={() => setShowAddForm(true)}>
-                <Plus className="w-4 h-4 mr-2" />
-                Add Department
-              </Button>
+    <div className="p-6">
+      <div className="flex justify-between items-center mb-6">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Department Management</h1>
+          <p className="text-gray-800">Manage departments across all colleges</p>
+        </div>
+        <div className="flex gap-2">
+          <Button onClick={refreshData} variant="outline" size="sm">
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Refresh
+          </Button>
+          <Button onClick={() => setShowAddForm(true)} size="sm">
+            <Plus className="h-4 w-4 mr-2" />
+            Add Department
+          </Button>
+        </div>
+      </div>
+
+      {/* Filters */}
+      <div className="bg-white rounded-lg shadow-sm border p-4 mb-6">
+        <div className="flex flex-wrap gap-4 items-center">
+          <div className="flex-1 min-w-[200px]">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-600" />
+              <Input
+                placeholder="Search departments..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
             </div>
           </div>
-        </CardHeader>
-      </Card>      {/* Department Overview Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          
+          <select
+            value={selectedCollege}
+            onChange={(e) => setSelectedCollege(e.target.value)}
+            className="px-3 py-2 border rounded-md"
+            title="Filter by college"
+          >
+            <option value="all">All Colleges</option>
+            {allColleges.map(college => (
+              <option key={college} value={college}>{college}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      {/* Statistics Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
         <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center space-x-2">
-              <Building2 className="w-5 h-5 text-blue-500" />
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
               <div>
+                <p className="text-sm text-gray-700">Total Departments</p>
                 <p className="text-2xl font-bold">{departments.length}</p>
-                <p className="text-xs text-gray-600">Total Departments</p>
               </div>
+              <Building2 className="h-8 w-8 text-blue-500" />
             </div>
           </CardContent>
         </Card>
         
         <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center space-x-2">
-              <Users className="w-5 h-5 text-green-500" />
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
               <div>
+                <p className="text-sm text-gray-700">Total Students</p>
                 <p className="text-2xl font-bold">
-                  {departments.reduce((acc, dept) => acc + dept.totalStudents, 0).toLocaleString()}
+                  {departments.reduce((sum, dept) => sum + (dept._count?.students || 0), 0)}
                 </p>
-                <p className="text-xs text-gray-600">Total Students</p>
               </div>
+              <Users className="h-8 w-8 text-green-500" />
             </div>
           </CardContent>
         </Card>
         
         <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center space-x-2">
-              <GraduationCap className="w-5 h-5 text-purple-500" />
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
               <div>
+                <p className="text-sm text-gray-700">Total Teachers</p>
                 <p className="text-2xl font-bold">
-                  {departments.reduce((acc, dept) => acc + dept.totalTeachers, 0)}
+                  {departments.reduce((sum, dept) => sum + (dept._count?.teachers || 0), 0)}
                 </p>
-                <p className="text-xs text-gray-600">Total Faculty</p>
               </div>
+              <Users className="h-8 w-8 text-purple-500" />
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-700">Total Courses</p>
+                <p className="text-2xl font-bold">
+                  {departments.reduce((sum, dept) => sum + (dept._count?.courses || 0), 0)}
+                </p>
+              </div>
+              <BookOpen className="h-8 w-8 text-orange-500" />
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Departments List */}
-      <div className="space-y-4">
-        {departments.map((department) => (
-          <Card key={department.id}>
-            <CardHeader>
-              <div className="flex items-center justify-between">                <div className="flex items-center space-x-4">
-                  <Building2 className="w-6 h-6 text-blue-500" />
-                  <div>
-                    <CardTitle className="text-lg">
-                      {department.name} ({department.code})
-                    </CardTitle>
-                  </div>
-                </div><div className="flex items-center space-x-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => onNavigateToUsers?.({
-                      department: department.code,
-                      role: 'teacher'
-                    })}
-                    className="flex items-center space-x-1"
-                  >
-                    <GraduationCap className="w-3 h-3" />
-                    <span className="text-xs">Faculty ({department.totalTeachers})</span>
+      {/* Departments Table */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Departments ({filteredDepartments.length})</CardTitle>
+          <CardDescription className="text-gray-800">
+            Showing {filteredDepartments.length} of {departments.length} departments
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="border-b">
+                  <th className="text-left p-4 font-medium text-gray-900">Name</th>
+                  <th className="text-left p-4 font-medium text-gray-900">Code</th>
+                  <th className="text-left p-4 font-medium text-gray-900">College</th>
+                  <th className="text-left p-4 font-medium text-gray-900">Students</th>
+                  <th className="text-left p-4 font-medium text-gray-900">Teachers</th>
+                  <th className="text-left p-4 font-medium text-gray-900">Courses</th>
+                  <th className="text-left p-4 font-medium text-gray-900">Sections</th>
+                  <th className="text-left p-4 font-medium text-gray-900">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredDepartments.map((dept) => (
+                  <tr key={dept.id} className="border-b hover:bg-gray-50">
+                    <td className="p-4">
+                      <div className="font-medium">{dept.name}</div>
+                    </td>
+                    <td className="p-4">
+                      <div className="font-mono text-sm text-gray-800">{dept.code}</div>
+                    </td>
+                    <td className="p-4">
+                      <div className="text-sm text-gray-800">
+                        <div>{dept.college.name}</div>
+                        <div className="text-gray-700">{dept.college.code}</div>
+                      </div>
+                    </td>
+                    <td className="p-4">
+                      <button 
+                        onClick={() => onNavigateToUsers?.({ department: dept.code })}
+                        className="text-blue-600 hover:underline"
+                      >
+                        {dept._count?.students || 0}
+                      </button>
+                    </td>
+                    <td className="p-4">
+                      <button 
+                        onClick={() => onNavigateToUsers?.({ department: dept.code })}
+                        className="text-blue-600 hover:underline"
+                      >
+                        {dept._count?.teachers || 0}
+                      </button>
+                    </td>
+                    <td className="p-4">
+                      <button 
+                        onClick={() => onNavigateToCourses?.({ department: dept.code })}
+                        className="text-blue-600 hover:underline"
+                      >
+                        {dept._count?.courses || 0}
+                      </button>
+                    </td>
+                    <td className="p-4">
+                      <span className="text-gray-700">{dept._count?.sections || 0}</span>
+                    </td>
+                    <td className="p-4">
+                      <div className="flex gap-2">
+                        <Button size="sm" variant="outline">
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button size="sm" variant="outline" onClick={() => deleteDepartment(dept.id)}>
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Add Department Form Modal */}
+      {showAddForm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <h2 className="text-xl font-bold mb-4">Add New Department</h2>
+              <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">Department Name</label>
+                  <Input placeholder="e.g., Computer Science and Engineering" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Department Code</label>
+                  <Input placeholder="e.g., CSE" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">College</label>
+                  <select className="w-full px-3 py-2 border rounded-md">
+                    <option value="">Select College</option>
+                    {allColleges.map(college => (
+                      <option key={college} value={college}>{college}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="flex gap-2 pt-4">
+                  <Button type="submit" className="flex-1">
+                    Add Department
                   </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => onNavigateToCourses?.({
-                      department: department.code
-                    })}
-                    className="flex items-center space-x-1"
-                  >
-                    <BookOpen className="w-3 h-3" />
-                    <span className="text-xs">Courses ({department.totalCourses})</span>
+                  <Button type="button" variant="outline" onClick={() => setShowAddForm(false)}>
+                    Cancel
                   </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => onNavigateToUsers?.({
-                      department: department.code,
-                      role: 'student'
-                    })}
-                    className="flex items-center space-x-1"
-                  >
-                    <Users className="w-3 h-3" />
-                    <span className="text-xs">Students ({department.totalStudents.toLocaleString()})</span>
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setEditingDepartment(department)}
-                  >
-                    <Edit className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => deleteDepartment(department.id)}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>              </div>
-            </CardHeader>
-          </Card>
-        ))}      </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

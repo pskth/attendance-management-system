@@ -1,0 +1,6 @@
+username,college_code,department_code,section_name,usn,semester,batch_year
+student1,NIT,CSE,A,"NIT2022CSE001",5,2022
+student2,NIT,CSE,A,"NIT2022CSE002",5,2022
+student3,NIT,ISE,A,"NIT2022ISE001",3,2022
+student4,NMAMIT,MECH,A,"NMAMIT2023MECH001",3,2023
+student5,MITE,CSE,A,"MITE2022CSE001",5,2022

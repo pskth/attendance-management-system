@@ -1,0 +1,9 @@
+course_code,academic_year,semester,section_dept_code,section_name,teacher_username
+CSE501,"2024-25",5,CSE,A,prof_smith
+CSE502,"2024-25",5,CSE,A,prof_smith
+CSE503,"2024-25",5,CSE,A,prof_smith
+ISE301,"2024-25",3,ISE,A,prof_jones
+ISE302,"2024-25",3,ISE,A,prof_jones
+MECH201,"2024-25",3,MECH,A,prof_wilson
+MECH202,"2024-25",3,MECH,A,prof_wilson
+CSE401,"2024-25",5,CSE,A,prof_smith

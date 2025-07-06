@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
   output   = "../generated/prisma"
@@ -14,284 +8,293 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Enums
-enum UserRole {
-  student
-  teacher
-  admin
-  report_viewer
-}
-
-enum AttendanceStatus {
-  present
-  absent
-}
-
-enum CourseType {
-  core
-  department_elective
-  open_elective
-}
-
-// Models
 model College {
-  id      String  @id @default(uuid()) @map("college_id") @db.Uuid
-  name    String  @unique @map("college_name") @db.VarChar(150)
-  code    String  @unique @map("college_code") @db.VarChar(20)
-  logoUrl String? @map("logo_url")
+  id                         String                    @id @default(dbgenerated("uuid_generate_v4()")) @map("college_id") @db.Uuid
+  name                       String                    @unique @map("college_name") @db.VarChar(150)
+  code                       String                    @unique @map("college_code") @db.VarChar(20)
+  logoUrl                    String?                   @map("logo_url")
+  academic_years             academic_years[]
+  courses                    Course[]
+  department_elective_groups DepartmentElectiveGroup[]
+  departments                Department[]
+  students                   Student[]
+  teachers                   Teacher[]
 
   @@map("colleges")
 }
 
 model Department {
-  id   String  @id @default(uuid()) @map("department_id") @db.Uuid
-  name String  @unique @map("department_name") @db.VarChar(100)
-  code String? @unique @map("department_code") @db.VarChar(10)
-
-  // Relations
-  teachers                 Teacher[]
+  id                       String                    @id @default(dbgenerated("uuid_generate_v4()")) @map("department_id") @db.Uuid
+  college_id               String                    @db.Uuid
+  name                     String                    @map("department_name") @db.VarChar(100)
+  code                     String?                   @map("department_code") @db.VarChar(10)
   courses                  Course[]
   departmentElectiveGroups DepartmentElectiveGroup[]
+  colleges                 College                   @relation(fields: [college_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   openElectiveRestrictions OpenElectiveRestriction[]
-  courseOfferings          CourseOffering[]
+  sections                 sections[]
+  students                 Student[]
+  teachers                 Teacher[]
 
+  @@unique([college_id, code])
+  @@unique([college_id, name])
   @@map("departments")
 }
 
 model User {
-  id           String   @id @default(uuid()) @map("user_id") @db.Uuid
-  username     String   @unique @db.VarChar(100)
-  passwordHash String   @map("password_hash")
-  name         String   @db.VarChar(100)
-  phone        String?  @db.VarChar(15)
-  photoUrl     String?  @map("photo_url")
-  createdAt    DateTime @default(now()) @map("created_at")
-
-  // Relations
-  userRoles    UserRoleAssignment[]
-  student      Student?
-  teacher      Teacher?
+  id           String               @id @default(dbgenerated("uuid_generate_v4()")) @map("user_id") @db.Uuid
+  username     String               @unique @db.VarChar(100)
+  passwordHash String               @map("password_hash")
+  name         String               @db.VarChar(100)
+  phone        String?              @db.VarChar(15)
+  photoUrl     String?              @map("photo_url")
+  createdAt    DateTime?            @default(now()) @map("created_at") @db.Timestamp(6)
   admin        Admin?
   reportViewer ReportViewer?
+  student      Student?
+  teacher      Teacher?
+  userRoles    UserRoleAssignment[]
 
   @@map("users")
 }
 
 model UserRoleAssignment {
-  userId String   @map("user_id") @db.Uuid
-  role   UserRole
-
-  // Relations
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String    @map("user_id") @db.Uuid
+  role   user_role
+  user   User      @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@id([userId, role])
   @@map("user_roles")
 }
 
 model Student {
-  id        String @id @default(uuid()) @map("student_id") @db.Uuid
-  userId    String @unique @map("user_id") @db.Uuid
-  usn       String @unique @db.VarChar(20)
-  batchYear Int    @map("batch_year")
-  semester  Int?
-
-  // Relations
-  user              User                @relation(fields: [userId], references: [id], onDelete: Cascade)
-  enrollments       StudentEnrollment[]
+  id                String              @id @default(dbgenerated("uuid_generate_v4()")) @map("student_id") @db.Uuid
+  userId            String              @unique @map("user_id") @db.Uuid
+  college_id        String              @db.Uuid
+  department_id     String?             @db.Uuid
+  section_id        String?             @db.Uuid
+  usn               String              @unique @db.VarChar(20)
+  semester          Int?
+  batchYear         Int                 @map("batch_year")
   attendanceRecords AttendanceRecord[]
+  enrollments       StudentEnrollment[]
+  colleges          College             @relation(fields: [college_id], references: [id], onUpdate: NoAction)
+  departments       Department?         @relation(fields: [department_id], references: [id], onUpdate: NoAction)
+  sections          sections?           @relation(fields: [section_id], references: [section_id], onUpdate: NoAction)
+  user              User                @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
-  @@index([userId])
   @@map("students")
 }
 
 model Teacher {
-  id           String  @id @default(uuid()) @map("teacher_id") @db.Uuid
-  userId       String  @unique @map("user_id") @db.Uuid
-  departmentId String? @map("department_id") @db.Uuid
-
-  // Relations
-  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  department      Department?      @relation(fields: [departmentId], references: [id], onDelete: SetNull)
-  courseOfferings CourseOffering[]
+  id              String           @id @default(dbgenerated("uuid_generate_v4()")) @map("teacher_id") @db.Uuid
+  userId          String           @unique @map("user_id") @db.Uuid
+  college_id      String           @db.Uuid
+  departmentId    String?          @map("department_id") @db.Uuid
   attendances     Attendance[]
+  courseOfferings CourseOffering[]
+  colleges        College          @relation(fields: [college_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  department      Department?      @relation(fields: [departmentId], references: [id], onUpdate: NoAction)
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
-  @@index([userId])
-  @@index([departmentId])
   @@map("teachers")
 }
 
 model Course {
-  id                 String      @id @default(uuid()) @map("course_id") @db.Uuid
-  code               String      @unique @map("course_code") @db.VarChar(20)
-  name               String      @map("course_name") @db.VarChar(100)
-  departmentId       String?     @map("department_id") @db.Uuid
-  type               CourseType? @map("course_type")
-  hasTheoryComponent Boolean     @default(true) @map("has_theory_component")
-  hasLabComponent    Boolean     @default(false) @map("has_lab_component")
-
-  // Relations
-  department                 Department?                 @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+  id                         String                      @id @default(dbgenerated("uuid_generate_v4()")) @map("course_id") @db.Uuid
+  college_id                 String                      @db.Uuid
+  code                       String                      @map("course_code") @db.VarChar(20)
+  name                       String                      @map("course_name") @db.VarChar(100)
+  departmentId               String?                     @map("department_id") @db.Uuid
+  type                       course_type?                @map("course_type")
+  hasTheoryComponent         Boolean                     @default(true) @map("has_theory_component")
+  hasLabComponent            Boolean                     @default(false) @map("has_lab_component")
   courseElectiveGroupMembers CourseElectiveGroupMember[]
-  openElectiveRestrictions   OpenElectiveRestriction[]
   courseOfferings            CourseOffering[]
+  colleges                   College                     @relation(fields: [college_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  department                 Department?                 @relation(fields: [departmentId], references: [id], onUpdate: NoAction)
+  openElectiveRestrictions   OpenElectiveRestriction[]
 
-  @@index([departmentId])
+  @@unique([college_id, code])
   @@map("courses")
 }
 
 model DepartmentElectiveGroup {
-  id           String @id @default(uuid()) @map("group_id") @db.Uuid
-  name         String @map("group_name") @db.VarChar(150)
-  departmentId String @map("department_id") @db.Uuid
-  semester     Int
-  batchYear    Int    @map("batch_year")
-
-  // Relations
-  department                 Department                  @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  id                         String                      @id @default(dbgenerated("uuid_generate_v4()")) @map("group_id") @db.Uuid
+  college_id                 String                      @db.Uuid
+  name                       String                      @map("group_name") @db.VarChar(150)
+  departmentId               String                      @map("department_id") @db.Uuid
+  semester                   Int
+  batchYear                  Int                         @map("batch_year")
   courseElectiveGroupMembers CourseElectiveGroupMember[]
+  colleges                   College                     @relation(fields: [college_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  department                 Department                  @relation(fields: [departmentId], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
-  @@unique([name, departmentId, semester, batchYear], map: "unique_group_dept_sem_batch")
+  @@unique([college_id, name, departmentId, semester, batchYear])
   @@map("department_elective_groups")
 }
 
 model CourseElectiveGroupMember {
-  groupId  String @map("group_id") @db.Uuid
-  courseId String @map("course_id") @db.Uuid
-
-  // Relations
-  group  DepartmentElectiveGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  course Course                  @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  groupId  String                  @map("group_id") @db.Uuid
+  courseId String                  @map("course_id") @db.Uuid
+  course   Course                  @relation(fields: [courseId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  group    DepartmentElectiveGroup @relation(fields: [groupId], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@id([groupId, courseId])
   @@map("course_elective_group_members")
 }
 
 model OpenElectiveRestriction {
-  id                     String @id @default(uuid()) @map("restriction_id") @db.Uuid
-  courseId               String @map("course_id") @db.Uuid
-  restrictedDepartmentId String @map("restricted_department_id") @db.Uuid
-
-  // Relations
-  course               Course     @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  restrictedDepartment Department @relation(fields: [restrictedDepartmentId], references: [id], onDelete: Cascade)
+  id                     String     @id @default(dbgenerated("uuid_generate_v4()")) @map("restriction_id") @db.Uuid
+  courseId               String?    @map("course_id") @db.Uuid
+  restrictedDepartmentId String     @map("restricted_department_id") @db.Uuid
+  course                 Course?    @relation(fields: [courseId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  restrictedDepartment   Department @relation(fields: [restrictedDepartmentId], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@unique([courseId, restrictedDepartmentId])
-  @@index([courseId])
   @@map("open_elective_restrictions")
 }
 
 model CourseOffering {
-  id           String  @id @default(uuid()) @map("offering_id") @db.Uuid
-  courseId     String? @map("course_id") @db.Uuid
-  teacherId    String? @map("teacher_id") @db.Uuid
-  classSection String? @map("class_section") @db.VarChar(10)
-  batchYear    Int?    @map("batch_year")
-  semester     Int?
-  departmentId String? @map("department_id") @db.Uuid
+  id             String              @id @default(dbgenerated("uuid_generate_v4()")) @map("offering_id") @db.Uuid
+  courseId       String              @map("course_id") @db.Uuid
+  teacherId      String?             @map("teacher_id") @db.Uuid
+  section_id     String?             @db.Uuid
+  year_id        String?             @db.Uuid
+  semester       Int?
+  attendances    Attendance[]
+  course         Course              @relation(fields: [courseId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  sections       sections?           @relation(fields: [section_id], references: [section_id], onDelete: Cascade, onUpdate: NoAction)
+  teacher        Teacher?            @relation(fields: [teacherId], references: [id], onUpdate: NoAction)
+  academic_years academic_years?     @relation(fields: [year_id], references: [year_id], onDelete: Cascade, onUpdate: NoAction)
+  enrollments    StudentEnrollment[]
 
-  // Relations
-  course      Course?             @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  teacher     Teacher?            @relation(fields: [teacherId], references: [id], onDelete: Cascade)
-  department  Department?         @relation(fields: [departmentId], references: [id], onDelete: SetNull)
-  enrollments StudentEnrollment[]
-  attendances Attendance[]
-
-  @@index([departmentId])
   @@map("course_offerings")
 }
 
 model StudentEnrollment {
-  id            String  @id @default(uuid()) @map("enrollment_id") @db.Uuid
-  studentId     String? @map("student_id") @db.Uuid
-  offeringId    String? @map("offering_id") @db.Uuid
-  attemptNumber Int?    @default(1) @map("attempt_number")
-  batchYear     Int?    @map("batch_year")
-
-  // Relations
-  student     Student?        @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  offering    CourseOffering? @relation(fields: [offeringId], references: [id], onDelete: Cascade)
-  theoryMarks TheoryMarks?
-  labMarks    LabMarks?
+  id             String          @id @default(dbgenerated("uuid_generate_v4()")) @map("enrollment_id") @db.Uuid
+  studentId      String?         @map("student_id") @db.Uuid
+  offeringId     String?         @map("offering_id") @db.Uuid
+  attemptNumber  Int?            @default(1) @map("attempt_number")
+  year_id        String?         @db.Uuid
+  labMarks       LabMarks?
+  offering       CourseOffering? @relation(fields: [offeringId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  student        Student?        @relation(fields: [studentId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  academic_years academic_years? @relation(fields: [year_id], references: [year_id], onDelete: Cascade, onUpdate: NoAction)
+  theoryMarks    TheoryMarks?
 
   @@map("student_enrollments")
 }
 
 model Attendance {
-  id              String   @id @default(uuid()) @map("attendance_id") @db.Uuid
-  offeringId      String?  @map("offering_id") @db.Uuid
-  teacherId       String?  @map("teacher_id") @db.Uuid
-  classDate       DateTime @map("class_date") @db.Date
-  periodNumber    Int?     @map("period_number")
-  syllabusCovered String?  @map("syllabus_covered")
-
-  // Relations
-  offering          CourseOffering?    @relation(fields: [offeringId], references: [id], onDelete: Cascade)
-  teacher           Teacher?           @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  id                String             @id @default(dbgenerated("uuid_generate_v4()")) @map("attendance_id") @db.Uuid
+  offeringId        String?            @map("offering_id") @db.Uuid
+  teacherId         String?            @map("teacher_id") @db.Uuid
+  classDate         DateTime           @map("class_date") @db.Date
+  periodNumber      Int?               @map("period_number")
+  syllabusCovered   String?            @map("syllabus_covered")
+  status            String?            @default("held") @db.VarChar(20)
+  offering          CourseOffering?    @relation(fields: [offeringId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  teacher           Teacher?           @relation(fields: [teacherId], references: [id], onUpdate: NoAction)
   attendanceRecords AttendanceRecord[]
 
   @@map("attendance")
 }
 
 model AttendanceRecord {
-  id           String            @id @default(uuid()) @map("record_id") @db.Uuid
-  attendanceId String?           @map("attendance_id") @db.Uuid
-  studentId    String?           @map("student_id") @db.Uuid
-  status       AttendanceStatus?
-
-  // Relations
-  attendance Attendance? @relation(fields: [attendanceId], references: [id], onDelete: Cascade)
-  student    Student?    @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  id           String             @id @default(dbgenerated("uuid_generate_v4()")) @map("record_id") @db.Uuid
+  attendanceId String?            @map("attendance_id") @db.Uuid
+  studentId    String?            @map("student_id") @db.Uuid
+  status       attendance_status?
+  attendance   Attendance?        @relation(fields: [attendanceId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  student      Student?           @relation(fields: [studentId], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@map("attendance_records")
 }
 
 model TheoryMarks {
-  id            String   @id @default(uuid()) @map("marks_id") @db.Uuid
-  enrollmentId  String   @unique @map("enrollment_id") @db.Uuid
-  mse1Marks     Int?     @map("mse1_marks") @db.SmallInt
-  mse2Marks     Int?     @map("mse2_marks") @db.SmallInt
-  mse3Marks     Int?     @map("mse3_marks") @db.SmallInt
-  task1Marks    Int?     @map("task1_marks") @db.SmallInt
-  task2Marks    Int?     @map("task2_marks") @db.SmallInt
-  task3Marks    Int?     @map("task3_marks") @db.SmallInt
-  lastUpdatedAt DateTime @default(now()) @map("last_updated_at")
-
-  // Relations
-  enrollment StudentEnrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  id            String            @id @default(dbgenerated("uuid_generate_v4()")) @map("marks_id") @db.Uuid
+  enrollmentId  String            @unique @map("enrollment_id") @db.Uuid
+  mse1Marks     Int?              @map("mse1_marks") @db.SmallInt
+  mse2Marks     Int?              @map("mse2_marks") @db.SmallInt
+  mse3Marks     Int?              @map("mse3_marks") @db.SmallInt
+  task1Marks    Int?              @map("task1_marks") @db.SmallInt
+  task2Marks    Int?              @map("task2_marks") @db.SmallInt
+  task3Marks    Int?              @map("task3_marks") @db.SmallInt
+  lastUpdatedAt DateTime?         @default(now()) @map("last_updated_at") @db.Timestamp(6)
+  enrollment    StudentEnrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@map("theory_marks")
 }
 
 model LabMarks {
-  id                        String   @id @default(uuid()) @map("marks_id") @db.Uuid
-  enrollmentId              String   @unique @map("enrollment_id") @db.Uuid
-  recordMarks               Int?     @map("record_marks") @db.SmallInt
-  continuousEvaluationMarks Int?     @map("continuous_evaluation_marks") @db.SmallInt
-  labMseMarks               Int?     @map("lab_mse_marks") @db.SmallInt
-  lastUpdatedAt             DateTime @default(now()) @map("last_updated_at")
-
-  // Relations
-  enrollment StudentEnrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  id                        String            @id @default(dbgenerated("uuid_generate_v4()")) @map("marks_id") @db.Uuid
+  enrollmentId              String            @unique @map("enrollment_id") @db.Uuid
+  recordMarks               Int?              @map("record_marks") @db.SmallInt
+  continuousEvaluationMarks Int?              @map("continuous_evaluation_marks") @db.SmallInt
+  labMseMarks               Int?              @map("lab_mse_marks") @db.SmallInt
+  lastUpdatedAt             DateTime?         @default(now()) @map("last_updated_at") @db.Timestamp(6)
+  enrollment                StudentEnrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@map("lab_marks")
 }
 
 model Admin {
-  id     String @id @default(uuid()) @map("admin_id") @db.Uuid
+  id     String @id @default(dbgenerated("uuid_generate_v4()")) @map("admin_id") @db.Uuid
   userId String @unique @map("user_id") @db.Uuid
-
-  // Relations
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@map("admins")
 }
 
 model ReportViewer {
-  id     String @id @default(uuid()) @map("viewer_id") @db.Uuid
+  id     String @id @default(dbgenerated("uuid_generate_v4()")) @map("viewer_id") @db.Uuid
   userId String @unique @map("user_id") @db.Uuid
-
-  // Relations
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@map("report_viewers")
+}
+
+model academic_years {
+  year_id             String              @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  college_id          String              @db.Uuid
+  year_name           String              @db.VarChar(10)
+  start_date          DateTime?           @db.Date
+  end_date            DateTime?           @db.Date
+  is_active           Boolean?            @default(false)
+  colleges            College             @relation(fields: [college_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  course_offerings    CourseOffering[]
+  student_enrollments StudentEnrollment[]
+
+  @@unique([college_id, year_name])
+}
+
+model sections {
+  section_id       String           @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  department_id    String           @db.Uuid
+  section_name     String           @db.VarChar(10)
+  course_offerings CourseOffering[]
+  departments      Department       @relation(fields: [department_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  students         Student[]
+
+  @@unique([department_id, section_name])
+}
+
+enum attendance_status {
+  present
+  absent
+}
+
+enum course_type {
+  core
+  department_elective
+  open_elective
+}
+
+enum user_role {
+  student
+  teacher
+  admin
+  report_viewer
 }

@@ -1,0 +1,9 @@
+college_code,course_code,course_name,department_code,course_type,has_theory_component,has_lab_component
+NIT,CSE501,"Data Structures and Algorithms",CSE,core,true,true
+NIT,CSE502,"Computer Networks",CSE,core,true,false
+NIT,CSE503,"Database Management Systems",CSE,core,true,true
+NIT,ISE301,"Software Engineering",ISE,core,true,false
+NIT,ISE302,"Web Technologies",ISE,core,true,true
+NMAMIT,MECH201,"Thermodynamics",MECH,core,true,false
+NMAMIT,MECH202,"Fluid Mechanics",MECH,core,true,true
+MITE,CSE401,"Machine Learning",CSE,core,true,true
