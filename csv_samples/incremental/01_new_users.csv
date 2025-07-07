@@ -1,4 +1,0 @@
-username,password_hash,name,phone
-student_cse_b1,"$2b$10$N9qo8uLOickgx2ZMRZoMy.ZT.8hKH.YAmZ5PQ0qQH9M5ZVf4nCKoS","Arjun Reddy","9876543210"
-student_cse_b2,"$2b$10$N9qo8uLOickgx2ZMRZoMy.ZT.8hKH.YAmZ5PQ0qQH9M5ZVf4nCKoS","Kavya Nair","9876543211"
-student_cse_b3,"$2b$10$N9qo8uLOickgx2ZMRZoMy.ZT.8hKH.YAmZ5PQ0qQH9M5ZVf4nCKoS","Rohit Sharma","9876543212"

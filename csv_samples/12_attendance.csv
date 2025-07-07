@@ -1,8 +1,0 @@
-course_code,section_dept_code,section_name,teacher_username,class_date,period_number,syllabus_covered
-CSE501,CSE,A,prof_smith,2025-01-15,1,"Introduction to Data Structures"
-CSE501,CSE,A,prof_smith,2025-01-16,1,"Arrays and Pointers"
-CSE501,CSE,A,prof_smith,2025-01-17,2,"Linked Lists"
-CSE502,CSE,A,prof_smith,2025-01-15,3,"Network Models"
-CSE502,CSE,A,prof_smith,2025-01-16,3,"TCP/IP Protocol"
-ISE301,ISE,A,prof_jones,2025-01-15,1,"Software Development Life Cycle"
-ISE301,ISE,A,prof_jones,2025-01-16,1,"Requirements Engineering"

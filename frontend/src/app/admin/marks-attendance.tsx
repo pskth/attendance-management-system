@@ -237,7 +237,11 @@ export default function MarksAttendanceManagement({
       }
     } catch (err) {
       console.error('Error updating mark:', err)
-      setError('Failed to update mark')
+      console.error('Enrollment ID:', enrollmentId)
+      console.error('Field:', field)
+      console.error('Value:', value)
+      const errorMessage = err instanceof Error ? err.message : 'Failed to update mark'
+      setError(`Failed to update mark: ${errorMessage}`)
     }
     setEditingMarkId(null)
     setEditingMarkField(null)

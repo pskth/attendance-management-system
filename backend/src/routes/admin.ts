@@ -1122,10 +1122,11 @@ router.get('/marks/:enrollmentId', async (req, res) => {
 
 // Update marks for a specific enrollment
 router.put('/marks/:enrollmentId', async (req, res) => {
+  const { enrollmentId } = req.params;
+  const markData = req.body;
+  
   try {
     const prisma = DatabaseService.getInstance();
-    const { enrollmentId } = req.params;
-    const markData = req.body;
 
     // Check if enrollment exists
     const enrollment = await prisma.studentEnrollment.findUnique({
@@ -1191,9 +1192,16 @@ router.put('/marks/:enrollmentId', async (req, res) => {
     });
   } catch (error) {
     console.error('Error updating marks:', error);
+    console.error('EnrollmentId:', enrollmentId);
+    console.error('Mark data:', markData);
     res.status(500).json({
       status: 'error',
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: error instanceof Error ? error.message : 'Unknown error',
+      debug: {
+        enrollmentId,
+        markData,
+        errorDetails: error instanceof Error ? error.stack : 'Unknown error'
+      }
     });
   }
 });
