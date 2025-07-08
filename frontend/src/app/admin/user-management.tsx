@@ -124,6 +124,7 @@ export default function UserManagement({ initialFilters }: UserManagementProps) 
         if (usersResponse.status === 'success') {
           console.log('Raw API response:', usersResponse.data.slice(0, 2)); // Debug: log first 2 users
           console.log('Total users from API:', usersResponse.data.length);
+          console.log('API Response FULL STATUS:', usersResponse);
           // Debug logs - temporarily commenting out to fix TypeScript errors
           // console.log('User roles distribution:', usersResponse.data.map(u => u.userRoles?.map(r => r.role)).flat().reduce((acc, role) => { acc[role] = (acc[role] || 0) + 1; return acc; }, {}));
           // console.log('Student departments:', usersResponse.data.filter(u => u.student).map(u => u.student.departments?.code).filter(Boolean).reduce((acc, dept) => { acc[dept] = (acc[dept] || 0) + 1; return acc; }, {}));
@@ -190,6 +191,7 @@ export default function UserManagement({ initialFilters }: UserManagementProps) 
           })
           
           console.log('Transformed users:', transformedUsers.slice(0, 2)); // Debug: log first 2 transformed users
+          console.log('ALL TRANSFORMED USERS LENGTH:', transformedUsers.length);
           console.log('All departments:', Array.from(new Set(transformedUsers.map(u => u.department).filter(Boolean))));
           console.log('All years:', Array.from(new Set(transformedUsers.map(u => u.year).filter(Boolean))));
           
@@ -239,10 +241,13 @@ export default function UserManagement({ initialFilters }: UserManagementProps) 
 
     // Search filter
     if (searchTerm) {
+      console.log('SEARCHING FOR:', searchTerm);
+      console.log('SAMPLE USER FOR SEARCH DEBUG:', user.name, user.email, user.usn, user.employeeId);
       const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            (user.email && user.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
                            (user.usn && user.usn.toLowerCase().includes(searchTerm.toLowerCase())) ||
                            (user.employeeId && user.employeeId.toLowerCase().includes(searchTerm.toLowerCase()))
+      console.log('SEARCH MATCHES:', matchesSearch, 'for user:', user.name);
       if (!matchesSearch) return false
     }
 
@@ -280,6 +285,20 @@ export default function UserManagement({ initialFilters }: UserManagementProps) 
 
     return true
   })
+
+  // Debug: Log filtered users
+  console.log('FILTERED USERS COUNT:', filteredUsers.length);
+  console.log('TOTAL USERS COUNT:', users.length);
+
+  // Temporary pagination for debugging
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 50; // Show 50 users per page for testing
+  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedUsers = filteredUsers.slice(startIndex, endIndex);
+
+  console.log('PAGINATED USERS:', paginatedUsers.length, 'Page:', currentPage, 'Total pages:', totalPages);
 
   // Get unique values for filter dropdowns from actual data
   const allDepartments = Array.from(new Set(
@@ -534,7 +553,7 @@ export default function UserManagement({ initialFilters }: UserManagementProps) 
             <div>
               <CardTitle>User Management</CardTitle>
               <CardDescription className="text-gray-800">
-                Total: {filteredUsers.length} users
+                Total: {filteredUsers.length} users (Page {currentPage} of {totalPages} - Showing {paginatedUsers.length} users)
               </CardDescription>
             </div>
             <div className="flex items-center space-x-2">
@@ -674,7 +693,7 @@ export default function UserManagement({ initialFilters }: UserManagementProps) 
                 </tr>
               </thead>
               <tbody className="bg-white">
-                {filteredUsers.map((user) => (
+                {paginatedUsers.map((user) => (
                   <tr key={user.id} className="hover:bg-gray-50">
                     <td className="border border-gray-300 px-3 py-2">
                       <div>
@@ -785,6 +804,31 @@ export default function UserManagement({ initialFilters }: UserManagementProps) 
               </tbody>
             </table>
           </div>
+          
+          {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <div className="flex justify-center items-center space-x-2 py-4">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                disabled={currentPage === 1}
+              >
+                Previous
+              </Button>
+              <span className="text-sm text-gray-600">
+                Page {currentPage} of {totalPages}
+              </span>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                disabled={currentPage === totalPages}
+              >
+                Next
+              </Button>
+            </div>
+          )}
         </CardContent>
       </Card>
 

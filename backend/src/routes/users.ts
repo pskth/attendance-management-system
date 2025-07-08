@@ -2,7 +2,7 @@
 import { Router } from 'express';
 import Database from '../lib/database';
 
-const router = Router()
+const router = Router();
 
 // Get all users with roles
 router.get('/', async (req, res) => {
@@ -35,7 +35,6 @@ router.get('/', async (req, res) => {
           }
         }
       },
-      take: 100, // Increase limit to get more users including students
       orderBy: {
         createdAt: 'desc'
       }
@@ -96,7 +95,6 @@ router.get('/role/:role', async (req, res) => {
           }
         }
       },
-      take: 50,
       orderBy: {
         createdAt: 'desc'
       }

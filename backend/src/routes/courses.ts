@@ -2,7 +2,7 @@
 import { Router } from 'express';
 import Database from '../lib/database';
 
-const router = Router()
+const router = Router();
 
 // Get all courses
 router.get('/', async (req, res) => {

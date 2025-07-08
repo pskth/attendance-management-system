@@ -47,7 +47,22 @@ interface Course {
   type: 'core' | 'department_elective' | 'open_elective'
   hasTheoryComponent: boolean
   hasLabComponent: boolean
-  offerings?: unknown[]
+  offerings?: {
+    id: string
+    semester: number
+    section?: string
+    academicYear: string
+    teacher?: {
+      id: string
+      name: string
+    }
+    hasTeacher: boolean
+  }[]
+  teacher?: {
+    id: string
+    name: string
+  }
+  teacherAssigned?: boolean
   openElectiveRestrictions?: {
     restrictedDepartment: {
       id: string
@@ -157,9 +172,9 @@ export default function CourseManagement({ onNavigateToUsers, initialFilters }: 
         setLoading(true)
         setError(null)
         
-        // Fetch both courses and departments
+        // Fetch both courses and departments using the new course management endpoint
         const [coursesResponse, departmentsResponse] = await Promise.all([
-          adminApi.getAllCourses(),
+          adminApi.getCourseManagement(),
           adminApi.getAllDepartments()
         ])
         
@@ -175,14 +190,16 @@ export default function CourseManagement({ onNavigateToUsers, initialFilters }: 
               name: course.department?.name || '',
               code: course.department?.code || '',
               college: {
-                name: course.department?.colleges?.name || '',
-                code: course.department?.colleges?.code || ''
+                name: course.college?.name || '',
+                code: course.college?.code || ''
               }
             },
             type: course.type || 'core',
             hasTheoryComponent: course.hasTheoryComponent || true,
             hasLabComponent: course.hasLabComponent || false,
-            offerings: course.courseOfferings || [],
+            offerings: course.offerings || [],
+            teacher: course.teacher || undefined,
+            teacherAssigned: course.teacherAssigned || false,
             openElectiveRestrictions: course.openElectiveRestrictions || []
           }))
           
@@ -508,6 +525,13 @@ export default function CourseManagement({ onNavigateToUsers, initialFilters }: 
       const teachersResponse = await adminApi.getUsersByRole('teacher')
       if (teachersResponse.status === 'success') {
         setTeachers(teachersResponse.data)
+        
+        // Pre-select teacher AFTER teachers are loaded
+        if (course.teacherAssigned && course.teacher) {
+          setSelectedTeacher(course.teacher.id)
+        } else {
+          setSelectedTeacher('')
+        }
       }
       
       // Fetch eligible students
@@ -766,6 +790,7 @@ export default function CourseManagement({ onNavigateToUsers, initialFilters }: 
                   <th className="border border-gray-300 px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Department</th>
                   <th className="border border-gray-300 px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">College</th>
                   <th className="border border-gray-300 px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Type</th>
+                  <th className="border border-gray-300 px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Teacher</th>
                   <th className="border border-gray-300 px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Components</th>
                   <th className="border border-gray-300 px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Restrictions</th>
                   <th className="border border-gray-300 px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Actions</th>
@@ -805,6 +830,21 @@ export default function CourseManagement({ onNavigateToUsers, initialFilters }: 
                       }`}>
                         {course.type.replace('_', ' ')}
                       </span>
+                    </td>
+                    <td className="border border-gray-300 px-3 py-2">
+                      <div className="text-sm text-gray-800">
+                        {course.teacherAssigned && course.teacher ? (
+                          <div>
+                            <div className="font-medium text-green-700">{course.teacher.name}</div>
+                            <div className="text-xs text-gray-600">Assigned</div>
+                          </div>
+                        ) : (
+                          <div>
+                            <div className="font-medium text-red-600">No Teacher</div>
+                            <div className="text-xs text-gray-600">Unassigned</div>
+                          </div>
+                        )}
+                      </div>
                     </td>
                     <td className="border border-gray-300 px-3 py-2">
                       <div className="text-sm text-gray-800">

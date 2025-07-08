@@ -11,6 +11,8 @@
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio",
     "db:setup": "ts-node-dev src/db-setup.ts",
+    "import-users": "ts-node-dev src/import-users.ts",
+    "setup-enrollments": "ts-node-dev src/setup-enrollments.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -24,14 +26,14 @@
     "cors": "^2.8.5",
     "csv-parser": "^3.2.0",
     "dotenv": "^16.5.0",
-    "express": "^5.1.0",
+    "express": "^4.21.2",
     "multer": "^2.0.1",
     "pg": "^8.16.0",
     "prisma": "^6.8.2"
   },
   "devDependencies": {
     "@types/cors": "^2.8.18",
-    "@types/express": "^5.0.2",
+    "@types/express": "^4.17.23",
     "@types/node": "^22.15.29",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.8.3"

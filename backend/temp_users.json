@@ -1,0 +1,2807 @@
+﻿{
+    "status":  "success",
+    "data":  [
+                 {
+                     "id":  "3cb1ee8c-c97d-4102-8dc9-5a7f41378218",
+                     "username":  "4nt21me010",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Naresh Joshi",
+                     "phone":  "9876543420",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.784Z",
+                     "userRoles":  [
+                                       "@{userId=3cb1ee8c-c97d-4102-8dc9-5a7f41378218; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "3f1e0b2b-fae4-464e-b0e3-0be1481b4ba4",
+                                     "userId":  "3cb1ee8c-c97d-4102-8dc9-5a7f41378218",
+                                     "college_id":  "a9ca6684-aaf6-49fa-93dc-e2628d1f556b",
+                                     "department_id":  "73ac600b-ffaa-42e0-8067-6c842676ccd7",
+                                     "section_id":  "75cca289-198b-48e8-9dcb-5ece522a584b",
+                                     "usn":  "4NT21ME010",
+                                     "semester":  7,
+                                     "batchYear":  2021,
+                                     "colleges":  "@{id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Nitte Institute of Technology; code=NITTE; logoUrl=}",
+                                     "departments":  "@{id=73ac600b-ffaa-42e0-8067-6c842676ccd7; college_id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Mechanical Engineering; code=MECH}",
+                                     "sections":  "@{section_id=75cca289-198b-48e8-9dcb-5ece522a584b; department_id=73ac600b-ffaa-42e0-8067-6c842676ccd7; section_name=NI_MECH_B4}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "a8712f73-19ac-4843-90ce-c19def6f2fa3",
+                     "username":  "4nt21me009",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Ramesh Das",
+                     "phone":  "9876543419",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.780Z",
+                     "userRoles":  [
+                                       "@{userId=a8712f73-19ac-4843-90ce-c19def6f2fa3; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "2a81f350-c151-4370-995b-6aa1b64f8010",
+                                     "userId":  "a8712f73-19ac-4843-90ce-c19def6f2fa3",
+                                     "college_id":  "a9ca6684-aaf6-49fa-93dc-e2628d1f556b",
+                                     "department_id":  "73ac600b-ffaa-42e0-8067-6c842676ccd7",
+                                     "section_id":  "75cca289-198b-48e8-9dcb-5ece522a584b",
+                                     "usn":  "4NT21ME009",
+                                     "semester":  7,
+                                     "batchYear":  2021,
+                                     "colleges":  "@{id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Nitte Institute of Technology; code=NITTE; logoUrl=}",
+                                     "departments":  "@{id=73ac600b-ffaa-42e0-8067-6c842676ccd7; college_id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Mechanical Engineering; code=MECH}",
+                                     "sections":  "@{section_id=75cca289-198b-48e8-9dcb-5ece522a584b; department_id=73ac600b-ffaa-42e0-8067-6c842676ccd7; section_name=NI_MECH_B4}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "11b8e6f2-0eaa-422f-b607-00d2264afd65",
+                     "username":  "4nt21me008",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Mahesh Nair",
+                     "phone":  "9876543418",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.776Z",
+                     "userRoles":  [
+                                       "@{userId=11b8e6f2-0eaa-422f-b607-00d2264afd65; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "cea41c0f-d77f-4e39-8aa7-281cb8e5e643",
+                                     "userId":  "11b8e6f2-0eaa-422f-b607-00d2264afd65",
+                                     "college_id":  "a9ca6684-aaf6-49fa-93dc-e2628d1f556b",
+                                     "department_id":  "73ac600b-ffaa-42e0-8067-6c842676ccd7",
+                                     "section_id":  "75cca289-198b-48e8-9dcb-5ece522a584b",
+                                     "usn":  "4NT21ME008",
+                                     "semester":  7,
+                                     "batchYear":  2021,
+                                     "colleges":  "@{id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Nitte Institute of Technology; code=NITTE; logoUrl=}",
+                                     "departments":  "@{id=73ac600b-ffaa-42e0-8067-6c842676ccd7; college_id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Mechanical Engineering; code=MECH}",
+                                     "sections":  "@{section_id=75cca289-198b-48e8-9dcb-5ece522a584b; department_id=73ac600b-ffaa-42e0-8067-6c842676ccd7; section_name=NI_MECH_B4}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "849aebd5-f3de-497d-bb0b-aa4a2bbf3794",
+                     "username":  "4nt21me007",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Dinesh Reddy",
+                     "phone":  "9876543417",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.773Z",
+                     "userRoles":  [
+                                       "@{userId=849aebd5-f3de-497d-bb0b-aa4a2bbf3794; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "7f05204e-da88-47c9-ad25-87e4b3394d10",
+                                     "userId":  "849aebd5-f3de-497d-bb0b-aa4a2bbf3794",
+                                     "college_id":  "a9ca6684-aaf6-49fa-93dc-e2628d1f556b",
+                                     "department_id":  "73ac600b-ffaa-42e0-8067-6c842676ccd7",
+                                     "section_id":  "75cca289-198b-48e8-9dcb-5ece522a584b",
+                                     "usn":  "4NT21ME007",
+                                     "semester":  7,
+                                     "batchYear":  2021,
+                                     "colleges":  "@{id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Nitte Institute of Technology; code=NITTE; logoUrl=}",
+                                     "departments":  "@{id=73ac600b-ffaa-42e0-8067-6c842676ccd7; college_id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Mechanical Engineering; code=MECH}",
+                                     "sections":  "@{section_id=75cca289-198b-48e8-9dcb-5ece522a584b; department_id=73ac600b-ffaa-42e0-8067-6c842676ccd7; section_name=NI_MECH_B4}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "c804011c-1cb6-4dbe-9f34-38cae70e77b9",
+                     "username":  "4nt21me006",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Sanjay Verma",
+                     "phone":  "9876543416",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.769Z",
+                     "userRoles":  [
+                                       "@{userId=c804011c-1cb6-4dbe-9f34-38cae70e77b9; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "a0e5d031-a612-4497-81b2-29e299c88b32",
+                                     "userId":  "c804011c-1cb6-4dbe-9f34-38cae70e77b9",
+                                     "college_id":  "a9ca6684-aaf6-49fa-93dc-e2628d1f556b",
+                                     "department_id":  "73ac600b-ffaa-42e0-8067-6c842676ccd7",
+                                     "section_id":  "75cca289-198b-48e8-9dcb-5ece522a584b",
+                                     "usn":  "4NT21ME006",
+                                     "semester":  7,
+                                     "batchYear":  2021,
+                                     "colleges":  "@{id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Nitte Institute of Technology; code=NITTE; logoUrl=}",
+                                     "departments":  "@{id=73ac600b-ffaa-42e0-8067-6c842676ccd7; college_id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Mechanical Engineering; code=MECH}",
+                                     "sections":  "@{section_id=75cca289-198b-48e8-9dcb-5ece522a584b; department_id=73ac600b-ffaa-42e0-8067-6c842676ccd7; section_name=NI_MECH_B4}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "e8bceef7-7a78-43c5-98b1-336d85f74888",
+                     "username":  "4nt21me005",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Ashok Kumar",
+                     "phone":  "9876543415",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.766Z",
+                     "userRoles":  [
+                                       "@{userId=e8bceef7-7a78-43c5-98b1-336d85f74888; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "e1ab1251-3f28-413c-bd87-5fed9b51aadc",
+                                     "userId":  "e8bceef7-7a78-43c5-98b1-336d85f74888",
+                                     "college_id":  "a9ca6684-aaf6-49fa-93dc-e2628d1f556b",
+                                     "department_id":  "73ac600b-ffaa-42e0-8067-6c842676ccd7",
+                                     "section_id":  "d5460174-4cfa-4877-bc5a-44258340f9fc",
+                                     "usn":  "4NT21ME005",
+                                     "semester":  7,
+                                     "batchYear":  2021,
+                                     "colleges":  "@{id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Nitte Institute of Technology; code=NITTE; logoUrl=}",
+                                     "departments":  "@{id=73ac600b-ffaa-42e0-8067-6c842676ccd7; college_id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Mechanical Engineering; code=MECH}",
+                                     "sections":  "@{section_id=d5460174-4cfa-4877-bc5a-44258340f9fc; department_id=73ac600b-ffaa-42e0-8067-6c842676ccd7; section_name=NI_MECH_A4}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "1422ead2-0b31-4c90-96a0-cdd3e47ce496",
+                     "username":  "4nt21me004",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Ajay Joshi",
+                     "phone":  "9876543414",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.762Z",
+                     "userRoles":  [
+                                       "@{userId=1422ead2-0b31-4c90-96a0-cdd3e47ce496; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "90d5382c-2303-4f43-be11-0f683d10d75d",
+                                     "userId":  "1422ead2-0b31-4c90-96a0-cdd3e47ce496",
+                                     "college_id":  "a9ca6684-aaf6-49fa-93dc-e2628d1f556b",
+                                     "department_id":  "73ac600b-ffaa-42e0-8067-6c842676ccd7",
+                                     "section_id":  "d5460174-4cfa-4877-bc5a-44258340f9fc",
+                                     "usn":  "4NT21ME004",
+                                     "semester":  7,
+                                     "batchYear":  2021,
+                                     "colleges":  "@{id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Nitte Institute of Technology; code=NITTE; logoUrl=}",
+                                     "departments":  "@{id=73ac600b-ffaa-42e0-8067-6c842676ccd7; college_id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Mechanical Engineering; code=MECH}",
+                                     "sections":  "@{section_id=d5460174-4cfa-4877-bc5a-44258340f9fc; department_id=73ac600b-ffaa-42e0-8067-6c842676ccd7; section_name=NI_MECH_A4}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "d19acb26-1889-4c20-8f94-de15ebb69774",
+                     "username":  "4nt21me003",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Vinod Das",
+                     "phone":  "9876543413",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.758Z",
+                     "userRoles":  [
+                                       "@{userId=d19acb26-1889-4c20-8f94-de15ebb69774; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "cab5431b-7609-4108-8ad5-3a401d55e3b5",
+                                     "userId":  "d19acb26-1889-4c20-8f94-de15ebb69774",
+                                     "college_id":  "a9ca6684-aaf6-49fa-93dc-e2628d1f556b",
+                                     "department_id":  "73ac600b-ffaa-42e0-8067-6c842676ccd7",
+                                     "section_id":  "d5460174-4cfa-4877-bc5a-44258340f9fc",
+                                     "usn":  "4NT21ME003",
+                                     "semester":  7,
+                                     "batchYear":  2021,
+                                     "colleges":  "@{id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Nitte Institute of Technology; code=NITTE; logoUrl=}",
+                                     "departments":  "@{id=73ac600b-ffaa-42e0-8067-6c842676ccd7; college_id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Mechanical Engineering; code=MECH}",
+                                     "sections":  "@{section_id=d5460174-4cfa-4877-bc5a-44258340f9fc; department_id=73ac600b-ffaa-42e0-8067-6c842676ccd7; section_name=NI_MECH_A4}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "71d9546e-5faa-4023-83d3-33e353673db4",
+                     "username":  "4nt21me002",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Sandeep Nair",
+                     "phone":  "9876543412",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.754Z",
+                     "userRoles":  [
+                                       "@{userId=71d9546e-5faa-4023-83d3-33e353673db4; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "9fd547e2-2526-4c5f-a093-d9e54e0a9bda",
+                                     "userId":  "71d9546e-5faa-4023-83d3-33e353673db4",
+                                     "college_id":  "a9ca6684-aaf6-49fa-93dc-e2628d1f556b",
+                                     "department_id":  "73ac600b-ffaa-42e0-8067-6c842676ccd7",
+                                     "section_id":  "d5460174-4cfa-4877-bc5a-44258340f9fc",
+                                     "usn":  "4NT21ME002",
+                                     "semester":  7,
+                                     "batchYear":  2021,
+                                     "colleges":  "@{id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Nitte Institute of Technology; code=NITTE; logoUrl=}",
+                                     "departments":  "@{id=73ac600b-ffaa-42e0-8067-6c842676ccd7; college_id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Mechanical Engineering; code=MECH}",
+                                     "sections":  "@{section_id=d5460174-4cfa-4877-bc5a-44258340f9fc; department_id=73ac600b-ffaa-42e0-8067-6c842676ccd7; section_name=NI_MECH_A4}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "a51ece69-1010-4b10-9d63-a4943c6c8f6c",
+                     "username":  "4nt21me001",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Vikas Reddy",
+                     "phone":  "9876543411",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.751Z",
+                     "userRoles":  [
+                                       "@{userId=a51ece69-1010-4b10-9d63-a4943c6c8f6c; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "12a80e34-572a-43ce-a185-eb081b7876c9",
+                                     "userId":  "a51ece69-1010-4b10-9d63-a4943c6c8f6c",
+                                     "college_id":  "a9ca6684-aaf6-49fa-93dc-e2628d1f556b",
+                                     "department_id":  "73ac600b-ffaa-42e0-8067-6c842676ccd7",
+                                     "section_id":  "d5460174-4cfa-4877-bc5a-44258340f9fc",
+                                     "usn":  "4NT21ME001",
+                                     "semester":  7,
+                                     "batchYear":  2021,
+                                     "colleges":  "@{id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Nitte Institute of Technology; code=NITTE; logoUrl=}",
+                                     "departments":  "@{id=73ac600b-ffaa-42e0-8067-6c842676ccd7; college_id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Mechanical Engineering; code=MECH}",
+                                     "sections":  "@{section_id=d5460174-4cfa-4877-bc5a-44258340f9fc; department_id=73ac600b-ffaa-42e0-8067-6c842676ccd7; section_name=NI_MECH_A4}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "caab94d5-394b-4709-99c3-dd8a293e47fe",
+                     "username":  "4nt21cv010",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Shweta Joshi",
+                     "phone":  "9876543410",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.747Z",
+                     "userRoles":  [
+                                       "@{userId=caab94d5-394b-4709-99c3-dd8a293e47fe; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "0febd8d2-1e26-4607-9a11-2c76665c0bf9",
+                                     "userId":  "caab94d5-394b-4709-99c3-dd8a293e47fe",
+                                     "college_id":  "a9ca6684-aaf6-49fa-93dc-e2628d1f556b",
+                                     "department_id":  "3b879f23-5ded-402b-92af-e1b23260b75f",
+                                     "section_id":  "68837663-0cc0-4af1-9fa8-1cd6831e0a6b",
+                                     "usn":  "4NT21CV010",
+                                     "semester":  7,
+                                     "batchYear":  2021,
+                                     "colleges":  "@{id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Nitte Institute of Technology; code=NITTE; logoUrl=}",
+                                     "departments":  "@{id=3b879f23-5ded-402b-92af-e1b23260b75f; college_id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Civil Engineering; code=CV}",
+                                     "sections":  "@{section_id=68837663-0cc0-4af1-9fa8-1cd6831e0a6b; department_id=3b879f23-5ded-402b-92af-e1b23260b75f; section_name=NI_CV_B4}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "6797c0d4-c972-493a-bfef-83a1809d80c5",
+                     "username":  "4nt21cv009",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Geeta Das",
+                     "phone":  "9876543409",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.743Z",
+                     "userRoles":  [
+                                       "@{userId=6797c0d4-c972-493a-bfef-83a1809d80c5; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "00c8ae00-b5a5-4619-9d42-773f447b1821",
+                                     "userId":  "6797c0d4-c972-493a-bfef-83a1809d80c5",
+                                     "college_id":  "a9ca6684-aaf6-49fa-93dc-e2628d1f556b",
+                                     "department_id":  "3b879f23-5ded-402b-92af-e1b23260b75f",
+                                     "section_id":  "68837663-0cc0-4af1-9fa8-1cd6831e0a6b",
+                                     "usn":  "4NT21CV009",
+                                     "semester":  7,
+                                     "batchYear":  2021,
+                                     "colleges":  "@{id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Nitte Institute of Technology; code=NITTE; logoUrl=}",
+                                     "departments":  "@{id=3b879f23-5ded-402b-92af-e1b23260b75f; college_id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Civil Engineering; code=CV}",
+                                     "sections":  "@{section_id=68837663-0cc0-4af1-9fa8-1cd6831e0a6b; department_id=3b879f23-5ded-402b-92af-e1b23260b75f; section_name=NI_CV_B4}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "4620d5f3-1c2d-405e-925e-1947ea78d04e",
+                     "username":  "4nt21cv008",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Kavita Nair",
+                     "phone":  "9876543408",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.740Z",
+                     "userRoles":  [
+                                       "@{userId=4620d5f3-1c2d-405e-925e-1947ea78d04e; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "6cb08457-7376-4d08-b6dd-603e15eee836",
+                                     "userId":  "4620d5f3-1c2d-405e-925e-1947ea78d04e",
+                                     "college_id":  "a9ca6684-aaf6-49fa-93dc-e2628d1f556b",
+                                     "department_id":  "3b879f23-5ded-402b-92af-e1b23260b75f",
+                                     "section_id":  "68837663-0cc0-4af1-9fa8-1cd6831e0a6b",
+                                     "usn":  "4NT21CV008",
+                                     "semester":  7,
+                                     "batchYear":  2021,
+                                     "colleges":  "@{id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Nitte Institute of Technology; code=NITTE; logoUrl=}",
+                                     "departments":  "@{id=3b879f23-5ded-402b-92af-e1b23260b75f; college_id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Civil Engineering; code=CV}",
+                                     "sections":  "@{section_id=68837663-0cc0-4af1-9fa8-1cd6831e0a6b; department_id=3b879f23-5ded-402b-92af-e1b23260b75f; section_name=NI_CV_B4}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "00f47b1c-6730-4476-b565-6b654aee853c",
+                     "username":  "4nt21cv007",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Sunita Reddy",
+                     "phone":  "9876543407",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.736Z",
+                     "userRoles":  [
+                                       "@{userId=00f47b1c-6730-4476-b565-6b654aee853c; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "9e40bd8d-ca71-4fc8-830b-743fa65a92c2",
+                                     "userId":  "00f47b1c-6730-4476-b565-6b654aee853c",
+                                     "college_id":  "a9ca6684-aaf6-49fa-93dc-e2628d1f556b",
+                                     "department_id":  "3b879f23-5ded-402b-92af-e1b23260b75f",
+                                     "section_id":  "68837663-0cc0-4af1-9fa8-1cd6831e0a6b",
+                                     "usn":  "4NT21CV007",
+                                     "semester":  7,
+                                     "batchYear":  2021,
+                                     "colleges":  "@{id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Nitte Institute of Technology; code=NITTE; logoUrl=}",
+                                     "departments":  "@{id=3b879f23-5ded-402b-92af-e1b23260b75f; college_id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Civil Engineering; code=CV}",
+                                     "sections":  "@{section_id=68837663-0cc0-4af1-9fa8-1cd6831e0a6b; department_id=3b879f23-5ded-402b-92af-e1b23260b75f; section_name=NI_CV_B4}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "02c3aaec-e08e-447f-8972-55961da636f9",
+                     "username":  "4nt21cv006",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Ritu Verma",
+                     "phone":  "9876543406",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.732Z",
+                     "userRoles":  [
+                                       "@{userId=02c3aaec-e08e-447f-8972-55961da636f9; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "7cb7de34-0b9b-434e-aa98-db281ece4a29",
+                                     "userId":  "02c3aaec-e08e-447f-8972-55961da636f9",
+                                     "college_id":  "a9ca6684-aaf6-49fa-93dc-e2628d1f556b",
+                                     "department_id":  "3b879f23-5ded-402b-92af-e1b23260b75f",
+                                     "section_id":  "68837663-0cc0-4af1-9fa8-1cd6831e0a6b",
+                                     "usn":  "4NT21CV006",
+                                     "semester":  7,
+                                     "batchYear":  2021,
+                                     "colleges":  "@{id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Nitte Institute of Technology; code=NITTE; logoUrl=}",
+                                     "departments":  "@{id=3b879f23-5ded-402b-92af-e1b23260b75f; college_id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Civil Engineering; code=CV}",
+                                     "sections":  "@{section_id=68837663-0cc0-4af1-9fa8-1cd6831e0a6b; department_id=3b879f23-5ded-402b-92af-e1b23260b75f; section_name=NI_CV_B4}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "aa2d7512-ebab-411d-96a6-23fd9c10dd7e",
+                     "username":  "4nt21cv005",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Meera Kumar",
+                     "phone":  "9876543405",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.729Z",
+                     "userRoles":  [
+                                       "@{userId=aa2d7512-ebab-411d-96a6-23fd9c10dd7e; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "d7e9ba02-297e-42a8-ba82-0a50c94a0ebf",
+                                     "userId":  "aa2d7512-ebab-411d-96a6-23fd9c10dd7e",
+                                     "college_id":  "a9ca6684-aaf6-49fa-93dc-e2628d1f556b",
+                                     "department_id":  "3b879f23-5ded-402b-92af-e1b23260b75f",
+                                     "section_id":  "69b12c37-f823-4973-9836-a0448dad7de0",
+                                     "usn":  "4NT21CV005",
+                                     "semester":  7,
+                                     "batchYear":  2021,
+                                     "colleges":  "@{id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Nitte Institute of Technology; code=NITTE; logoUrl=}",
+                                     "departments":  "@{id=3b879f23-5ded-402b-92af-e1b23260b75f; college_id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Civil Engineering; code=CV}",
+                                     "sections":  "@{section_id=69b12c37-f823-4973-9836-a0448dad7de0; department_id=3b879f23-5ded-402b-92af-e1b23260b75f; section_name=NI_CV_A4}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "1c6d224b-2109-4350-913a-5777c20460f9",
+                     "username":  "4nt21cv004",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Sneha Joshi",
+                     "phone":  "9876543404",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.726Z",
+                     "userRoles":  [
+                                       "@{userId=1c6d224b-2109-4350-913a-5777c20460f9; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "5d08ba72-58ca-4ee8-b925-fba2c489cf50",
+                                     "userId":  "1c6d224b-2109-4350-913a-5777c20460f9",
+                                     "college_id":  "a9ca6684-aaf6-49fa-93dc-e2628d1f556b",
+                                     "department_id":  "3b879f23-5ded-402b-92af-e1b23260b75f",
+                                     "section_id":  "69b12c37-f823-4973-9836-a0448dad7de0",
+                                     "usn":  "4NT21CV004",
+                                     "semester":  7,
+                                     "batchYear":  2021,
+                                     "colleges":  "@{id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Nitte Institute of Technology; code=NITTE; logoUrl=}",
+                                     "departments":  "@{id=3b879f23-5ded-402b-92af-e1b23260b75f; college_id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Civil Engineering; code=CV}",
+                                     "sections":  "@{section_id=69b12c37-f823-4973-9836-a0448dad7de0; department_id=3b879f23-5ded-402b-92af-e1b23260b75f; section_name=NI_CV_A4}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "05a85ec9-3c67-495c-85f2-14ab883f73ef",
+                     "username":  "4nt21cv003",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Pooja Das",
+                     "phone":  "9876543403",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.723Z",
+                     "userRoles":  [
+                                       "@{userId=05a85ec9-3c67-495c-85f2-14ab883f73ef; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "9e442415-c6bc-4eea-a843-27c7b54be310",
+                                     "userId":  "05a85ec9-3c67-495c-85f2-14ab883f73ef",
+                                     "college_id":  "a9ca6684-aaf6-49fa-93dc-e2628d1f556b",
+                                     "department_id":  "3b879f23-5ded-402b-92af-e1b23260b75f",
+                                     "section_id":  "69b12c37-f823-4973-9836-a0448dad7de0",
+                                     "usn":  "4NT21CV003",
+                                     "semester":  7,
+                                     "batchYear":  2021,
+                                     "colleges":  "@{id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Nitte Institute of Technology; code=NITTE; logoUrl=}",
+                                     "departments":  "@{id=3b879f23-5ded-402b-92af-e1b23260b75f; college_id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Civil Engineering; code=CV}",
+                                     "sections":  "@{section_id=69b12c37-f823-4973-9836-a0448dad7de0; department_id=3b879f23-5ded-402b-92af-e1b23260b75f; section_name=NI_CV_A4}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "77bce2f5-a90d-4954-a766-71d7384d44ee",
+                     "username":  "4nt21cv002",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Neha Nair",
+                     "phone":  "9876543402",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.719Z",
+                     "userRoles":  [
+                                       "@{userId=77bce2f5-a90d-4954-a766-71d7384d44ee; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "db91c385-2b03-4f90-aa4e-b83e5984d82f",
+                                     "userId":  "77bce2f5-a90d-4954-a766-71d7384d44ee",
+                                     "college_id":  "a9ca6684-aaf6-49fa-93dc-e2628d1f556b",
+                                     "department_id":  "3b879f23-5ded-402b-92af-e1b23260b75f",
+                                     "section_id":  "69b12c37-f823-4973-9836-a0448dad7de0",
+                                     "usn":  "4NT21CV002",
+                                     "semester":  7,
+                                     "batchYear":  2021,
+                                     "colleges":  "@{id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Nitte Institute of Technology; code=NITTE; logoUrl=}",
+                                     "departments":  "@{id=3b879f23-5ded-402b-92af-e1b23260b75f; college_id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Civil Engineering; code=CV}",
+                                     "sections":  "@{section_id=69b12c37-f823-4973-9836-a0448dad7de0; department_id=3b879f23-5ded-402b-92af-e1b23260b75f; section_name=NI_CV_A4}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "48928dc5-a3b6-41e7-9ddf-d1d23ef9ffc2",
+                     "username":  "4nt21cv001",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Priya Reddy",
+                     "phone":  "9876543401",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.716Z",
+                     "userRoles":  [
+                                       "@{userId=48928dc5-a3b6-41e7-9ddf-d1d23ef9ffc2; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "ee6c76de-f476-4674-a9c7-ad845db96235",
+                                     "userId":  "48928dc5-a3b6-41e7-9ddf-d1d23ef9ffc2",
+                                     "college_id":  "a9ca6684-aaf6-49fa-93dc-e2628d1f556b",
+                                     "department_id":  "3b879f23-5ded-402b-92af-e1b23260b75f",
+                                     "section_id":  "69b12c37-f823-4973-9836-a0448dad7de0",
+                                     "usn":  "4NT21CV001",
+                                     "semester":  7,
+                                     "batchYear":  2021,
+                                     "colleges":  "@{id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Nitte Institute of Technology; code=NITTE; logoUrl=}",
+                                     "departments":  "@{id=3b879f23-5ded-402b-92af-e1b23260b75f; college_id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Civil Engineering; code=CV}",
+                                     "sections":  "@{section_id=69b12c37-f823-4973-9836-a0448dad7de0; department_id=3b879f23-5ded-402b-92af-e1b23260b75f; section_name=NI_CV_A4}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "f09a1eb7-b0b8-43c2-9df3-d47c12475804",
+                     "username":  "4nt21cs010",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Rajesh Joshi",
+                     "phone":  "9876543400",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.712Z",
+                     "userRoles":  [
+                                       "@{userId=f09a1eb7-b0b8-43c2-9df3-d47c12475804; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "74ad6123-1691-4159-8555-4b174976a1bd",
+                                     "userId":  "f09a1eb7-b0b8-43c2-9df3-d47c12475804",
+                                     "college_id":  "a9ca6684-aaf6-49fa-93dc-e2628d1f556b",
+                                     "department_id":  "b4d94385-bf5b-49e1-9531-647f65e66ac8",
+                                     "section_id":  "0ddf69ee-9850-49b7-a81c-f0f3d5c1c05e",
+                                     "usn":  "4NT21CS010",
+                                     "semester":  7,
+                                     "batchYear":  2021,
+                                     "colleges":  "@{id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Nitte Institute of Technology; code=NITTE; logoUrl=}",
+                                     "departments":  "@{id=b4d94385-bf5b-49e1-9531-647f65e66ac8; college_id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Computer Science and Engineering; code=CSE}",
+                                     "sections":  "@{section_id=0ddf69ee-9850-49b7-a81c-f0f3d5c1c05e; department_id=b4d94385-bf5b-49e1-9531-647f65e66ac8; section_name=NI_CSE_B4}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "2aa12094-36cd-4027-beac-835a0cc1b5db",
+                     "username":  "4nt21cs009",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Sachin Das",
+                     "phone":  "9876543399",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.709Z",
+                     "userRoles":  [
+                                       "@{userId=2aa12094-36cd-4027-beac-835a0cc1b5db; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "cd8a5f64-8b84-4d47-a818-01e6e3e211ae",
+                                     "userId":  "2aa12094-36cd-4027-beac-835a0cc1b5db",
+                                     "college_id":  "a9ca6684-aaf6-49fa-93dc-e2628d1f556b",
+                                     "department_id":  "b4d94385-bf5b-49e1-9531-647f65e66ac8",
+                                     "section_id":  "0ddf69ee-9850-49b7-a81c-f0f3d5c1c05e",
+                                     "usn":  "4NT21CS009",
+                                     "semester":  7,
+                                     "batchYear":  2021,
+                                     "colleges":  "@{id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Nitte Institute of Technology; code=NITTE; logoUrl=}",
+                                     "departments":  "@{id=b4d94385-bf5b-49e1-9531-647f65e66ac8; college_id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Computer Science and Engineering; code=CSE}",
+                                     "sections":  "@{section_id=0ddf69ee-9850-49b7-a81c-f0f3d5c1c05e; department_id=b4d94385-bf5b-49e1-9531-647f65e66ac8; section_name=NI_CSE_B4}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "65493537-505f-4bf7-b5ad-bf7857aae481",
+                     "username":  "4nt21cs008",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Manoj Nair",
+                     "phone":  "9876543398",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.706Z",
+                     "userRoles":  [
+                                       "@{userId=65493537-505f-4bf7-b5ad-bf7857aae481; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "e0b9945c-4409-445c-9f39-d4023c416f6d",
+                                     "userId":  "65493537-505f-4bf7-b5ad-bf7857aae481",
+                                     "college_id":  "a9ca6684-aaf6-49fa-93dc-e2628d1f556b",
+                                     "department_id":  "b4d94385-bf5b-49e1-9531-647f65e66ac8",
+                                     "section_id":  "0ddf69ee-9850-49b7-a81c-f0f3d5c1c05e",
+                                     "usn":  "4NT21CS008",
+                                     "semester":  7,
+                                     "batchYear":  2021,
+                                     "colleges":  "@{id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Nitte Institute of Technology; code=NITTE; logoUrl=}",
+                                     "departments":  "@{id=b4d94385-bf5b-49e1-9531-647f65e66ac8; college_id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Computer Science and Engineering; code=CSE}",
+                                     "sections":  "@{section_id=0ddf69ee-9850-49b7-a81c-f0f3d5c1c05e; department_id=b4d94385-bf5b-49e1-9531-647f65e66ac8; section_name=NI_CSE_B4}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "695a1e86-44fa-4a04-a4f2-12a3aefbe859",
+                     "username":  "4nt21cs007",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Deepak Reddy",
+                     "phone":  "9876543397",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.703Z",
+                     "userRoles":  [
+                                       "@{userId=695a1e86-44fa-4a04-a4f2-12a3aefbe859; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "fc905200-8194-405a-8cb0-b7b9474852da",
+                                     "userId":  "695a1e86-44fa-4a04-a4f2-12a3aefbe859",
+                                     "college_id":  "a9ca6684-aaf6-49fa-93dc-e2628d1f556b",
+                                     "department_id":  "b4d94385-bf5b-49e1-9531-647f65e66ac8",
+                                     "section_id":  "0ddf69ee-9850-49b7-a81c-f0f3d5c1c05e",
+                                     "usn":  "4NT21CS007",
+                                     "semester":  7,
+                                     "batchYear":  2021,
+                                     "colleges":  "@{id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Nitte Institute of Technology; code=NITTE; logoUrl=}",
+                                     "departments":  "@{id=b4d94385-bf5b-49e1-9531-647f65e66ac8; college_id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Computer Science and Engineering; code=CSE}",
+                                     "sections":  "@{section_id=0ddf69ee-9850-49b7-a81c-f0f3d5c1c05e; department_id=b4d94385-bf5b-49e1-9531-647f65e66ac8; section_name=NI_CSE_B4}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "ea4d2605-5d86-4c99-bcf4-7455e081f897",
+                     "username":  "4nt21cs006",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Akash Verma",
+                     "phone":  "9876543396",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.699Z",
+                     "userRoles":  [
+                                       "@{userId=ea4d2605-5d86-4c99-bcf4-7455e081f897; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "8128630a-ba12-4f0e-8c99-b018e8496c8b",
+                                     "userId":  "ea4d2605-5d86-4c99-bcf4-7455e081f897",
+                                     "college_id":  "a9ca6684-aaf6-49fa-93dc-e2628d1f556b",
+                                     "department_id":  "b4d94385-bf5b-49e1-9531-647f65e66ac8",
+                                     "section_id":  "0ddf69ee-9850-49b7-a81c-f0f3d5c1c05e",
+                                     "usn":  "4NT21CS006",
+                                     "semester":  7,
+                                     "batchYear":  2021,
+                                     "colleges":  "@{id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Nitte Institute of Technology; code=NITTE; logoUrl=}",
+                                     "departments":  "@{id=b4d94385-bf5b-49e1-9531-647f65e66ac8; college_id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Computer Science and Engineering; code=CSE}",
+                                     "sections":  "@{section_id=0ddf69ee-9850-49b7-a81c-f0f3d5c1c05e; department_id=b4d94385-bf5b-49e1-9531-647f65e66ac8; section_name=NI_CSE_B4}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "e3310064-7f7c-408c-96f1-9e827eaf87a4",
+                     "username":  "4nt21cs005",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Ravi Kumar",
+                     "phone":  "9876543395",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.696Z",
+                     "userRoles":  [
+                                       "@{userId=e3310064-7f7c-408c-96f1-9e827eaf87a4; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "1ae96d7e-2a75-4cf2-9fb6-f2ac9e2b398e",
+                                     "userId":  "e3310064-7f7c-408c-96f1-9e827eaf87a4",
+                                     "college_id":  "a9ca6684-aaf6-49fa-93dc-e2628d1f556b",
+                                     "department_id":  "b4d94385-bf5b-49e1-9531-647f65e66ac8",
+                                     "section_id":  "2173c63f-5552-433b-85c7-3aa8d865ed83",
+                                     "usn":  "4NT21CS005",
+                                     "semester":  7,
+                                     "batchYear":  2021,
+                                     "colleges":  "@{id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Nitte Institute of Technology; code=NITTE; logoUrl=}",
+                                     "departments":  "@{id=b4d94385-bf5b-49e1-9531-647f65e66ac8; college_id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Computer Science and Engineering; code=CSE}",
+                                     "sections":  "@{section_id=2173c63f-5552-433b-85c7-3aa8d865ed83; department_id=b4d94385-bf5b-49e1-9531-647f65e66ac8; section_name=NI_CSE_A4}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "00805dbf-a7ee-4c3a-81be-98fc86f14e2c",
+                     "username":  "4nt21cs004",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Suresh Joshi",
+                     "phone":  "9876543394",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.693Z",
+                     "userRoles":  [
+                                       "@{userId=00805dbf-a7ee-4c3a-81be-98fc86f14e2c; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "0990f21c-479d-4c4d-9386-4bb98314b328",
+                                     "userId":  "00805dbf-a7ee-4c3a-81be-98fc86f14e2c",
+                                     "college_id":  "a9ca6684-aaf6-49fa-93dc-e2628d1f556b",
+                                     "department_id":  "b4d94385-bf5b-49e1-9531-647f65e66ac8",
+                                     "section_id":  "2173c63f-5552-433b-85c7-3aa8d865ed83",
+                                     "usn":  "4NT21CS004",
+                                     "semester":  7,
+                                     "batchYear":  2021,
+                                     "colleges":  "@{id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Nitte Institute of Technology; code=NITTE; logoUrl=}",
+                                     "departments":  "@{id=b4d94385-bf5b-49e1-9531-647f65e66ac8; college_id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Computer Science and Engineering; code=CSE}",
+                                     "sections":  "@{section_id=2173c63f-5552-433b-85c7-3aa8d865ed83; department_id=b4d94385-bf5b-49e1-9531-647f65e66ac8; section_name=NI_CSE_A4}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "6daef3fa-f219-479b-8889-239a05e6c22a",
+                     "username":  "4nt21cs003",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Pradeep Das",
+                     "phone":  "9876543393",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.690Z",
+                     "userRoles":  [
+                                       "@{userId=6daef3fa-f219-479b-8889-239a05e6c22a; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "263b7bdb-3458-41ac-81ab-94c7a3998dc6",
+                                     "userId":  "6daef3fa-f219-479b-8889-239a05e6c22a",
+                                     "college_id":  "a9ca6684-aaf6-49fa-93dc-e2628d1f556b",
+                                     "department_id":  "b4d94385-bf5b-49e1-9531-647f65e66ac8",
+                                     "section_id":  "2173c63f-5552-433b-85c7-3aa8d865ed83",
+                                     "usn":  "4NT21CS003",
+                                     "semester":  7,
+                                     "batchYear":  2021,
+                                     "colleges":  "@{id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Nitte Institute of Technology; code=NITTE; logoUrl=}",
+                                     "departments":  "@{id=b4d94385-bf5b-49e1-9531-647f65e66ac8; college_id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Computer Science and Engineering; code=CSE}",
+                                     "sections":  "@{section_id=2173c63f-5552-433b-85c7-3aa8d865ed83; department_id=b4d94385-bf5b-49e1-9531-647f65e66ac8; section_name=NI_CSE_A4}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "cec003ee-db69-4aa6-a16b-70b17dd8a0f2",
+                     "username":  "4nt21cs002",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Amit Nair",
+                     "phone":  "9876543392",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.686Z",
+                     "userRoles":  [
+                                       "@{userId=cec003ee-db69-4aa6-a16b-70b17dd8a0f2; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "66d4735b-599d-4533-8e32-643081928678",
+                                     "userId":  "cec003ee-db69-4aa6-a16b-70b17dd8a0f2",
+                                     "college_id":  "a9ca6684-aaf6-49fa-93dc-e2628d1f556b",
+                                     "department_id":  "b4d94385-bf5b-49e1-9531-647f65e66ac8",
+                                     "section_id":  "2173c63f-5552-433b-85c7-3aa8d865ed83",
+                                     "usn":  "4NT21CS002",
+                                     "semester":  7,
+                                     "batchYear":  2021,
+                                     "colleges":  "@{id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Nitte Institute of Technology; code=NITTE; logoUrl=}",
+                                     "departments":  "@{id=b4d94385-bf5b-49e1-9531-647f65e66ac8; college_id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Computer Science and Engineering; code=CSE}",
+                                     "sections":  "@{section_id=2173c63f-5552-433b-85c7-3aa8d865ed83; department_id=b4d94385-bf5b-49e1-9531-647f65e66ac8; section_name=NI_CSE_A4}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "c9296874-cb78-4350-918d-8768e9cfda76",
+                     "username":  "4nt21cs001",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Rahul Reddy",
+                     "phone":  "9876543391",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.683Z",
+                     "userRoles":  [
+                                       "@{userId=c9296874-cb78-4350-918d-8768e9cfda76; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "72fc0ed1-2902-426c-a13a-fb067e95db96",
+                                     "userId":  "c9296874-cb78-4350-918d-8768e9cfda76",
+                                     "college_id":  "a9ca6684-aaf6-49fa-93dc-e2628d1f556b",
+                                     "department_id":  "b4d94385-bf5b-49e1-9531-647f65e66ac8",
+                                     "section_id":  "2173c63f-5552-433b-85c7-3aa8d865ed83",
+                                     "usn":  "4NT21CS001",
+                                     "semester":  7,
+                                     "batchYear":  2021,
+                                     "colleges":  "@{id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Nitte Institute of Technology; code=NITTE; logoUrl=}",
+                                     "departments":  "@{id=b4d94385-bf5b-49e1-9531-647f65e66ac8; college_id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Computer Science and Engineering; code=CSE}",
+                                     "sections":  "@{section_id=2173c63f-5552-433b-85c7-3aa8d865ed83; department_id=b4d94385-bf5b-49e1-9531-647f65e66ac8; section_name=NI_CSE_A4}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "7fa14967-fff6-475e-a230-afbf88311702",
+                     "username":  "4nm21me010",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Naresh Shah",
+                     "phone":  "9876543390",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.680Z",
+                     "userRoles":  [
+                                       "@{userId=7fa14967-fff6-475e-a230-afbf88311702; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "ef74a85d-8673-4406-b396-bcbb117f9cc5",
+                                     "userId":  "7fa14967-fff6-475e-a230-afbf88311702",
+                                     "college_id":  "762499ba-3b43-456e-8f06-9e4d7a3f3059",
+                                     "department_id":  "2f3b24d6-211a-4a38-a334-c742cbe26132",
+                                     "section_id":  "191b0fd4-1983-4daa-8f5e-0c726285aef3",
+                                     "usn":  "4NM21ME010",
+                                     "semester":  7,
+                                     "batchYear":  2021,
+                                     "colleges":  "@{id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Nitte Mahalinga Adyanthaya Memorial Institute of Technology; code=NMAMIT; logoUrl=}",
+                                     "departments":  "@{id=2f3b24d6-211a-4a38-a334-c742cbe26132; college_id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Mechanical Engineering; code=MECH}",
+                                     "sections":  "@{section_id=191b0fd4-1983-4daa-8f5e-0c726285aef3; department_id=2f3b24d6-211a-4a38-a334-c742cbe26132; section_name=NM_MECH_B4}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "8f84f033-de38-4213-969b-12d6e75a107a",
+                     "username":  "4nm21me009",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Ramesh Agarwal",
+                     "phone":  "9876543389",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.677Z",
+                     "userRoles":  [
+                                       "@{userId=8f84f033-de38-4213-969b-12d6e75a107a; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "892ad3b6-1deb-47c9-aacf-b8b9df4fa074",
+                                     "userId":  "8f84f033-de38-4213-969b-12d6e75a107a",
+                                     "college_id":  "762499ba-3b43-456e-8f06-9e4d7a3f3059",
+                                     "department_id":  "2f3b24d6-211a-4a38-a334-c742cbe26132",
+                                     "section_id":  "191b0fd4-1983-4daa-8f5e-0c726285aef3",
+                                     "usn":  "4NM21ME009",
+                                     "semester":  7,
+                                     "batchYear":  2021,
+                                     "colleges":  "@{id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Nitte Mahalinga Adyanthaya Memorial Institute of Technology; code=NMAMIT; logoUrl=}",
+                                     "departments":  "@{id=2f3b24d6-211a-4a38-a334-c742cbe26132; college_id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Mechanical Engineering; code=MECH}",
+                                     "sections":  "@{section_id=191b0fd4-1983-4daa-8f5e-0c726285aef3; department_id=2f3b24d6-211a-4a38-a334-c742cbe26132; section_name=NM_MECH_B4}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "2b905698-bdd2-4c4c-b47f-f074578fc675",
+                     "username":  "4nm21me008",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Mahesh Mishra",
+                     "phone":  "9876543388",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.673Z",
+                     "userRoles":  [
+                                       "@{userId=2b905698-bdd2-4c4c-b47f-f074578fc675; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "9859444e-e56c-4fed-b312-de80679c4f3e",
+                                     "userId":  "2b905698-bdd2-4c4c-b47f-f074578fc675",
+                                     "college_id":  "762499ba-3b43-456e-8f06-9e4d7a3f3059",
+                                     "department_id":  "2f3b24d6-211a-4a38-a334-c742cbe26132",
+                                     "section_id":  "191b0fd4-1983-4daa-8f5e-0c726285aef3",
+                                     "usn":  "4NM21ME008",
+                                     "semester":  7,
+                                     "batchYear":  2021,
+                                     "colleges":  "@{id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Nitte Mahalinga Adyanthaya Memorial Institute of Technology; code=NMAMIT; logoUrl=}",
+                                     "departments":  "@{id=2f3b24d6-211a-4a38-a334-c742cbe26132; college_id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Mechanical Engineering; code=MECH}",
+                                     "sections":  "@{section_id=191b0fd4-1983-4daa-8f5e-0c726285aef3; department_id=2f3b24d6-211a-4a38-a334-c742cbe26132; section_name=NM_MECH_B4}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "8aec3f81-a066-4604-80af-ceef741b8f44",
+                     "username":  "4nm21me007",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Dinesh Jain",
+                     "phone":  "9876543387",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.670Z",
+                     "userRoles":  [
+                                       "@{userId=8aec3f81-a066-4604-80af-ceef741b8f44; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "530f3a0f-e9b0-4b37-88bf-d6bc5c43c443",
+                                     "userId":  "8aec3f81-a066-4604-80af-ceef741b8f44",
+                                     "college_id":  "762499ba-3b43-456e-8f06-9e4d7a3f3059",
+                                     "department_id":  "2f3b24d6-211a-4a38-a334-c742cbe26132",
+                                     "section_id":  "191b0fd4-1983-4daa-8f5e-0c726285aef3",
+                                     "usn":  "4NM21ME007",
+                                     "semester":  7,
+                                     "batchYear":  2021,
+                                     "colleges":  "@{id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Nitte Mahalinga Adyanthaya Memorial Institute of Technology; code=NMAMIT; logoUrl=}",
+                                     "departments":  "@{id=2f3b24d6-211a-4a38-a334-c742cbe26132; college_id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Mechanical Engineering; code=MECH}",
+                                     "sections":  "@{section_id=191b0fd4-1983-4daa-8f5e-0c726285aef3; department_id=2f3b24d6-211a-4a38-a334-c742cbe26132; section_name=NM_MECH_B4}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "189f2584-18cf-4f41-9ee2-3f5b1870dc82",
+                     "username":  "4nm21me006",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Sanjay Yadav",
+                     "phone":  "9876543386",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.667Z",
+                     "userRoles":  [
+                                       "@{userId=189f2584-18cf-4f41-9ee2-3f5b1870dc82; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "bf2d9fef-68a1-410a-a948-fb9cd745741d",
+                                     "userId":  "189f2584-18cf-4f41-9ee2-3f5b1870dc82",
+                                     "college_id":  "762499ba-3b43-456e-8f06-9e4d7a3f3059",
+                                     "department_id":  "2f3b24d6-211a-4a38-a334-c742cbe26132",
+                                     "section_id":  "191b0fd4-1983-4daa-8f5e-0c726285aef3",
+                                     "usn":  "4NM21ME006",
+                                     "semester":  7,
+                                     "batchYear":  2021,
+                                     "colleges":  "@{id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Nitte Mahalinga Adyanthaya Memorial Institute of Technology; code=NMAMIT; logoUrl=}",
+                                     "departments":  "@{id=2f3b24d6-211a-4a38-a334-c742cbe26132; college_id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Mechanical Engineering; code=MECH}",
+                                     "sections":  "@{section_id=191b0fd4-1983-4daa-8f5e-0c726285aef3; department_id=2f3b24d6-211a-4a38-a334-c742cbe26132; section_name=NM_MECH_B4}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "91c2d5e9-9db7-4c6c-b045-366a032a0572",
+                     "username":  "4nm21me005",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Ashok Gupta",
+                     "phone":  "9876543385",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.663Z",
+                     "userRoles":  [
+                                       "@{userId=91c2d5e9-9db7-4c6c-b045-366a032a0572; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "757e63bf-6817-4517-99da-19759144c44f",
+                                     "userId":  "91c2d5e9-9db7-4c6c-b045-366a032a0572",
+                                     "college_id":  "762499ba-3b43-456e-8f06-9e4d7a3f3059",
+                                     "department_id":  "2f3b24d6-211a-4a38-a334-c742cbe26132",
+                                     "section_id":  "a6149d54-4c36-4783-bb90-492a49ef9243",
+                                     "usn":  "4NM21ME005",
+                                     "semester":  7,
+                                     "batchYear":  2021,
+                                     "colleges":  "@{id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Nitte Mahalinga Adyanthaya Memorial Institute of Technology; code=NMAMIT; logoUrl=}",
+                                     "departments":  "@{id=2f3b24d6-211a-4a38-a334-c742cbe26132; college_id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Mechanical Engineering; code=MECH}",
+                                     "sections":  "@{section_id=a6149d54-4c36-4783-bb90-492a49ef9243; department_id=2f3b24d6-211a-4a38-a334-c742cbe26132; section_name=NM_MECH_A4}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "5f200c7f-77ff-448e-b35e-9b55fbbd3cd4",
+                     "username":  "4nm21me004",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Ajay Kumar",
+                     "phone":  "9876543384",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.660Z",
+                     "userRoles":  [
+                                       "@{userId=5f200c7f-77ff-448e-b35e-9b55fbbd3cd4; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "85b41d11-fd30-4d77-b30b-b0fd594c9c09",
+                                     "userId":  "5f200c7f-77ff-448e-b35e-9b55fbbd3cd4",
+                                     "college_id":  "762499ba-3b43-456e-8f06-9e4d7a3f3059",
+                                     "department_id":  "2f3b24d6-211a-4a38-a334-c742cbe26132",
+                                     "section_id":  "a6149d54-4c36-4783-bb90-492a49ef9243",
+                                     "usn":  "4NM21ME004",
+                                     "semester":  7,
+                                     "batchYear":  2021,
+                                     "colleges":  "@{id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Nitte Mahalinga Adyanthaya Memorial Institute of Technology; code=NMAMIT; logoUrl=}",
+                                     "departments":  "@{id=2f3b24d6-211a-4a38-a334-c742cbe26132; college_id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Mechanical Engineering; code=MECH}",
+                                     "sections":  "@{section_id=a6149d54-4c36-4783-bb90-492a49ef9243; department_id=2f3b24d6-211a-4a38-a334-c742cbe26132; section_name=NM_MECH_A4}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "e88fdf62-be7b-49f3-96d0-3df172de95da",
+                     "username":  "4nm21me003",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Vinod Patel",
+                     "phone":  "9876543383",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.657Z",
+                     "userRoles":  [
+                                       "@{userId=e88fdf62-be7b-49f3-96d0-3df172de95da; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "315b5c10-f912-4f9e-b8fe-a4418d59ed26",
+                                     "userId":  "e88fdf62-be7b-49f3-96d0-3df172de95da",
+                                     "college_id":  "762499ba-3b43-456e-8f06-9e4d7a3f3059",
+                                     "department_id":  "2f3b24d6-211a-4a38-a334-c742cbe26132",
+                                     "section_id":  "a6149d54-4c36-4783-bb90-492a49ef9243",
+                                     "usn":  "4NM21ME003",
+                                     "semester":  7,
+                                     "batchYear":  2021,
+                                     "colleges":  "@{id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Nitte Mahalinga Adyanthaya Memorial Institute of Technology; code=NMAMIT; logoUrl=}",
+                                     "departments":  "@{id=2f3b24d6-211a-4a38-a334-c742cbe26132; college_id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Mechanical Engineering; code=MECH}",
+                                     "sections":  "@{section_id=a6149d54-4c36-4783-bb90-492a49ef9243; department_id=2f3b24d6-211a-4a38-a334-c742cbe26132; section_name=NM_MECH_A4}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "6bd721f6-ede4-4fad-9df0-92fd6c6e164e",
+                     "username":  "4nm21me002",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Sandeep Singh",
+                     "phone":  "9876543382",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.653Z",
+                     "userRoles":  [
+                                       "@{userId=6bd721f6-ede4-4fad-9df0-92fd6c6e164e; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "1a28d9a7-5599-4b72-bf40-942a109a079e",
+                                     "userId":  "6bd721f6-ede4-4fad-9df0-92fd6c6e164e",
+                                     "college_id":  "762499ba-3b43-456e-8f06-9e4d7a3f3059",
+                                     "department_id":  "2f3b24d6-211a-4a38-a334-c742cbe26132",
+                                     "section_id":  "a6149d54-4c36-4783-bb90-492a49ef9243",
+                                     "usn":  "4NM21ME002",
+                                     "semester":  7,
+                                     "batchYear":  2021,
+                                     "colleges":  "@{id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Nitte Mahalinga Adyanthaya Memorial Institute of Technology; code=NMAMIT; logoUrl=}",
+                                     "departments":  "@{id=2f3b24d6-211a-4a38-a334-c742cbe26132; college_id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Mechanical Engineering; code=MECH}",
+                                     "sections":  "@{section_id=a6149d54-4c36-4783-bb90-492a49ef9243; department_id=2f3b24d6-211a-4a38-a334-c742cbe26132; section_name=NM_MECH_A4}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "26c9d1ba-4ae9-4f42-b9a1-3f7bfcc8aa1c",
+                     "username":  "4nm21me001",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Vikas Sharma",
+                     "phone":  "9876543381",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.650Z",
+                     "userRoles":  [
+                                       "@{userId=26c9d1ba-4ae9-4f42-b9a1-3f7bfcc8aa1c; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "8e758f8f-3fd5-43b1-acfa-8da244c35e72",
+                                     "userId":  "26c9d1ba-4ae9-4f42-b9a1-3f7bfcc8aa1c",
+                                     "college_id":  "762499ba-3b43-456e-8f06-9e4d7a3f3059",
+                                     "department_id":  "2f3b24d6-211a-4a38-a334-c742cbe26132",
+                                     "section_id":  "a6149d54-4c36-4783-bb90-492a49ef9243",
+                                     "usn":  "4NM21ME001",
+                                     "semester":  7,
+                                     "batchYear":  2021,
+                                     "colleges":  "@{id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Nitte Mahalinga Adyanthaya Memorial Institute of Technology; code=NMAMIT; logoUrl=}",
+                                     "departments":  "@{id=2f3b24d6-211a-4a38-a334-c742cbe26132; college_id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Mechanical Engineering; code=MECH}",
+                                     "sections":  "@{section_id=a6149d54-4c36-4783-bb90-492a49ef9243; department_id=2f3b24d6-211a-4a38-a334-c742cbe26132; section_name=NM_MECH_A4}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "22325e4b-0566-4982-b8da-8cc68a0af3f4",
+                     "username":  "4nm21cv010",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Shweta Shah",
+                     "phone":  "9876543380",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.647Z",
+                     "userRoles":  [
+                                       "@{userId=22325e4b-0566-4982-b8da-8cc68a0af3f4; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "ed130130-0155-4836-897b-95867b103ea8",
+                                     "userId":  "22325e4b-0566-4982-b8da-8cc68a0af3f4",
+                                     "college_id":  "762499ba-3b43-456e-8f06-9e4d7a3f3059",
+                                     "department_id":  "6cb5e9c3-2bef-446f-bd0b-5bd70cfda30f",
+                                     "section_id":  "8277efd3-59bf-4355-abe2-fdb4fe7d372b",
+                                     "usn":  "4NM21CV010",
+                                     "semester":  7,
+                                     "batchYear":  2021,
+                                     "colleges":  "@{id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Nitte Mahalinga Adyanthaya Memorial Institute of Technology; code=NMAMIT; logoUrl=}",
+                                     "departments":  "@{id=6cb5e9c3-2bef-446f-bd0b-5bd70cfda30f; college_id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Civil Engineering; code=CV}",
+                                     "sections":  "@{section_id=8277efd3-59bf-4355-abe2-fdb4fe7d372b; department_id=6cb5e9c3-2bef-446f-bd0b-5bd70cfda30f; section_name=NM_CV_B4}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "d1c52c5d-bbc9-430a-bcdc-f915cdfb57b1",
+                     "username":  "4nm21cv009",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Geeta Agarwal",
+                     "phone":  "9876543379",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.644Z",
+                     "userRoles":  [
+                                       "@{userId=d1c52c5d-bbc9-430a-bcdc-f915cdfb57b1; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "beb8e0ab-94db-4dba-8937-e1a3c76215cd",
+                                     "userId":  "d1c52c5d-bbc9-430a-bcdc-f915cdfb57b1",
+                                     "college_id":  "762499ba-3b43-456e-8f06-9e4d7a3f3059",
+                                     "department_id":  "6cb5e9c3-2bef-446f-bd0b-5bd70cfda30f",
+                                     "section_id":  "8277efd3-59bf-4355-abe2-fdb4fe7d372b",
+                                     "usn":  "4NM21CV009",
+                                     "semester":  7,
+                                     "batchYear":  2021,
+                                     "colleges":  "@{id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Nitte Mahalinga Adyanthaya Memorial Institute of Technology; code=NMAMIT; logoUrl=}",
+                                     "departments":  "@{id=6cb5e9c3-2bef-446f-bd0b-5bd70cfda30f; college_id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Civil Engineering; code=CV}",
+                                     "sections":  "@{section_id=8277efd3-59bf-4355-abe2-fdb4fe7d372b; department_id=6cb5e9c3-2bef-446f-bd0b-5bd70cfda30f; section_name=NM_CV_B4}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "e1d619fa-232f-4a18-b84e-f55b858039c8",
+                     "username":  "4nm21cv008",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Kavita Mishra",
+                     "phone":  "9876543378",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.640Z",
+                     "userRoles":  [
+                                       "@{userId=e1d619fa-232f-4a18-b84e-f55b858039c8; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "2e4da949-c041-4af2-b335-3193070d6a84",
+                                     "userId":  "e1d619fa-232f-4a18-b84e-f55b858039c8",
+                                     "college_id":  "762499ba-3b43-456e-8f06-9e4d7a3f3059",
+                                     "department_id":  "6cb5e9c3-2bef-446f-bd0b-5bd70cfda30f",
+                                     "section_id":  "8277efd3-59bf-4355-abe2-fdb4fe7d372b",
+                                     "usn":  "4NM21CV008",
+                                     "semester":  7,
+                                     "batchYear":  2021,
+                                     "colleges":  "@{id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Nitte Mahalinga Adyanthaya Memorial Institute of Technology; code=NMAMIT; logoUrl=}",
+                                     "departments":  "@{id=6cb5e9c3-2bef-446f-bd0b-5bd70cfda30f; college_id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Civil Engineering; code=CV}",
+                                     "sections":  "@{section_id=8277efd3-59bf-4355-abe2-fdb4fe7d372b; department_id=6cb5e9c3-2bef-446f-bd0b-5bd70cfda30f; section_name=NM_CV_B4}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "8a51897d-7f88-459e-b8ba-fcf4291c073e",
+                     "username":  "4nm21cv007",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Sunita Jain",
+                     "phone":  "9876543377",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.637Z",
+                     "userRoles":  [
+                                       "@{userId=8a51897d-7f88-459e-b8ba-fcf4291c073e; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "7bda9dc2-eb95-4d59-9c7b-9d35a000939a",
+                                     "userId":  "8a51897d-7f88-459e-b8ba-fcf4291c073e",
+                                     "college_id":  "762499ba-3b43-456e-8f06-9e4d7a3f3059",
+                                     "department_id":  "6cb5e9c3-2bef-446f-bd0b-5bd70cfda30f",
+                                     "section_id":  "8277efd3-59bf-4355-abe2-fdb4fe7d372b",
+                                     "usn":  "4NM21CV007",
+                                     "semester":  7,
+                                     "batchYear":  2021,
+                                     "colleges":  "@{id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Nitte Mahalinga Adyanthaya Memorial Institute of Technology; code=NMAMIT; logoUrl=}",
+                                     "departments":  "@{id=6cb5e9c3-2bef-446f-bd0b-5bd70cfda30f; college_id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Civil Engineering; code=CV}",
+                                     "sections":  "@{section_id=8277efd3-59bf-4355-abe2-fdb4fe7d372b; department_id=6cb5e9c3-2bef-446f-bd0b-5bd70cfda30f; section_name=NM_CV_B4}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "e4272e73-a37c-488e-9126-5a531f46250a",
+                     "username":  "4nm21cv006",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Ritu Yadav",
+                     "phone":  "9876543376",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.634Z",
+                     "userRoles":  [
+                                       "@{userId=e4272e73-a37c-488e-9126-5a531f46250a; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "80f2f405-77c8-4fd6-b698-344c96f55f4a",
+                                     "userId":  "e4272e73-a37c-488e-9126-5a531f46250a",
+                                     "college_id":  "762499ba-3b43-456e-8f06-9e4d7a3f3059",
+                                     "department_id":  "6cb5e9c3-2bef-446f-bd0b-5bd70cfda30f",
+                                     "section_id":  "8277efd3-59bf-4355-abe2-fdb4fe7d372b",
+                                     "usn":  "4NM21CV006",
+                                     "semester":  7,
+                                     "batchYear":  2021,
+                                     "colleges":  "@{id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Nitte Mahalinga Adyanthaya Memorial Institute of Technology; code=NMAMIT; logoUrl=}",
+                                     "departments":  "@{id=6cb5e9c3-2bef-446f-bd0b-5bd70cfda30f; college_id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Civil Engineering; code=CV}",
+                                     "sections":  "@{section_id=8277efd3-59bf-4355-abe2-fdb4fe7d372b; department_id=6cb5e9c3-2bef-446f-bd0b-5bd70cfda30f; section_name=NM_CV_B4}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "34a5e9e5-fd8f-43e9-aa18-b453b9499e07",
+                     "username":  "4nm21cv005",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Meera Gupta",
+                     "phone":  "9876543375",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.631Z",
+                     "userRoles":  [
+                                       "@{userId=34a5e9e5-fd8f-43e9-aa18-b453b9499e07; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "100c6b66-d0b7-4be4-be9e-27a3309d359e",
+                                     "userId":  "34a5e9e5-fd8f-43e9-aa18-b453b9499e07",
+                                     "college_id":  "762499ba-3b43-456e-8f06-9e4d7a3f3059",
+                                     "department_id":  "6cb5e9c3-2bef-446f-bd0b-5bd70cfda30f",
+                                     "section_id":  "bca5913c-cad9-4cf6-af0a-141f5af43f1d",
+                                     "usn":  "4NM21CV005",
+                                     "semester":  7,
+                                     "batchYear":  2021,
+                                     "colleges":  "@{id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Nitte Mahalinga Adyanthaya Memorial Institute of Technology; code=NMAMIT; logoUrl=}",
+                                     "departments":  "@{id=6cb5e9c3-2bef-446f-bd0b-5bd70cfda30f; college_id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Civil Engineering; code=CV}",
+                                     "sections":  "@{section_id=bca5913c-cad9-4cf6-af0a-141f5af43f1d; department_id=6cb5e9c3-2bef-446f-bd0b-5bd70cfda30f; section_name=NM_CV_A4}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "9d36c75c-8096-4503-9d9c-70b3b08f76f0",
+                     "username":  "4nm21cv004",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Sneha Kumar",
+                     "phone":  "9876543374",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.627Z",
+                     "userRoles":  [
+                                       "@{userId=9d36c75c-8096-4503-9d9c-70b3b08f76f0; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "2eae1fdc-c3c3-49f6-88e6-4ea349f351e9",
+                                     "userId":  "9d36c75c-8096-4503-9d9c-70b3b08f76f0",
+                                     "college_id":  "762499ba-3b43-456e-8f06-9e4d7a3f3059",
+                                     "department_id":  "6cb5e9c3-2bef-446f-bd0b-5bd70cfda30f",
+                                     "section_id":  "bca5913c-cad9-4cf6-af0a-141f5af43f1d",
+                                     "usn":  "4NM21CV004",
+                                     "semester":  7,
+                                     "batchYear":  2021,
+                                     "colleges":  "@{id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Nitte Mahalinga Adyanthaya Memorial Institute of Technology; code=NMAMIT; logoUrl=}",
+                                     "departments":  "@{id=6cb5e9c3-2bef-446f-bd0b-5bd70cfda30f; college_id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Civil Engineering; code=CV}",
+                                     "sections":  "@{section_id=bca5913c-cad9-4cf6-af0a-141f5af43f1d; department_id=6cb5e9c3-2bef-446f-bd0b-5bd70cfda30f; section_name=NM_CV_A4}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "8b6584c3-10e2-4f10-bd7b-113df9be3b91",
+                     "username":  "4nm21cv003",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Pooja Patel",
+                     "phone":  "9876543373",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.623Z",
+                     "userRoles":  [
+                                       "@{userId=8b6584c3-10e2-4f10-bd7b-113df9be3b91; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "e3a82637-bc08-45cb-8ce4-5ba9f6fe11d3",
+                                     "userId":  "8b6584c3-10e2-4f10-bd7b-113df9be3b91",
+                                     "college_id":  "762499ba-3b43-456e-8f06-9e4d7a3f3059",
+                                     "department_id":  "6cb5e9c3-2bef-446f-bd0b-5bd70cfda30f",
+                                     "section_id":  "bca5913c-cad9-4cf6-af0a-141f5af43f1d",
+                                     "usn":  "4NM21CV003",
+                                     "semester":  7,
+                                     "batchYear":  2021,
+                                     "colleges":  "@{id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Nitte Mahalinga Adyanthaya Memorial Institute of Technology; code=NMAMIT; logoUrl=}",
+                                     "departments":  "@{id=6cb5e9c3-2bef-446f-bd0b-5bd70cfda30f; college_id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Civil Engineering; code=CV}",
+                                     "sections":  "@{section_id=bca5913c-cad9-4cf6-af0a-141f5af43f1d; department_id=6cb5e9c3-2bef-446f-bd0b-5bd70cfda30f; section_name=NM_CV_A4}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "4977728f-15ea-4a6a-a42d-3ad09b77793b",
+                     "username":  "4nm21cv002",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Neha Singh",
+                     "phone":  "9876543372",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.620Z",
+                     "userRoles":  [
+                                       "@{userId=4977728f-15ea-4a6a-a42d-3ad09b77793b; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "61c761a6-5e67-4a43-8bb0-0aafc99c7b88",
+                                     "userId":  "4977728f-15ea-4a6a-a42d-3ad09b77793b",
+                                     "college_id":  "762499ba-3b43-456e-8f06-9e4d7a3f3059",
+                                     "department_id":  "6cb5e9c3-2bef-446f-bd0b-5bd70cfda30f",
+                                     "section_id":  "bca5913c-cad9-4cf6-af0a-141f5af43f1d",
+                                     "usn":  "4NM21CV002",
+                                     "semester":  7,
+                                     "batchYear":  2021,
+                                     "colleges":  "@{id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Nitte Mahalinga Adyanthaya Memorial Institute of Technology; code=NMAMIT; logoUrl=}",
+                                     "departments":  "@{id=6cb5e9c3-2bef-446f-bd0b-5bd70cfda30f; college_id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Civil Engineering; code=CV}",
+                                     "sections":  "@{section_id=bca5913c-cad9-4cf6-af0a-141f5af43f1d; department_id=6cb5e9c3-2bef-446f-bd0b-5bd70cfda30f; section_name=NM_CV_A4}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "89f9141b-d7cc-4066-8111-22e8459ca438",
+                     "username":  "4nm21cv001",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Priya Sharma",
+                     "phone":  "9876543371",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.616Z",
+                     "userRoles":  [
+                                       "@{userId=89f9141b-d7cc-4066-8111-22e8459ca438; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "b4d69ec7-820d-4b86-8c15-b5c08dfe86e5",
+                                     "userId":  "89f9141b-d7cc-4066-8111-22e8459ca438",
+                                     "college_id":  "762499ba-3b43-456e-8f06-9e4d7a3f3059",
+                                     "department_id":  "6cb5e9c3-2bef-446f-bd0b-5bd70cfda30f",
+                                     "section_id":  "bca5913c-cad9-4cf6-af0a-141f5af43f1d",
+                                     "usn":  "4NM21CV001",
+                                     "semester":  7,
+                                     "batchYear":  2021,
+                                     "colleges":  "@{id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Nitte Mahalinga Adyanthaya Memorial Institute of Technology; code=NMAMIT; logoUrl=}",
+                                     "departments":  "@{id=6cb5e9c3-2bef-446f-bd0b-5bd70cfda30f; college_id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Civil Engineering; code=CV}",
+                                     "sections":  "@{section_id=bca5913c-cad9-4cf6-af0a-141f5af43f1d; department_id=6cb5e9c3-2bef-446f-bd0b-5bd70cfda30f; section_name=NM_CV_A4}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "9145b778-f404-4db8-832c-48d6469bf088",
+                     "username":  "4nm21cs010",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Rajesh Shah",
+                     "phone":  "9876543370",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.613Z",
+                     "userRoles":  [
+                                       "@{userId=9145b778-f404-4db8-832c-48d6469bf088; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "63b8bea8-bbad-4fc9-8a8a-2773f6d584ff",
+                                     "userId":  "9145b778-f404-4db8-832c-48d6469bf088",
+                                     "college_id":  "762499ba-3b43-456e-8f06-9e4d7a3f3059",
+                                     "department_id":  "0cfa5524-64a6-4432-a9c9-059c1e460b5d",
+                                     "section_id":  "9c3c2cae-57ce-42cc-8a19-a51a7bb5b80d",
+                                     "usn":  "4NM21CS010",
+                                     "semester":  7,
+                                     "batchYear":  2021,
+                                     "colleges":  "@{id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Nitte Mahalinga Adyanthaya Memorial Institute of Technology; code=NMAMIT; logoUrl=}",
+                                     "departments":  "@{id=0cfa5524-64a6-4432-a9c9-059c1e460b5d; college_id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Computer Science and Engineering; code=CSE}",
+                                     "sections":  "@{section_id=9c3c2cae-57ce-42cc-8a19-a51a7bb5b80d; department_id=0cfa5524-64a6-4432-a9c9-059c1e460b5d; section_name=NM_CSE_B4}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "d6427757-03b2-4ea6-8dac-0d6dcf86c3da",
+                     "username":  "4nm21cs009",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Sachin Agarwal",
+                     "phone":  "9876543369",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.609Z",
+                     "userRoles":  [
+                                       "@{userId=d6427757-03b2-4ea6-8dac-0d6dcf86c3da; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "eee12c2e-233e-44d4-bfb0-7841a4db5073",
+                                     "userId":  "d6427757-03b2-4ea6-8dac-0d6dcf86c3da",
+                                     "college_id":  "762499ba-3b43-456e-8f06-9e4d7a3f3059",
+                                     "department_id":  "0cfa5524-64a6-4432-a9c9-059c1e460b5d",
+                                     "section_id":  "9c3c2cae-57ce-42cc-8a19-a51a7bb5b80d",
+                                     "usn":  "4NM21CS009",
+                                     "semester":  7,
+                                     "batchYear":  2021,
+                                     "colleges":  "@{id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Nitte Mahalinga Adyanthaya Memorial Institute of Technology; code=NMAMIT; logoUrl=}",
+                                     "departments":  "@{id=0cfa5524-64a6-4432-a9c9-059c1e460b5d; college_id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Computer Science and Engineering; code=CSE}",
+                                     "sections":  "@{section_id=9c3c2cae-57ce-42cc-8a19-a51a7bb5b80d; department_id=0cfa5524-64a6-4432-a9c9-059c1e460b5d; section_name=NM_CSE_B4}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "f04be872-bf63-468c-b50a-d04b56917f76",
+                     "username":  "4nm21cs008",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Manoj Mishra",
+                     "phone":  "9876543368",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.605Z",
+                     "userRoles":  [
+                                       "@{userId=f04be872-bf63-468c-b50a-d04b56917f76; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "d43a318a-7960-41eb-adf9-dd0728191529",
+                                     "userId":  "f04be872-bf63-468c-b50a-d04b56917f76",
+                                     "college_id":  "762499ba-3b43-456e-8f06-9e4d7a3f3059",
+                                     "department_id":  "0cfa5524-64a6-4432-a9c9-059c1e460b5d",
+                                     "section_id":  "9c3c2cae-57ce-42cc-8a19-a51a7bb5b80d",
+                                     "usn":  "4NM21CS008",
+                                     "semester":  7,
+                                     "batchYear":  2021,
+                                     "colleges":  "@{id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Nitte Mahalinga Adyanthaya Memorial Institute of Technology; code=NMAMIT; logoUrl=}",
+                                     "departments":  "@{id=0cfa5524-64a6-4432-a9c9-059c1e460b5d; college_id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Computer Science and Engineering; code=CSE}",
+                                     "sections":  "@{section_id=9c3c2cae-57ce-42cc-8a19-a51a7bb5b80d; department_id=0cfa5524-64a6-4432-a9c9-059c1e460b5d; section_name=NM_CSE_B4}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "335b5ab8-ba39-471b-88ca-b08efd6596f3",
+                     "username":  "4nm21cs007",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Deepak Jain",
+                     "phone":  "9876543367",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.602Z",
+                     "userRoles":  [
+                                       "@{userId=335b5ab8-ba39-471b-88ca-b08efd6596f3; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "7a07cee5-d3b4-434c-9271-0a4e4f10283d",
+                                     "userId":  "335b5ab8-ba39-471b-88ca-b08efd6596f3",
+                                     "college_id":  "762499ba-3b43-456e-8f06-9e4d7a3f3059",
+                                     "department_id":  "0cfa5524-64a6-4432-a9c9-059c1e460b5d",
+                                     "section_id":  "9c3c2cae-57ce-42cc-8a19-a51a7bb5b80d",
+                                     "usn":  "4NM21CS007",
+                                     "semester":  7,
+                                     "batchYear":  2021,
+                                     "colleges":  "@{id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Nitte Mahalinga Adyanthaya Memorial Institute of Technology; code=NMAMIT; logoUrl=}",
+                                     "departments":  "@{id=0cfa5524-64a6-4432-a9c9-059c1e460b5d; college_id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Computer Science and Engineering; code=CSE}",
+                                     "sections":  "@{section_id=9c3c2cae-57ce-42cc-8a19-a51a7bb5b80d; department_id=0cfa5524-64a6-4432-a9c9-059c1e460b5d; section_name=NM_CSE_B4}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "4772e70c-e1c8-424d-8c37-7d4d1ae51ea7",
+                     "username":  "4nm21cs006",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Akash Yadav",
+                     "phone":  "9876543366",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.598Z",
+                     "userRoles":  [
+                                       "@{userId=4772e70c-e1c8-424d-8c37-7d4d1ae51ea7; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "75cefe5e-d04b-4759-9ec0-125a1d5165c0",
+                                     "userId":  "4772e70c-e1c8-424d-8c37-7d4d1ae51ea7",
+                                     "college_id":  "762499ba-3b43-456e-8f06-9e4d7a3f3059",
+                                     "department_id":  "0cfa5524-64a6-4432-a9c9-059c1e460b5d",
+                                     "section_id":  "9c3c2cae-57ce-42cc-8a19-a51a7bb5b80d",
+                                     "usn":  "4NM21CS006",
+                                     "semester":  7,
+                                     "batchYear":  2021,
+                                     "colleges":  "@{id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Nitte Mahalinga Adyanthaya Memorial Institute of Technology; code=NMAMIT; logoUrl=}",
+                                     "departments":  "@{id=0cfa5524-64a6-4432-a9c9-059c1e460b5d; college_id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Computer Science and Engineering; code=CSE}",
+                                     "sections":  "@{section_id=9c3c2cae-57ce-42cc-8a19-a51a7bb5b80d; department_id=0cfa5524-64a6-4432-a9c9-059c1e460b5d; section_name=NM_CSE_B4}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "832591dc-87f3-4230-a95a-c250e039efc7",
+                     "username":  "4nm21cs005",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Ravi Gupta",
+                     "phone":  "9876543365",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.594Z",
+                     "userRoles":  [
+                                       "@{userId=832591dc-87f3-4230-a95a-c250e039efc7; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "64a5eec7-448e-4aed-b82d-f9c848670cba",
+                                     "userId":  "832591dc-87f3-4230-a95a-c250e039efc7",
+                                     "college_id":  "762499ba-3b43-456e-8f06-9e4d7a3f3059",
+                                     "department_id":  "0cfa5524-64a6-4432-a9c9-059c1e460b5d",
+                                     "section_id":  "00620672-2c32-4f9f-b787-c001ebad1909",
+                                     "usn":  "4NM21CS005",
+                                     "semester":  7,
+                                     "batchYear":  2021,
+                                     "colleges":  "@{id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Nitte Mahalinga Adyanthaya Memorial Institute of Technology; code=NMAMIT; logoUrl=}",
+                                     "departments":  "@{id=0cfa5524-64a6-4432-a9c9-059c1e460b5d; college_id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Computer Science and Engineering; code=CSE}",
+                                     "sections":  "@{section_id=00620672-2c32-4f9f-b787-c001ebad1909; department_id=0cfa5524-64a6-4432-a9c9-059c1e460b5d; section_name=NM_CSE_A4}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "c7d3a8e0-3809-47d5-a8cd-b2c884cb5792",
+                     "username":  "4nm21cs004",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Suresh Kumar",
+                     "phone":  "9876543364",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.590Z",
+                     "userRoles":  [
+                                       "@{userId=c7d3a8e0-3809-47d5-a8cd-b2c884cb5792; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "e033e189-656e-4397-9e73-bea42c5599a1",
+                                     "userId":  "c7d3a8e0-3809-47d5-a8cd-b2c884cb5792",
+                                     "college_id":  "762499ba-3b43-456e-8f06-9e4d7a3f3059",
+                                     "department_id":  "0cfa5524-64a6-4432-a9c9-059c1e460b5d",
+                                     "section_id":  "00620672-2c32-4f9f-b787-c001ebad1909",
+                                     "usn":  "4NM21CS004",
+                                     "semester":  7,
+                                     "batchYear":  2021,
+                                     "colleges":  "@{id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Nitte Mahalinga Adyanthaya Memorial Institute of Technology; code=NMAMIT; logoUrl=}",
+                                     "departments":  "@{id=0cfa5524-64a6-4432-a9c9-059c1e460b5d; college_id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Computer Science and Engineering; code=CSE}",
+                                     "sections":  "@{section_id=00620672-2c32-4f9f-b787-c001ebad1909; department_id=0cfa5524-64a6-4432-a9c9-059c1e460b5d; section_name=NM_CSE_A4}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "aaf6fe32-8ee4-4c84-8cd7-16341cc31739",
+                     "username":  "4nm21cs003",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Pradeep Patel",
+                     "phone":  "9876543363",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.586Z",
+                     "userRoles":  [
+                                       "@{userId=aaf6fe32-8ee4-4c84-8cd7-16341cc31739; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "20e1f122-3946-4f35-8db5-daa1296fe979",
+                                     "userId":  "aaf6fe32-8ee4-4c84-8cd7-16341cc31739",
+                                     "college_id":  "762499ba-3b43-456e-8f06-9e4d7a3f3059",
+                                     "department_id":  "0cfa5524-64a6-4432-a9c9-059c1e460b5d",
+                                     "section_id":  "00620672-2c32-4f9f-b787-c001ebad1909",
+                                     "usn":  "4NM21CS003",
+                                     "semester":  7,
+                                     "batchYear":  2021,
+                                     "colleges":  "@{id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Nitte Mahalinga Adyanthaya Memorial Institute of Technology; code=NMAMIT; logoUrl=}",
+                                     "departments":  "@{id=0cfa5524-64a6-4432-a9c9-059c1e460b5d; college_id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Computer Science and Engineering; code=CSE}",
+                                     "sections":  "@{section_id=00620672-2c32-4f9f-b787-c001ebad1909; department_id=0cfa5524-64a6-4432-a9c9-059c1e460b5d; section_name=NM_CSE_A4}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "8c80a607-78bc-436d-bbbd-f3d7b96fdaf1",
+                     "username":  "4nm21cs002",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Amit Singh",
+                     "phone":  "9876543362",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.583Z",
+                     "userRoles":  [
+                                       "@{userId=8c80a607-78bc-436d-bbbd-f3d7b96fdaf1; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "0b9e655c-a099-4626-96df-f732011c959d",
+                                     "userId":  "8c80a607-78bc-436d-bbbd-f3d7b96fdaf1",
+                                     "college_id":  "762499ba-3b43-456e-8f06-9e4d7a3f3059",
+                                     "department_id":  "0cfa5524-64a6-4432-a9c9-059c1e460b5d",
+                                     "section_id":  "00620672-2c32-4f9f-b787-c001ebad1909",
+                                     "usn":  "4NM21CS002",
+                                     "semester":  7,
+                                     "batchYear":  2021,
+                                     "colleges":  "@{id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Nitte Mahalinga Adyanthaya Memorial Institute of Technology; code=NMAMIT; logoUrl=}",
+                                     "departments":  "@{id=0cfa5524-64a6-4432-a9c9-059c1e460b5d; college_id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Computer Science and Engineering; code=CSE}",
+                                     "sections":  "@{section_id=00620672-2c32-4f9f-b787-c001ebad1909; department_id=0cfa5524-64a6-4432-a9c9-059c1e460b5d; section_name=NM_CSE_A4}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "7b2108b4-0165-42a1-9e5a-5c93100ee616",
+                     "username":  "4nm21cs001",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Rahul Sharma",
+                     "phone":  "9876543361",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.579Z",
+                     "userRoles":  [
+                                       "@{userId=7b2108b4-0165-42a1-9e5a-5c93100ee616; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "ff45225c-8d69-4f99-b566-5875dbe03fa1",
+                                     "userId":  "7b2108b4-0165-42a1-9e5a-5c93100ee616",
+                                     "college_id":  "762499ba-3b43-456e-8f06-9e4d7a3f3059",
+                                     "department_id":  "0cfa5524-64a6-4432-a9c9-059c1e460b5d",
+                                     "section_id":  "00620672-2c32-4f9f-b787-c001ebad1909",
+                                     "usn":  "4NM21CS001",
+                                     "semester":  7,
+                                     "batchYear":  2021,
+                                     "colleges":  "@{id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Nitte Mahalinga Adyanthaya Memorial Institute of Technology; code=NMAMIT; logoUrl=}",
+                                     "departments":  "@{id=0cfa5524-64a6-4432-a9c9-059c1e460b5d; college_id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Computer Science and Engineering; code=CSE}",
+                                     "sections":  "@{section_id=00620672-2c32-4f9f-b787-c001ebad1909; department_id=0cfa5524-64a6-4432-a9c9-059c1e460b5d; section_name=NM_CSE_A4}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "30f4f4aa-3766-4928-bfef-3e0c4cd43712",
+                     "username":  "4nt23me010",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Siddharth Joshi",
+                     "phone":  "9876543360",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.575Z",
+                     "userRoles":  [
+                                       "@{userId=30f4f4aa-3766-4928-bfef-3e0c4cd43712; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "a50b3213-e538-4efa-a368-83e0e9fdd88d",
+                                     "userId":  "30f4f4aa-3766-4928-bfef-3e0c4cd43712",
+                                     "college_id":  "a9ca6684-aaf6-49fa-93dc-e2628d1f556b",
+                                     "department_id":  "73ac600b-ffaa-42e0-8067-6c842676ccd7",
+                                     "section_id":  "985ad3b1-3077-4819-8913-9dbba0c889d9",
+                                     "usn":  "4NT23ME010",
+                                     "semester":  3,
+                                     "batchYear":  2023,
+                                     "colleges":  "@{id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Nitte Institute of Technology; code=NITTE; logoUrl=}",
+                                     "departments":  "@{id=73ac600b-ffaa-42e0-8067-6c842676ccd7; college_id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Mechanical Engineering; code=MECH}",
+                                     "sections":  "@{section_id=985ad3b1-3077-4819-8913-9dbba0c889d9; department_id=73ac600b-ffaa-42e0-8067-6c842676ccd7; section_name=NI_MECH_B2}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "7a30161e-d678-4ea1-9f8e-00a6b874c2a6",
+                     "username":  "4nt23me009",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Ankit Das",
+                     "phone":  "9876543359",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.572Z",
+                     "userRoles":  [
+                                       "@{userId=7a30161e-d678-4ea1-9f8e-00a6b874c2a6; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "6d9790fe-e88d-4276-b872-f2a5e3446819",
+                                     "userId":  "7a30161e-d678-4ea1-9f8e-00a6b874c2a6",
+                                     "college_id":  "a9ca6684-aaf6-49fa-93dc-e2628d1f556b",
+                                     "department_id":  "73ac600b-ffaa-42e0-8067-6c842676ccd7",
+                                     "section_id":  "985ad3b1-3077-4819-8913-9dbba0c889d9",
+                                     "usn":  "4NT23ME009",
+                                     "semester":  3,
+                                     "batchYear":  2023,
+                                     "colleges":  "@{id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Nitte Institute of Technology; code=NITTE; logoUrl=}",
+                                     "departments":  "@{id=73ac600b-ffaa-42e0-8067-6c842676ccd7; college_id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Mechanical Engineering; code=MECH}",
+                                     "sections":  "@{section_id=985ad3b1-3077-4819-8913-9dbba0c889d9; department_id=73ac600b-ffaa-42e0-8067-6c842676ccd7; section_name=NI_MECH_B2}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "6bb4d084-51a4-4e87-8791-dd303fbd1593",
+                     "username":  "4nt23me008",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Vikram Nair",
+                     "phone":  "9876543358",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.568Z",
+                     "userRoles":  [
+                                       "@{userId=6bb4d084-51a4-4e87-8791-dd303fbd1593; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "585aa17c-02dd-4ef4-bd05-cc1df875a7da",
+                                     "userId":  "6bb4d084-51a4-4e87-8791-dd303fbd1593",
+                                     "college_id":  "a9ca6684-aaf6-49fa-93dc-e2628d1f556b",
+                                     "department_id":  "73ac600b-ffaa-42e0-8067-6c842676ccd7",
+                                     "section_id":  "985ad3b1-3077-4819-8913-9dbba0c889d9",
+                                     "usn":  "4NT23ME008",
+                                     "semester":  3,
+                                     "batchYear":  2023,
+                                     "colleges":  "@{id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Nitte Institute of Technology; code=NITTE; logoUrl=}",
+                                     "departments":  "@{id=73ac600b-ffaa-42e0-8067-6c842676ccd7; college_id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Mechanical Engineering; code=MECH}",
+                                     "sections":  "@{section_id=985ad3b1-3077-4819-8913-9dbba0c889d9; department_id=73ac600b-ffaa-42e0-8067-6c842676ccd7; section_name=NI_MECH_B2}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "d10cae1b-c02f-4972-be61-754a028fd5be",
+                     "username":  "4nt23me007",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Rohit Reddy",
+                     "phone":  "9876543357",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.565Z",
+                     "userRoles":  [
+                                       "@{userId=d10cae1b-c02f-4972-be61-754a028fd5be; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "1ebf4188-6146-4405-9233-2ed871f54b12",
+                                     "userId":  "d10cae1b-c02f-4972-be61-754a028fd5be",
+                                     "college_id":  "a9ca6684-aaf6-49fa-93dc-e2628d1f556b",
+                                     "department_id":  "73ac600b-ffaa-42e0-8067-6c842676ccd7",
+                                     "section_id":  "985ad3b1-3077-4819-8913-9dbba0c889d9",
+                                     "usn":  "4NT23ME007",
+                                     "semester":  3,
+                                     "batchYear":  2023,
+                                     "colleges":  "@{id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Nitte Institute of Technology; code=NITTE; logoUrl=}",
+                                     "departments":  "@{id=73ac600b-ffaa-42e0-8067-6c842676ccd7; college_id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Mechanical Engineering; code=MECH}",
+                                     "sections":  "@{section_id=985ad3b1-3077-4819-8913-9dbba0c889d9; department_id=73ac600b-ffaa-42e0-8067-6c842676ccd7; section_name=NI_MECH_B2}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "562dae48-5b35-48cc-af89-1ce1b66f2334",
+                     "username":  "4nt23me006",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Ravi Verma",
+                     "phone":  "9876543356",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.561Z",
+                     "userRoles":  [
+                                       "@{userId=562dae48-5b35-48cc-af89-1ce1b66f2334; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "5da5fdf3-68d7-4fa3-8520-6a7ae3e60e13",
+                                     "userId":  "562dae48-5b35-48cc-af89-1ce1b66f2334",
+                                     "college_id":  "a9ca6684-aaf6-49fa-93dc-e2628d1f556b",
+                                     "department_id":  "73ac600b-ffaa-42e0-8067-6c842676ccd7",
+                                     "section_id":  "985ad3b1-3077-4819-8913-9dbba0c889d9",
+                                     "usn":  "4NT23ME006",
+                                     "semester":  3,
+                                     "batchYear":  2023,
+                                     "colleges":  "@{id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Nitte Institute of Technology; code=NITTE; logoUrl=}",
+                                     "departments":  "@{id=73ac600b-ffaa-42e0-8067-6c842676ccd7; college_id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Mechanical Engineering; code=MECH}",
+                                     "sections":  "@{section_id=985ad3b1-3077-4819-8913-9dbba0c889d9; department_id=73ac600b-ffaa-42e0-8067-6c842676ccd7; section_name=NI_MECH_B2}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "5cde47b1-40e3-47ed-8aa3-9813f4262317",
+                     "username":  "4nt23me005",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Harsh Kumar",
+                     "phone":  "9876543355",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.558Z",
+                     "userRoles":  [
+                                       "@{userId=5cde47b1-40e3-47ed-8aa3-9813f4262317; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "2293bcb3-321c-41b4-bc86-706f929f2ba6",
+                                     "userId":  "5cde47b1-40e3-47ed-8aa3-9813f4262317",
+                                     "college_id":  "a9ca6684-aaf6-49fa-93dc-e2628d1f556b",
+                                     "department_id":  "73ac600b-ffaa-42e0-8067-6c842676ccd7",
+                                     "section_id":  "ba4b44ec-1a75-4a8b-9fa9-d4380819badc",
+                                     "usn":  "4NT23ME005",
+                                     "semester":  3,
+                                     "batchYear":  2023,
+                                     "colleges":  "@{id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Nitte Institute of Technology; code=NITTE; logoUrl=}",
+                                     "departments":  "@{id=73ac600b-ffaa-42e0-8067-6c842676ccd7; college_id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Mechanical Engineering; code=MECH}",
+                                     "sections":  "@{section_id=ba4b44ec-1a75-4a8b-9fa9-d4380819badc; department_id=73ac600b-ffaa-42e0-8067-6c842676ccd7; section_name=NI_MECH_A2}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "ed0f7bf1-449b-45c2-a526-bf2f138d0174",
+                     "username":  "4nt23me004",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Karan Joshi",
+                     "phone":  "9876543354",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.554Z",
+                     "userRoles":  [
+                                       "@{userId=ed0f7bf1-449b-45c2-a526-bf2f138d0174; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "5acaf03e-846d-4e52-b14f-517bc27fe858",
+                                     "userId":  "ed0f7bf1-449b-45c2-a526-bf2f138d0174",
+                                     "college_id":  "a9ca6684-aaf6-49fa-93dc-e2628d1f556b",
+                                     "department_id":  "73ac600b-ffaa-42e0-8067-6c842676ccd7",
+                                     "section_id":  "ba4b44ec-1a75-4a8b-9fa9-d4380819badc",
+                                     "usn":  "4NT23ME004",
+                                     "semester":  3,
+                                     "batchYear":  2023,
+                                     "colleges":  "@{id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Nitte Institute of Technology; code=NITTE; logoUrl=}",
+                                     "departments":  "@{id=73ac600b-ffaa-42e0-8067-6c842676ccd7; college_id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Mechanical Engineering; code=MECH}",
+                                     "sections":  "@{section_id=ba4b44ec-1a75-4a8b-9fa9-d4380819badc; department_id=73ac600b-ffaa-42e0-8067-6c842676ccd7; section_name=NI_MECH_A2}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "dad04e48-250d-4d53-bd4e-f29c314720c1",
+                     "username":  "4nt23me003",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Aryan Das",
+                     "phone":  "9876543353",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.550Z",
+                     "userRoles":  [
+                                       "@{userId=dad04e48-250d-4d53-bd4e-f29c314720c1; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "e216a4e2-9be6-4263-b1fc-79eebadf2f31",
+                                     "userId":  "dad04e48-250d-4d53-bd4e-f29c314720c1",
+                                     "college_id":  "a9ca6684-aaf6-49fa-93dc-e2628d1f556b",
+                                     "department_id":  "73ac600b-ffaa-42e0-8067-6c842676ccd7",
+                                     "section_id":  "ba4b44ec-1a75-4a8b-9fa9-d4380819badc",
+                                     "usn":  "4NT23ME003",
+                                     "semester":  3,
+                                     "batchYear":  2023,
+                                     "colleges":  "@{id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Nitte Institute of Technology; code=NITTE; logoUrl=}",
+                                     "departments":  "@{id=73ac600b-ffaa-42e0-8067-6c842676ccd7; college_id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Mechanical Engineering; code=MECH}",
+                                     "sections":  "@{section_id=ba4b44ec-1a75-4a8b-9fa9-d4380819badc; department_id=73ac600b-ffaa-42e0-8067-6c842676ccd7; section_name=NI_MECH_A2}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "9b75ea09-535c-4aed-9b61-cca59874aaf9",
+                     "username":  "4nt23me002",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Dev Nair",
+                     "phone":  "9876543352",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.547Z",
+                     "userRoles":  [
+                                       "@{userId=9b75ea09-535c-4aed-9b61-cca59874aaf9; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "7a56c197-9c2b-4784-82a8-14ee5ee4c483",
+                                     "userId":  "9b75ea09-535c-4aed-9b61-cca59874aaf9",
+                                     "college_id":  "a9ca6684-aaf6-49fa-93dc-e2628d1f556b",
+                                     "department_id":  "73ac600b-ffaa-42e0-8067-6c842676ccd7",
+                                     "section_id":  "ba4b44ec-1a75-4a8b-9fa9-d4380819badc",
+                                     "usn":  "4NT23ME002",
+                                     "semester":  3,
+                                     "batchYear":  2023,
+                                     "colleges":  "@{id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Nitte Institute of Technology; code=NITTE; logoUrl=}",
+                                     "departments":  "@{id=73ac600b-ffaa-42e0-8067-6c842676ccd7; college_id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Mechanical Engineering; code=MECH}",
+                                     "sections":  "@{section_id=ba4b44ec-1a75-4a8b-9fa9-d4380819badc; department_id=73ac600b-ffaa-42e0-8067-6c842676ccd7; section_name=NI_MECH_A2}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "3582d4e8-2166-4d05-b5ff-47cacdc448d1",
+                     "username":  "4nt23me001",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Raj Reddy",
+                     "phone":  "9876543351",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.544Z",
+                     "userRoles":  [
+                                       "@{userId=3582d4e8-2166-4d05-b5ff-47cacdc448d1; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "f7f1c330-5349-48a2-b194-8f295ec04c15",
+                                     "userId":  "3582d4e8-2166-4d05-b5ff-47cacdc448d1",
+                                     "college_id":  "a9ca6684-aaf6-49fa-93dc-e2628d1f556b",
+                                     "department_id":  "73ac600b-ffaa-42e0-8067-6c842676ccd7",
+                                     "section_id":  "ba4b44ec-1a75-4a8b-9fa9-d4380819badc",
+                                     "usn":  "4NT23ME001",
+                                     "semester":  3,
+                                     "batchYear":  2023,
+                                     "colleges":  "@{id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Nitte Institute of Technology; code=NITTE; logoUrl=}",
+                                     "departments":  "@{id=73ac600b-ffaa-42e0-8067-6c842676ccd7; college_id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Mechanical Engineering; code=MECH}",
+                                     "sections":  "@{section_id=ba4b44ec-1a75-4a8b-9fa9-d4380819badc; department_id=73ac600b-ffaa-42e0-8067-6c842676ccd7; section_name=NI_MECH_A2}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "7cac5ef2-4e1e-4486-ac77-a33e4c1f8655",
+                     "username":  "4nt23cv010",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Aditi Joshi",
+                     "phone":  "9876543350",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.541Z",
+                     "userRoles":  [
+                                       "@{userId=7cac5ef2-4e1e-4486-ac77-a33e4c1f8655; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "d6994a11-6df2-47ae-b696-3fb5dea5d7cb",
+                                     "userId":  "7cac5ef2-4e1e-4486-ac77-a33e4c1f8655",
+                                     "college_id":  "a9ca6684-aaf6-49fa-93dc-e2628d1f556b",
+                                     "department_id":  "3b879f23-5ded-402b-92af-e1b23260b75f",
+                                     "section_id":  "968a81f5-9ee6-424e-89dc-a80991a39cbd",
+                                     "usn":  "4NT23CV010",
+                                     "semester":  3,
+                                     "batchYear":  2023,
+                                     "colleges":  "@{id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Nitte Institute of Technology; code=NITTE; logoUrl=}",
+                                     "departments":  "@{id=3b879f23-5ded-402b-92af-e1b23260b75f; college_id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Civil Engineering; code=CV}",
+                                     "sections":  "@{section_id=968a81f5-9ee6-424e-89dc-a80991a39cbd; department_id=3b879f23-5ded-402b-92af-e1b23260b75f; section_name=NI_CV_B2}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "7b20b2f0-4998-45dc-a869-0e0fc6fa3fac",
+                     "username":  "4nt23cv009",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Myra Das",
+                     "phone":  "9876543349",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.538Z",
+                     "userRoles":  [
+                                       "@{userId=7b20b2f0-4998-45dc-a869-0e0fc6fa3fac; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "8e3bd549-701c-4296-9cd1-d6d34bd51a62",
+                                     "userId":  "7b20b2f0-4998-45dc-a869-0e0fc6fa3fac",
+                                     "college_id":  "a9ca6684-aaf6-49fa-93dc-e2628d1f556b",
+                                     "department_id":  "3b879f23-5ded-402b-92af-e1b23260b75f",
+                                     "section_id":  "968a81f5-9ee6-424e-89dc-a80991a39cbd",
+                                     "usn":  "4NT23CV009",
+                                     "semester":  3,
+                                     "batchYear":  2023,
+                                     "colleges":  "@{id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Nitte Institute of Technology; code=NITTE; logoUrl=}",
+                                     "departments":  "@{id=3b879f23-5ded-402b-92af-e1b23260b75f; college_id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Civil Engineering; code=CV}",
+                                     "sections":  "@{section_id=968a81f5-9ee6-424e-89dc-a80991a39cbd; department_id=3b879f23-5ded-402b-92af-e1b23260b75f; section_name=NI_CV_B2}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "fb9b835b-3696-4e29-91db-2f6678d49fd6",
+                     "username":  "4nt23cv008",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Kiara Nair",
+                     "phone":  "9876543348",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.534Z",
+                     "userRoles":  [
+                                       "@{userId=fb9b835b-3696-4e29-91db-2f6678d49fd6; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "0f5fbf6e-66b8-45ae-bc86-d602dc993e17",
+                                     "userId":  "fb9b835b-3696-4e29-91db-2f6678d49fd6",
+                                     "college_id":  "a9ca6684-aaf6-49fa-93dc-e2628d1f556b",
+                                     "department_id":  "3b879f23-5ded-402b-92af-e1b23260b75f",
+                                     "section_id":  "968a81f5-9ee6-424e-89dc-a80991a39cbd",
+                                     "usn":  "4NT23CV008",
+                                     "semester":  3,
+                                     "batchYear":  2023,
+                                     "colleges":  "@{id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Nitte Institute of Technology; code=NITTE; logoUrl=}",
+                                     "departments":  "@{id=3b879f23-5ded-402b-92af-e1b23260b75f; college_id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Civil Engineering; code=CV}",
+                                     "sections":  "@{section_id=968a81f5-9ee6-424e-89dc-a80991a39cbd; department_id=3b879f23-5ded-402b-92af-e1b23260b75f; section_name=NI_CV_B2}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "e009f37e-53b0-456c-88eb-fb29f2d9c81b",
+                     "username":  "4nt23cv007",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Arya Reddy",
+                     "phone":  "9876543347",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.531Z",
+                     "userRoles":  [
+                                       "@{userId=e009f37e-53b0-456c-88eb-fb29f2d9c81b; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "ad9a1d71-5a1c-406d-afa7-243d800b28cb",
+                                     "userId":  "e009f37e-53b0-456c-88eb-fb29f2d9c81b",
+                                     "college_id":  "a9ca6684-aaf6-49fa-93dc-e2628d1f556b",
+                                     "department_id":  "3b879f23-5ded-402b-92af-e1b23260b75f",
+                                     "section_id":  "968a81f5-9ee6-424e-89dc-a80991a39cbd",
+                                     "usn":  "4NT23CV007",
+                                     "semester":  3,
+                                     "batchYear":  2023,
+                                     "colleges":  "@{id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Nitte Institute of Technology; code=NITTE; logoUrl=}",
+                                     "departments":  "@{id=3b879f23-5ded-402b-92af-e1b23260b75f; college_id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Civil Engineering; code=CV}",
+                                     "sections":  "@{section_id=968a81f5-9ee6-424e-89dc-a80991a39cbd; department_id=3b879f23-5ded-402b-92af-e1b23260b75f; section_name=NI_CV_B2}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "b280540a-09f7-41bb-bb8c-5d1685959cbc",
+                     "username":  "4nt23cv006",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Saanvi Verma",
+                     "phone":  "9876543346",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.528Z",
+                     "userRoles":  [
+                                       "@{userId=b280540a-09f7-41bb-bb8c-5d1685959cbc; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "2e9c3c6c-ab25-4764-8bcf-fe5ae3c26a77",
+                                     "userId":  "b280540a-09f7-41bb-bb8c-5d1685959cbc",
+                                     "college_id":  "a9ca6684-aaf6-49fa-93dc-e2628d1f556b",
+                                     "department_id":  "3b879f23-5ded-402b-92af-e1b23260b75f",
+                                     "section_id":  "968a81f5-9ee6-424e-89dc-a80991a39cbd",
+                                     "usn":  "4NT23CV006",
+                                     "semester":  3,
+                                     "batchYear":  2023,
+                                     "colleges":  "@{id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Nitte Institute of Technology; code=NITTE; logoUrl=}",
+                                     "departments":  "@{id=3b879f23-5ded-402b-92af-e1b23260b75f; college_id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Civil Engineering; code=CV}",
+                                     "sections":  "@{section_id=968a81f5-9ee6-424e-89dc-a80991a39cbd; department_id=3b879f23-5ded-402b-92af-e1b23260b75f; section_name=NI_CV_B2}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "ae4a7229-4d6e-4f3e-91de-c9e09651ee08",
+                     "username":  "4nt23cv005",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Kavya Kumar",
+                     "phone":  "9876543345",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.524Z",
+                     "userRoles":  [
+                                       "@{userId=ae4a7229-4d6e-4f3e-91de-c9e09651ee08; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "43b629d0-4ca0-4b7b-a44d-d198efa52389",
+                                     "userId":  "ae4a7229-4d6e-4f3e-91de-c9e09651ee08",
+                                     "college_id":  "a9ca6684-aaf6-49fa-93dc-e2628d1f556b",
+                                     "department_id":  "3b879f23-5ded-402b-92af-e1b23260b75f",
+                                     "section_id":  "c77508c4-7ba0-49f2-922b-12ae29f787d6",
+                                     "usn":  "4NT23CV005",
+                                     "semester":  3,
+                                     "batchYear":  2023,
+                                     "colleges":  "@{id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Nitte Institute of Technology; code=NITTE; logoUrl=}",
+                                     "departments":  "@{id=3b879f23-5ded-402b-92af-e1b23260b75f; college_id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Civil Engineering; code=CV}",
+                                     "sections":  "@{section_id=c77508c4-7ba0-49f2-922b-12ae29f787d6; department_id=3b879f23-5ded-402b-92af-e1b23260b75f; section_name=NI_CV_A2}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "5a1d70b7-a200-44b6-8580-ab2d14f6d066",
+                     "username":  "4nt23cv004",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Avni Joshi",
+                     "phone":  "9876543344",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.521Z",
+                     "userRoles":  [
+                                       "@{userId=5a1d70b7-a200-44b6-8580-ab2d14f6d066; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "d4902f64-adbf-4228-be98-f8b914fd6bba",
+                                     "userId":  "5a1d70b7-a200-44b6-8580-ab2d14f6d066",
+                                     "college_id":  "a9ca6684-aaf6-49fa-93dc-e2628d1f556b",
+                                     "department_id":  "3b879f23-5ded-402b-92af-e1b23260b75f",
+                                     "section_id":  "c77508c4-7ba0-49f2-922b-12ae29f787d6",
+                                     "usn":  "4NT23CV004",
+                                     "semester":  3,
+                                     "batchYear":  2023,
+                                     "colleges":  "@{id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Nitte Institute of Technology; code=NITTE; logoUrl=}",
+                                     "departments":  "@{id=3b879f23-5ded-402b-92af-e1b23260b75f; college_id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Civil Engineering; code=CV}",
+                                     "sections":  "@{section_id=c77508c4-7ba0-49f2-922b-12ae29f787d6; department_id=3b879f23-5ded-402b-92af-e1b23260b75f; section_name=NI_CV_A2}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "528058c6-d1a8-47b6-9dc3-002471a9bdca",
+                     "username":  "4nt23cv003",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Aadhya Das",
+                     "phone":  "9876543343",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.517Z",
+                     "userRoles":  [
+                                       "@{userId=528058c6-d1a8-47b6-9dc3-002471a9bdca; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "03b4f1e0-e507-47a3-abe1-48bd14aa5733",
+                                     "userId":  "528058c6-d1a8-47b6-9dc3-002471a9bdca",
+                                     "college_id":  "a9ca6684-aaf6-49fa-93dc-e2628d1f556b",
+                                     "department_id":  "3b879f23-5ded-402b-92af-e1b23260b75f",
+                                     "section_id":  "c77508c4-7ba0-49f2-922b-12ae29f787d6",
+                                     "usn":  "4NT23CV003",
+                                     "semester":  3,
+                                     "batchYear":  2023,
+                                     "colleges":  "@{id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Nitte Institute of Technology; code=NITTE; logoUrl=}",
+                                     "departments":  "@{id=3b879f23-5ded-402b-92af-e1b23260b75f; college_id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Civil Engineering; code=CV}",
+                                     "sections":  "@{section_id=c77508c4-7ba0-49f2-922b-12ae29f787d6; department_id=3b879f23-5ded-402b-92af-e1b23260b75f; section_name=NI_CV_A2}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "83cd54f5-656c-4fb9-91b7-5f654e205877",
+                     "username":  "4nt23cv002",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Diya Nair",
+                     "phone":  "9876543342",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.513Z",
+                     "userRoles":  [
+                                       "@{userId=83cd54f5-656c-4fb9-91b7-5f654e205877; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "c882e9ee-2d0a-4eba-abc8-b8ebae8c9fdc",
+                                     "userId":  "83cd54f5-656c-4fb9-91b7-5f654e205877",
+                                     "college_id":  "a9ca6684-aaf6-49fa-93dc-e2628d1f556b",
+                                     "department_id":  "3b879f23-5ded-402b-92af-e1b23260b75f",
+                                     "section_id":  "c77508c4-7ba0-49f2-922b-12ae29f787d6",
+                                     "usn":  "4NT23CV002",
+                                     "semester":  3,
+                                     "batchYear":  2023,
+                                     "colleges":  "@{id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Nitte Institute of Technology; code=NITTE; logoUrl=}",
+                                     "departments":  "@{id=3b879f23-5ded-402b-92af-e1b23260b75f; college_id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Civil Engineering; code=CV}",
+                                     "sections":  "@{section_id=c77508c4-7ba0-49f2-922b-12ae29f787d6; department_id=3b879f23-5ded-402b-92af-e1b23260b75f; section_name=NI_CV_A2}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "23ee7ba0-094f-4a7c-9e86-cc5385b08d02",
+                     "username":  "4nt23cv001",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Anaya Reddy",
+                     "phone":  "9876543341",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.510Z",
+                     "userRoles":  [
+                                       "@{userId=23ee7ba0-094f-4a7c-9e86-cc5385b08d02; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "369dc3ef-45fe-4f15-80af-26d6cf492fd4",
+                                     "userId":  "23ee7ba0-094f-4a7c-9e86-cc5385b08d02",
+                                     "college_id":  "a9ca6684-aaf6-49fa-93dc-e2628d1f556b",
+                                     "department_id":  "3b879f23-5ded-402b-92af-e1b23260b75f",
+                                     "section_id":  "c77508c4-7ba0-49f2-922b-12ae29f787d6",
+                                     "usn":  "4NT23CV001",
+                                     "semester":  3,
+                                     "batchYear":  2023,
+                                     "colleges":  "@{id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Nitte Institute of Technology; code=NITTE; logoUrl=}",
+                                     "departments":  "@{id=3b879f23-5ded-402b-92af-e1b23260b75f; college_id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Civil Engineering; code=CV}",
+                                     "sections":  "@{section_id=c77508c4-7ba0-49f2-922b-12ae29f787d6; department_id=3b879f23-5ded-402b-92af-e1b23260b75f; section_name=NI_CV_A2}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "f7b3d113-b975-4cbd-af88-492f13b4e3a8",
+                     "username":  "4nt23cs010",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Atharv Joshi",
+                     "phone":  "9876543340",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.505Z",
+                     "userRoles":  [
+                                       "@{userId=f7b3d113-b975-4cbd-af88-492f13b4e3a8; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "ed6b1c2e-caf5-4721-bc8d-bdb6f4e3e526",
+                                     "userId":  "f7b3d113-b975-4cbd-af88-492f13b4e3a8",
+                                     "college_id":  "a9ca6684-aaf6-49fa-93dc-e2628d1f556b",
+                                     "department_id":  "b4d94385-bf5b-49e1-9531-647f65e66ac8",
+                                     "section_id":  "64af5ab6-6703-4d9b-9228-d2885efea7f2",
+                                     "usn":  "4NT23CS010",
+                                     "semester":  3,
+                                     "batchYear":  2023,
+                                     "colleges":  "@{id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Nitte Institute of Technology; code=NITTE; logoUrl=}",
+                                     "departments":  "@{id=b4d94385-bf5b-49e1-9531-647f65e66ac8; college_id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Computer Science and Engineering; code=CSE}",
+                                     "sections":  "@{section_id=64af5ab6-6703-4d9b-9228-d2885efea7f2; department_id=b4d94385-bf5b-49e1-9531-647f65e66ac8; section_name=NI_CSE_B2}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "07957104-85e0-451f-8a58-e54597e78633",
+                     "username":  "4nt23cs009",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Ishaan Das",
+                     "phone":  "9876543339",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.502Z",
+                     "userRoles":  [
+                                       "@{userId=07957104-85e0-451f-8a58-e54597e78633; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "0d8e41ee-69b5-4312-ab07-cdfdbfabea5f",
+                                     "userId":  "07957104-85e0-451f-8a58-e54597e78633",
+                                     "college_id":  "a9ca6684-aaf6-49fa-93dc-e2628d1f556b",
+                                     "department_id":  "b4d94385-bf5b-49e1-9531-647f65e66ac8",
+                                     "section_id":  "64af5ab6-6703-4d9b-9228-d2885efea7f2",
+                                     "usn":  "4NT23CS009",
+                                     "semester":  3,
+                                     "batchYear":  2023,
+                                     "colleges":  "@{id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Nitte Institute of Technology; code=NITTE; logoUrl=}",
+                                     "departments":  "@{id=b4d94385-bf5b-49e1-9531-647f65e66ac8; college_id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Computer Science and Engineering; code=CSE}",
+                                     "sections":  "@{section_id=64af5ab6-6703-4d9b-9228-d2885efea7f2; department_id=b4d94385-bf5b-49e1-9531-647f65e66ac8; section_name=NI_CSE_B2}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "7796b9eb-a680-45e3-8874-3a9d65ebf665",
+                     "username":  "4nt23cs008",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Krishna Nair",
+                     "phone":  "9876543338",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.498Z",
+                     "userRoles":  [
+                                       "@{userId=7796b9eb-a680-45e3-8874-3a9d65ebf665; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "e6aa64e5-6d2a-44db-b57f-9922cbbacc3a",
+                                     "userId":  "7796b9eb-a680-45e3-8874-3a9d65ebf665",
+                                     "college_id":  "a9ca6684-aaf6-49fa-93dc-e2628d1f556b",
+                                     "department_id":  "b4d94385-bf5b-49e1-9531-647f65e66ac8",
+                                     "section_id":  "64af5ab6-6703-4d9b-9228-d2885efea7f2",
+                                     "usn":  "4NT23CS008",
+                                     "semester":  3,
+                                     "batchYear":  2023,
+                                     "colleges":  "@{id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Nitte Institute of Technology; code=NITTE; logoUrl=}",
+                                     "departments":  "@{id=b4d94385-bf5b-49e1-9531-647f65e66ac8; college_id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Computer Science and Engineering; code=CSE}",
+                                     "sections":  "@{section_id=64af5ab6-6703-4d9b-9228-d2885efea7f2; department_id=b4d94385-bf5b-49e1-9531-647f65e66ac8; section_name=NI_CSE_B2}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "20947d0d-dfbb-437d-8246-a59b2a92f2b8",
+                     "username":  "4nt23cs007",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Ayaan Reddy",
+                     "phone":  "9876543337",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.494Z",
+                     "userRoles":  [
+                                       "@{userId=20947d0d-dfbb-437d-8246-a59b2a92f2b8; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "7c274863-e7d9-4a61-93b7-20e6ae6761f6",
+                                     "userId":  "20947d0d-dfbb-437d-8246-a59b2a92f2b8",
+                                     "college_id":  "a9ca6684-aaf6-49fa-93dc-e2628d1f556b",
+                                     "department_id":  "b4d94385-bf5b-49e1-9531-647f65e66ac8",
+                                     "section_id":  "64af5ab6-6703-4d9b-9228-d2885efea7f2",
+                                     "usn":  "4NT23CS007",
+                                     "semester":  3,
+                                     "batchYear":  2023,
+                                     "colleges":  "@{id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Nitte Institute of Technology; code=NITTE; logoUrl=}",
+                                     "departments":  "@{id=b4d94385-bf5b-49e1-9531-647f65e66ac8; college_id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Computer Science and Engineering; code=CSE}",
+                                     "sections":  "@{section_id=64af5ab6-6703-4d9b-9228-d2885efea7f2; department_id=b4d94385-bf5b-49e1-9531-647f65e66ac8; section_name=NI_CSE_B2}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "973e9257-6400-4bf1-9c10-8063e1f6628a",
+                     "username":  "4nt23cs006",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Reyansh Verma",
+                     "phone":  "9876543336",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.491Z",
+                     "userRoles":  [
+                                       "@{userId=973e9257-6400-4bf1-9c10-8063e1f6628a; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "76e85180-de43-42d6-8367-8b25940a9b22",
+                                     "userId":  "973e9257-6400-4bf1-9c10-8063e1f6628a",
+                                     "college_id":  "a9ca6684-aaf6-49fa-93dc-e2628d1f556b",
+                                     "department_id":  "b4d94385-bf5b-49e1-9531-647f65e66ac8",
+                                     "section_id":  "64af5ab6-6703-4d9b-9228-d2885efea7f2",
+                                     "usn":  "4NT23CS006",
+                                     "semester":  3,
+                                     "batchYear":  2023,
+                                     "colleges":  "@{id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Nitte Institute of Technology; code=NITTE; logoUrl=}",
+                                     "departments":  "@{id=b4d94385-bf5b-49e1-9531-647f65e66ac8; college_id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Computer Science and Engineering; code=CSE}",
+                                     "sections":  "@{section_id=64af5ab6-6703-4d9b-9228-d2885efea7f2; department_id=b4d94385-bf5b-49e1-9531-647f65e66ac8; section_name=NI_CSE_B2}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "d3e1cf73-6e0b-47bc-952f-e07f6a365210",
+                     "username":  "4nt23cs005",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Arjun Kumar",
+                     "phone":  "9876543335",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.487Z",
+                     "userRoles":  [
+                                       "@{userId=d3e1cf73-6e0b-47bc-952f-e07f6a365210; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "76f04710-4543-41e3-9e96-496e8c566f7c",
+                                     "userId":  "d3e1cf73-6e0b-47bc-952f-e07f6a365210",
+                                     "college_id":  "a9ca6684-aaf6-49fa-93dc-e2628d1f556b",
+                                     "department_id":  "b4d94385-bf5b-49e1-9531-647f65e66ac8",
+                                     "section_id":  "256c2374-cdb9-4039-8159-ebba62039b29",
+                                     "usn":  "4NT23CS005",
+                                     "semester":  3,
+                                     "batchYear":  2023,
+                                     "colleges":  "@{id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Nitte Institute of Technology; code=NITTE; logoUrl=}",
+                                     "departments":  "@{id=b4d94385-bf5b-49e1-9531-647f65e66ac8; college_id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Computer Science and Engineering; code=CSE}",
+                                     "sections":  "@{section_id=256c2374-cdb9-4039-8159-ebba62039b29; department_id=b4d94385-bf5b-49e1-9531-647f65e66ac8; section_name=NI_CSE_A2}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "94293d73-b720-4697-a37f-fa96fe4d1f2b",
+                     "username":  "4nt23cs004",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Vihaan Joshi",
+                     "phone":  "9876543334",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.483Z",
+                     "userRoles":  [
+                                       "@{userId=94293d73-b720-4697-a37f-fa96fe4d1f2b; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "bb746488-345e-447c-a603-7632a34459b3",
+                                     "userId":  "94293d73-b720-4697-a37f-fa96fe4d1f2b",
+                                     "college_id":  "a9ca6684-aaf6-49fa-93dc-e2628d1f556b",
+                                     "department_id":  "b4d94385-bf5b-49e1-9531-647f65e66ac8",
+                                     "section_id":  "256c2374-cdb9-4039-8159-ebba62039b29",
+                                     "usn":  "4NT23CS004",
+                                     "semester":  3,
+                                     "batchYear":  2023,
+                                     "colleges":  "@{id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Nitte Institute of Technology; code=NITTE; logoUrl=}",
+                                     "departments":  "@{id=b4d94385-bf5b-49e1-9531-647f65e66ac8; college_id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Computer Science and Engineering; code=CSE}",
+                                     "sections":  "@{section_id=256c2374-cdb9-4039-8159-ebba62039b29; department_id=b4d94385-bf5b-49e1-9531-647f65e66ac8; section_name=NI_CSE_A2}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "ae7a1397-1ec5-4a21-8727-97d7ecc0afb1",
+                     "username":  "4nt23cs003",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Aditya Das",
+                     "phone":  "9876543333",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.479Z",
+                     "userRoles":  [
+                                       "@{userId=ae7a1397-1ec5-4a21-8727-97d7ecc0afb1; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "8a1a7916-f7e5-4c61-b8b0-f2ad3380e98d",
+                                     "userId":  "ae7a1397-1ec5-4a21-8727-97d7ecc0afb1",
+                                     "college_id":  "a9ca6684-aaf6-49fa-93dc-e2628d1f556b",
+                                     "department_id":  "b4d94385-bf5b-49e1-9531-647f65e66ac8",
+                                     "section_id":  "256c2374-cdb9-4039-8159-ebba62039b29",
+                                     "usn":  "4NT23CS003",
+                                     "semester":  3,
+                                     "batchYear":  2023,
+                                     "colleges":  "@{id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Nitte Institute of Technology; code=NITTE; logoUrl=}",
+                                     "departments":  "@{id=b4d94385-bf5b-49e1-9531-647f65e66ac8; college_id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Computer Science and Engineering; code=CSE}",
+                                     "sections":  "@{section_id=256c2374-cdb9-4039-8159-ebba62039b29; department_id=b4d94385-bf5b-49e1-9531-647f65e66ac8; section_name=NI_CSE_A2}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "5663d240-c9d8-4369-914d-1c292955bdd4",
+                     "username":  "4nt23cs002",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Vivaan Nair",
+                     "phone":  "9876543332",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.475Z",
+                     "userRoles":  [
+                                       "@{userId=5663d240-c9d8-4369-914d-1c292955bdd4; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "d0571ccc-25cf-4d46-8027-bd9b8bc6d8f2",
+                                     "userId":  "5663d240-c9d8-4369-914d-1c292955bdd4",
+                                     "college_id":  "a9ca6684-aaf6-49fa-93dc-e2628d1f556b",
+                                     "department_id":  "b4d94385-bf5b-49e1-9531-647f65e66ac8",
+                                     "section_id":  "256c2374-cdb9-4039-8159-ebba62039b29",
+                                     "usn":  "4NT23CS002",
+                                     "semester":  3,
+                                     "batchYear":  2023,
+                                     "colleges":  "@{id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Nitte Institute of Technology; code=NITTE; logoUrl=}",
+                                     "departments":  "@{id=b4d94385-bf5b-49e1-9531-647f65e66ac8; college_id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Computer Science and Engineering; code=CSE}",
+                                     "sections":  "@{section_id=256c2374-cdb9-4039-8159-ebba62039b29; department_id=b4d94385-bf5b-49e1-9531-647f65e66ac8; section_name=NI_CSE_A2}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "de17b4c4-6f4f-4c8e-b0d2-ac65d712316c",
+                     "username":  "4nt23cs001",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Aarav Reddy",
+                     "phone":  "9876543331",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.471Z",
+                     "userRoles":  [
+                                       "@{userId=de17b4c4-6f4f-4c8e-b0d2-ac65d712316c; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "9c3399f5-03b0-4186-bff0-3c10ec470352",
+                                     "userId":  "de17b4c4-6f4f-4c8e-b0d2-ac65d712316c",
+                                     "college_id":  "a9ca6684-aaf6-49fa-93dc-e2628d1f556b",
+                                     "department_id":  "b4d94385-bf5b-49e1-9531-647f65e66ac8",
+                                     "section_id":  "256c2374-cdb9-4039-8159-ebba62039b29",
+                                     "usn":  "4NT23CS001",
+                                     "semester":  3,
+                                     "batchYear":  2023,
+                                     "colleges":  "@{id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Nitte Institute of Technology; code=NITTE; logoUrl=}",
+                                     "departments":  "@{id=b4d94385-bf5b-49e1-9531-647f65e66ac8; college_id=a9ca6684-aaf6-49fa-93dc-e2628d1f556b; name=Computer Science and Engineering; code=CSE}",
+                                     "sections":  "@{section_id=256c2374-cdb9-4039-8159-ebba62039b29; department_id=b4d94385-bf5b-49e1-9531-647f65e66ac8; section_name=NI_CSE_A2}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "75ad807b-1196-46b1-9d05-793b52f5f77c",
+                     "username":  "4nm23me010",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Siddharth Shah",
+                     "phone":  "9876543330",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.468Z",
+                     "userRoles":  [
+                                       "@{userId=75ad807b-1196-46b1-9d05-793b52f5f77c; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "0bd4ea55-30ca-4e16-ae52-734361ddf1e1",
+                                     "userId":  "75ad807b-1196-46b1-9d05-793b52f5f77c",
+                                     "college_id":  "762499ba-3b43-456e-8f06-9e4d7a3f3059",
+                                     "department_id":  "2f3b24d6-211a-4a38-a334-c742cbe26132",
+                                     "section_id":  "911a9754-390e-404d-9179-aede4b362e79",
+                                     "usn":  "4NM23ME010",
+                                     "semester":  3,
+                                     "batchYear":  2023,
+                                     "colleges":  "@{id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Nitte Mahalinga Adyanthaya Memorial Institute of Technology; code=NMAMIT; logoUrl=}",
+                                     "departments":  "@{id=2f3b24d6-211a-4a38-a334-c742cbe26132; college_id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Mechanical Engineering; code=MECH}",
+                                     "sections":  "@{section_id=911a9754-390e-404d-9179-aede4b362e79; department_id=2f3b24d6-211a-4a38-a334-c742cbe26132; section_name=NM_MECH_B2}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "52fa351a-0c5a-4f65-b448-c287669db789",
+                     "username":  "4nm23me009",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Ankit Agarwal",
+                     "phone":  "9876543329",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.464Z",
+                     "userRoles":  [
+                                       "@{userId=52fa351a-0c5a-4f65-b448-c287669db789; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "ae421681-d290-4d18-b42a-3624e052d5bb",
+                                     "userId":  "52fa351a-0c5a-4f65-b448-c287669db789",
+                                     "college_id":  "762499ba-3b43-456e-8f06-9e4d7a3f3059",
+                                     "department_id":  "2f3b24d6-211a-4a38-a334-c742cbe26132",
+                                     "section_id":  "911a9754-390e-404d-9179-aede4b362e79",
+                                     "usn":  "4NM23ME009",
+                                     "semester":  3,
+                                     "batchYear":  2023,
+                                     "colleges":  "@{id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Nitte Mahalinga Adyanthaya Memorial Institute of Technology; code=NMAMIT; logoUrl=}",
+                                     "departments":  "@{id=2f3b24d6-211a-4a38-a334-c742cbe26132; college_id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Mechanical Engineering; code=MECH}",
+                                     "sections":  "@{section_id=911a9754-390e-404d-9179-aede4b362e79; department_id=2f3b24d6-211a-4a38-a334-c742cbe26132; section_name=NM_MECH_B2}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "364de7e7-91e9-4511-84ca-e02b8a5d4fcb",
+                     "username":  "4nm23me008",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Vikram Mishra",
+                     "phone":  "9876543328",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.460Z",
+                     "userRoles":  [
+                                       "@{userId=364de7e7-91e9-4511-84ca-e02b8a5d4fcb; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "2fec3a0a-2284-4681-b4e7-e39250576bd4",
+                                     "userId":  "364de7e7-91e9-4511-84ca-e02b8a5d4fcb",
+                                     "college_id":  "762499ba-3b43-456e-8f06-9e4d7a3f3059",
+                                     "department_id":  "2f3b24d6-211a-4a38-a334-c742cbe26132",
+                                     "section_id":  "911a9754-390e-404d-9179-aede4b362e79",
+                                     "usn":  "4NM23ME008",
+                                     "semester":  3,
+                                     "batchYear":  2023,
+                                     "colleges":  "@{id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Nitte Mahalinga Adyanthaya Memorial Institute of Technology; code=NMAMIT; logoUrl=}",
+                                     "departments":  "@{id=2f3b24d6-211a-4a38-a334-c742cbe26132; college_id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Mechanical Engineering; code=MECH}",
+                                     "sections":  "@{section_id=911a9754-390e-404d-9179-aede4b362e79; department_id=2f3b24d6-211a-4a38-a334-c742cbe26132; section_name=NM_MECH_B2}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "4d65902f-07f0-4af9-8b4c-02171e3fe2c3",
+                     "username":  "4nm23me007",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Rohit Jain",
+                     "phone":  "9876543327",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.456Z",
+                     "userRoles":  [
+                                       "@{userId=4d65902f-07f0-4af9-8b4c-02171e3fe2c3; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "a25c90a8-81b1-4d14-81bf-c98ea561bb2f",
+                                     "userId":  "4d65902f-07f0-4af9-8b4c-02171e3fe2c3",
+                                     "college_id":  "762499ba-3b43-456e-8f06-9e4d7a3f3059",
+                                     "department_id":  "2f3b24d6-211a-4a38-a334-c742cbe26132",
+                                     "section_id":  "911a9754-390e-404d-9179-aede4b362e79",
+                                     "usn":  "4NM23ME007",
+                                     "semester":  3,
+                                     "batchYear":  2023,
+                                     "colleges":  "@{id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Nitte Mahalinga Adyanthaya Memorial Institute of Technology; code=NMAMIT; logoUrl=}",
+                                     "departments":  "@{id=2f3b24d6-211a-4a38-a334-c742cbe26132; college_id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Mechanical Engineering; code=MECH}",
+                                     "sections":  "@{section_id=911a9754-390e-404d-9179-aede4b362e79; department_id=2f3b24d6-211a-4a38-a334-c742cbe26132; section_name=NM_MECH_B2}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "7aa38cd7-4e67-4b89-bdbb-9a3e9ce25187",
+                     "username":  "4nm23me006",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Ravi Yadav",
+                     "phone":  "9876543326",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.452Z",
+                     "userRoles":  [
+                                       "@{userId=7aa38cd7-4e67-4b89-bdbb-9a3e9ce25187; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "7c8aade0-c2f6-4818-a467-bd6846e4ef01",
+                                     "userId":  "7aa38cd7-4e67-4b89-bdbb-9a3e9ce25187",
+                                     "college_id":  "762499ba-3b43-456e-8f06-9e4d7a3f3059",
+                                     "department_id":  "2f3b24d6-211a-4a38-a334-c742cbe26132",
+                                     "section_id":  "911a9754-390e-404d-9179-aede4b362e79",
+                                     "usn":  "4NM23ME006",
+                                     "semester":  3,
+                                     "batchYear":  2023,
+                                     "colleges":  "@{id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Nitte Mahalinga Adyanthaya Memorial Institute of Technology; code=NMAMIT; logoUrl=}",
+                                     "departments":  "@{id=2f3b24d6-211a-4a38-a334-c742cbe26132; college_id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Mechanical Engineering; code=MECH}",
+                                     "sections":  "@{section_id=911a9754-390e-404d-9179-aede4b362e79; department_id=2f3b24d6-211a-4a38-a334-c742cbe26132; section_name=NM_MECH_B2}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "a20da1b6-ee34-46f9-a86e-9920b4f582d7",
+                     "username":  "4nm23me005",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Harsh Gupta",
+                     "phone":  "9876543325",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.448Z",
+                     "userRoles":  [
+                                       "@{userId=a20da1b6-ee34-46f9-a86e-9920b4f582d7; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "4971b140-beb6-437e-bbe3-f744c56c57d8",
+                                     "userId":  "a20da1b6-ee34-46f9-a86e-9920b4f582d7",
+                                     "college_id":  "762499ba-3b43-456e-8f06-9e4d7a3f3059",
+                                     "department_id":  "2f3b24d6-211a-4a38-a334-c742cbe26132",
+                                     "section_id":  "0e2965f4-6302-4d12-93df-12f5861e2ded",
+                                     "usn":  "4NM23ME005",
+                                     "semester":  3,
+                                     "batchYear":  2023,
+                                     "colleges":  "@{id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Nitte Mahalinga Adyanthaya Memorial Institute of Technology; code=NMAMIT; logoUrl=}",
+                                     "departments":  "@{id=2f3b24d6-211a-4a38-a334-c742cbe26132; college_id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Mechanical Engineering; code=MECH}",
+                                     "sections":  "@{section_id=0e2965f4-6302-4d12-93df-12f5861e2ded; department_id=2f3b24d6-211a-4a38-a334-c742cbe26132; section_name=NM_MECH_A2}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "a0f903aa-33f5-4ff2-bf4e-e17eec81fde8",
+                     "username":  "4nm23me004",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Karan Kumar",
+                     "phone":  "9876543324",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.445Z",
+                     "userRoles":  [
+                                       "@{userId=a0f903aa-33f5-4ff2-bf4e-e17eec81fde8; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "37a692a2-07c4-459d-9d78-72828925ae37",
+                                     "userId":  "a0f903aa-33f5-4ff2-bf4e-e17eec81fde8",
+                                     "college_id":  "762499ba-3b43-456e-8f06-9e4d7a3f3059",
+                                     "department_id":  "2f3b24d6-211a-4a38-a334-c742cbe26132",
+                                     "section_id":  "0e2965f4-6302-4d12-93df-12f5861e2ded",
+                                     "usn":  "4NM23ME004",
+                                     "semester":  3,
+                                     "batchYear":  2023,
+                                     "colleges":  "@{id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Nitte Mahalinga Adyanthaya Memorial Institute of Technology; code=NMAMIT; logoUrl=}",
+                                     "departments":  "@{id=2f3b24d6-211a-4a38-a334-c742cbe26132; college_id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Mechanical Engineering; code=MECH}",
+                                     "sections":  "@{section_id=0e2965f4-6302-4d12-93df-12f5861e2ded; department_id=2f3b24d6-211a-4a38-a334-c742cbe26132; section_name=NM_MECH_A2}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "71bfb20f-b23d-4a48-a640-368aa619a915",
+                     "username":  "4nm23me003",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Aryan Patel",
+                     "phone":  "9876543323",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.442Z",
+                     "userRoles":  [
+                                       "@{userId=71bfb20f-b23d-4a48-a640-368aa619a915; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "57931148-74d6-4b3f-8665-109fbb436102",
+                                     "userId":  "71bfb20f-b23d-4a48-a640-368aa619a915",
+                                     "college_id":  "762499ba-3b43-456e-8f06-9e4d7a3f3059",
+                                     "department_id":  "2f3b24d6-211a-4a38-a334-c742cbe26132",
+                                     "section_id":  "0e2965f4-6302-4d12-93df-12f5861e2ded",
+                                     "usn":  "4NM23ME003",
+                                     "semester":  3,
+                                     "batchYear":  2023,
+                                     "colleges":  "@{id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Nitte Mahalinga Adyanthaya Memorial Institute of Technology; code=NMAMIT; logoUrl=}",
+                                     "departments":  "@{id=2f3b24d6-211a-4a38-a334-c742cbe26132; college_id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Mechanical Engineering; code=MECH}",
+                                     "sections":  "@{section_id=0e2965f4-6302-4d12-93df-12f5861e2ded; department_id=2f3b24d6-211a-4a38-a334-c742cbe26132; section_name=NM_MECH_A2}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "0f47b098-5a20-44c8-8ed1-168619931649",
+                     "username":  "4nm23me002",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Dev Singh",
+                     "phone":  "9876543322",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.438Z",
+                     "userRoles":  [
+                                       "@{userId=0f47b098-5a20-44c8-8ed1-168619931649; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "9ade0508-6701-4eef-ae44-e950b9c51fcb",
+                                     "userId":  "0f47b098-5a20-44c8-8ed1-168619931649",
+                                     "college_id":  "762499ba-3b43-456e-8f06-9e4d7a3f3059",
+                                     "department_id":  "2f3b24d6-211a-4a38-a334-c742cbe26132",
+                                     "section_id":  "0e2965f4-6302-4d12-93df-12f5861e2ded",
+                                     "usn":  "4NM23ME002",
+                                     "semester":  3,
+                                     "batchYear":  2023,
+                                     "colleges":  "@{id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Nitte Mahalinga Adyanthaya Memorial Institute of Technology; code=NMAMIT; logoUrl=}",
+                                     "departments":  "@{id=2f3b24d6-211a-4a38-a334-c742cbe26132; college_id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Mechanical Engineering; code=MECH}",
+                                     "sections":  "@{section_id=0e2965f4-6302-4d12-93df-12f5861e2ded; department_id=2f3b24d6-211a-4a38-a334-c742cbe26132; section_name=NM_MECH_A2}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 },
+                 {
+                     "id":  "92ce9a6f-8e75-4fb6-ba54-a36f2545cd9b",
+                     "username":  "4nm23me001",
+                     "email":  null,
+                     "passwordHash":  "student123hash",
+                     "name":  "Raj Sharma",
+                     "phone":  "9876543321",
+                     "photoUrl":  null,
+                     "createdAt":  "2025-07-07T19:59:14.435Z",
+                     "userRoles":  [
+                                       "@{userId=92ce9a6f-8e75-4fb6-ba54-a36f2545cd9b; role=student}"
+                                   ],
+                     "student":  {
+                                     "id":  "58f2dcb2-e20c-4fe1-9662-7b9b7cc05aa2",
+                                     "userId":  "92ce9a6f-8e75-4fb6-ba54-a36f2545cd9b",
+                                     "college_id":  "762499ba-3b43-456e-8f06-9e4d7a3f3059",
+                                     "department_id":  "2f3b24d6-211a-4a38-a334-c742cbe26132",
+                                     "section_id":  "0e2965f4-6302-4d12-93df-12f5861e2ded",
+                                     "usn":  "4NM23ME001",
+                                     "semester":  3,
+                                     "batchYear":  2023,
+                                     "colleges":  "@{id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Nitte Mahalinga Adyanthaya Memorial Institute of Technology; code=NMAMIT; logoUrl=}",
+                                     "departments":  "@{id=2f3b24d6-211a-4a38-a334-c742cbe26132; college_id=762499ba-3b43-456e-8f06-9e4d7a3f3059; name=Mechanical Engineering; code=MECH}",
+                                     "sections":  "@{section_id=0e2965f4-6302-4d12-93df-12f5861e2ded; department_id=2f3b24d6-211a-4a38-a334-c742cbe26132; section_name=NM_MECH_A2}",
+                                     "enrollments":  "    "
+                                 },
+                     "teacher":  null
+                 }
+             ],
+    "count":  100,
+    "timestamp":  "2025-07-08T05:03:59.638Z"
+}

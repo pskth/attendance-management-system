@@ -11,7 +11,9 @@ import {
   BookOpen,
   CheckCircle,
   XCircle,
-  Clock
+  Clock,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react'
 import { adminApi } from '@/lib/api'
 
@@ -76,6 +78,8 @@ export default function MarksAttendanceManagement({
   const [editingMarkId, setEditingMarkId] = useState<string | null>(null)
   const [editingMarkField, setEditingMarkField] = useState<string | null>(null)
   const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0])
+  const [currentMonth, setCurrentMonth] = useState<number>(new Date().getMonth())
+  const [currentYear, setCurrentYear] = useState<number>(new Date().getFullYear())
   const [selectedCourse, setSelectedCourse] = useState<string>('all')
   const [selectedDepartment, setSelectedDepartment] = useState<string>('all')
   const [loading, setLoading] = useState(false)
@@ -279,11 +283,8 @@ export default function MarksAttendanceManagement({
 
   // Generate calendar for current month
   const generateCalendar = () => {
-    const now = new Date()
-    const year = now.getFullYear()
-    const month = now.getMonth()
-    const daysInMonth = new Date(year, month + 1, 0).getDate()
-    const firstDay = new Date(year, month, 1).getDay()
+    const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate()
+    const firstDay = new Date(currentYear, currentMonth, 1).getDay()
     
     const days = []
     
@@ -294,7 +295,7 @@ export default function MarksAttendanceManagement({
     
     // Days of the month
     for (let day = 1; day <= daysInMonth; day++) {
-      const date = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+      const date = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
       const hasData = false // We'll load this from API later
       const isSelected = date === selectedDate
       
@@ -316,6 +317,32 @@ export default function MarksAttendanceManagement({
     }
     
     return days
+  }
+
+  const navigateMonth = (direction: 'prev' | 'next') => {
+    if (direction === 'prev') {
+      if (currentMonth === 0) {
+        setCurrentMonth(11)
+        setCurrentYear(currentYear - 1)
+      } else {
+        setCurrentMonth(currentMonth - 1)
+      }
+    } else {
+      if (currentMonth === 11) {
+        setCurrentMonth(0)
+        setCurrentYear(currentYear + 1)
+      } else {
+        setCurrentMonth(currentMonth + 1)
+      }
+    }
+  }
+
+  const getMonthName = () => {
+    const monthNames = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ]
+    return monthNames[currentMonth]
   }
 
   return (
@@ -363,12 +390,6 @@ export default function MarksAttendanceManagement({
         <Card>
           <CardContent className="pt-6">
             <div className="flex gap-2">
-              <Input
-                type="date"
-                value={selectedDate}
-                onChange={(e) => setSelectedDate(e.target.value)}
-                className="w-40"
-              />
               <select
                 value={selectedCourse}
                 onChange={(e) => setSelectedCourse(e.target.value)}
@@ -381,6 +402,9 @@ export default function MarksAttendanceManagement({
                 <option value="CS303">Networks</option>
                 <option value="CS304">Software Engineering</option>
               </select>
+              <div className="text-sm text-gray-600 flex items-center">
+                Selected Date: <span className="font-medium ml-1">{new Date(selectedDate).toLocaleDateString()}</span>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -528,6 +552,29 @@ export default function MarksAttendanceManagement({
               <CardDescription>Click on a date to view/edit attendance</CardDescription>
             </CardHeader>
             <CardContent>
+              {/* Month Navigation */}
+              <div className="flex items-center justify-between mb-4">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => navigateMonth('prev')}
+                  className="p-1"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </Button>
+                <h3 className="font-medium text-lg">
+                  {getMonthName()} {currentYear}
+                </h3>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => navigateMonth('next')}
+                  className="p-1"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </Button>
+              </div>
+              
               <div className="grid grid-cols-7 gap-1 mb-4">
                 {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
                   <div key={day} className="text-center text-xs font-medium text-gray-500 p-2">

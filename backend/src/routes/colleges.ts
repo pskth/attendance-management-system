@@ -1,8 +1,8 @@
 // src/routes/colleges.ts
-import { Router } from 'express'
-import Database from '../lib/database'
+import { Router } from 'express';
+import Database from '../lib/database';
 
-const router = Router()
+const router = Router();
 
 // Get all colleges
 router.get('/', async (req, res) => {

@@ -225,6 +225,37 @@ export const adminApi = {
     })
   },
 
+  // Course management with teacher assignments
+  async getCourseManagement(): Promise<any> {
+    return apiRequest<any>('/api/admin/course-management')
+  },
+
+  // Teacher assignment endpoints
+  async assignTeacher(data: { 
+    offering_id: string; 
+    teacher_id: string 
+  }): Promise<any> {
+    return apiRequest<any>('/api/admin/assign-teacher', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    })
+  },
+
+  async unassignTeacher(data: { 
+    offering_id: string 
+  }): Promise<any> {
+    return apiRequest<any>('/api/admin/unassign-teacher', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    })
+  },
+
+  async autoAssignTeachers(): Promise<any> {
+    return apiRequest<any>('/api/admin/auto-assign-teachers', {
+      method: 'POST'
+    })
+  },
+
   // Department management
   async getAllDepartments(): Promise<any> {
     return apiRequest<any>('/api/departments')
