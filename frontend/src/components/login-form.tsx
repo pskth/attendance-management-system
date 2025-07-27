@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
+import { useAuth } from "@/contexts/AuthContext"
 
 interface LoginFormProps {
   role: "student" | "teacher" | "admin" | "analytics"
@@ -40,59 +41,69 @@ const roleConfig = {
 }
 
 export default function LoginForm({ role }: LoginFormProps) {
-  const [email, setEmail] = useState("")
+  const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
-  const [errors, setErrors] = useState<{ email?: string; password?: string }>({})
+  const [errors, setErrors] = useState<{ username?: string; password?: string; general?: string }>({})
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
+  const { login } = useAuth()
 
   const config = roleConfig[role]
-
-  const validateEmail = (email: string): boolean => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    return emailRegex.test(email)
-  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setErrors({})
     
-    const newErrors: { email?: string; password?: string } = {}
+    const newErrors: { username?: string; password?: string } = {}
     
-    if (!email) {
-      newErrors.email = "Email is required"
-    } else if (!validateEmail(email)) {
-      newErrors.email = "Please enter a valid email address"
+    if (!username) {
+      newErrors.username = "Username/Email is required"
     }
     
     if (!password) {
       newErrors.password = "Password is required"
-    } else if (password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters"
+    } else if (password.length < 3) {
+      newErrors.password = "Password must be at least 3 characters"
     }
     
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors)
       return
-    }    setIsLoading(true)
+    }
+
+    setIsLoading(true)
     
     try {
-      console.log("Login attempt:", { email, password, role })
-      await new Promise(resolve => setTimeout(resolve, 1500))      // Simulate successful login and redirect based on role
-      if (role === 'student') {
-        router.push('/student/')
-      } else if (role === 'teacher') {
-        router.push('/teacher/')
-      } else if (role === 'admin') {
-        router.push('/admin/')
-      } else if (role === 'analytics') {
-        router.push('/analytics/')
-      }else {
-        alert(`Welcome to ${config.title}!`)
+      const response = await login(username, password, role)
+      
+      if (response.status === 'success') {
+        // Redirect based on role
+        if (role === 'student') {
+          router.push('/student/')
+        } else if (role === 'teacher') {
+          router.push('/teacher/')
+        } else if (role === 'admin') {
+          router.push('/admin/')
+        } else if (role === 'analytics') {
+          router.push('/analytics/')
+        }
+      } else {
+        // Handle login errors
+        let errorMessage = response.error || 'Login failed'
+        
+        if (response.code === 'INVALID_CREDENTIALS') {
+          errorMessage = 'Invalid username or password'
+        } else if (response.code === 'ROLE_ACCESS_DENIED') {
+          errorMessage = `You don't have ${role} access privileges`
+        } else if (response.code === 'USER_NOT_FOUND') {
+          errorMessage = 'User not found'
+        }
+        
+        setErrors({ general: errorMessage })
       }
     } catch (error) {
       console.error("Login failed:", error)
-      setErrors({ email: "Invalid credentials. Please try again." })
+      setErrors({ general: "Network error. Please try again." })
     } finally {
       setIsLoading(false)
     }
@@ -130,25 +141,36 @@ export default function LoginForm({ role }: LoginFormProps) {
           </CardHeader>
           
           <CardContent>
+            {errors.general && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
+                <p className="text-sm text-red-600 flex items-center">
+                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  {errors.general}
+                </p>
+              </div>
+            )}
+            
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="email">
-                  Email Address
+                <Label htmlFor="username">
+                  Username or Email
                 </Label>
                 <Input
-                  id="email"
-                  type="email"
-                  placeholder="Enter your institutional email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className={errors.email ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20' : ''}
+                  id="username"
+                  type="text"
+                  placeholder="Enter your username or email"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  className={errors.username ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20' : ''}
                 />
-                {errors.email && (
+                {errors.username && (
                   <p className="text-sm text-red-600 flex items-center mt-1">
                     <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    {errors.email}
+                    {errors.username}
                   </p>
                 )}
               </div>

@@ -192,6 +192,11 @@ export default function UserManagement({ initialFilters }: UserManagementProps) 
           })));
         }
       } catch (err) {
+        console.error('Error loading users:', err);
+        if (err instanceof Error) {
+          console.error('Error message:', err.message);
+          console.error('Error stack:', err.stack);
+        }
         setError(err instanceof Error ? err.message : 'An error occurred while fetching users');
       } finally {
         setLoading(false);

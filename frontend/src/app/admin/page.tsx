@@ -1,7 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import ProtectedRoute from '@/components/ProtectedRoute'
+import UserProfile from '@/components/UserProfile'
+import { useAuth } from '@/contexts/AuthContext'
 import UserManagement from '@/app/admin/user-management'
 import CourseManagement from '@/app/admin/course-management'
 import DepartmentManagement from '@/app/admin/department-management'
@@ -9,6 +12,7 @@ import CollegeManagement from '@/app/admin/college-management'
 import DatabaseSetup from '@/app/admin/database-setup'
 
 export default function AdminDashboard() {
+  const { user } = useAuth()
   const [activeTab, setActiveTab] = useState('users')
   const [userFilters, setUserFilters] = useState<{
     course?: string
@@ -51,56 +55,163 @@ export default function AdminDashboard() {
     setDepartmentFilters(filters)
     setActiveTab('departments')
   }
+
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-7xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-            <p className="text-gray-700">Manage your institution's data</p>
+    <ProtectedRoute requiredRoles="admin">
+      <div className="min-h-screen bg-gray-50 p-6">
+        <div className="max-w-7xl mx-auto space-y-6">
+          {/* Header */}
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+              <p className="text-gray-700">Manage your institution's data</p>
+              {user && (
+                <p className="text-sm text-gray-500 mt-1">
+                  Welcome back, {user.name}
+                </p>
+              )}
+            </div>
+            <div className="flex items-center space-x-4">
+              <UserProfile />
+            </div>
           </div>
-        </div>        {/* Main Content */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="users">Users</TabsTrigger>
-            <TabsTrigger value="courses">Courses</TabsTrigger>
-            <TabsTrigger value="departments">Departments</TabsTrigger>
-            <TabsTrigger value="colleges">Colleges</TabsTrigger>
-            <TabsTrigger value="setup">Database Setup</TabsTrigger>
-          </TabsList>
 
-          <TabsContent value="users">
-            <UserManagement initialFilters={userFilters} />
-          </TabsContent>
+          {/* Connection Status */}
+          <div className="bg-white rounded-lg shadow p-4">
+            <ConnectionStatus />
+          </div>
 
-          <TabsContent value="courses">
-            <CourseManagement 
-              onNavigateToUsers={handleNavigateToUsers}
-              initialFilters={courseFilters}
-            />
-          </TabsContent>
+          {/* Main Content */}
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+            <TabsList className="grid w-full grid-cols-5">
+              <TabsTrigger value="users">Users</TabsTrigger>
+              <TabsTrigger value="courses">Courses</TabsTrigger>
+              <TabsTrigger value="departments">Departments</TabsTrigger>
+              <TabsTrigger value="colleges">Colleges</TabsTrigger>
+              <TabsTrigger value="setup">Database Setup</TabsTrigger>
+            </TabsList>
 
-          <TabsContent value="departments">
-            <DepartmentManagement 
-              onNavigateToUsers={handleNavigateToUsers}
-              onNavigateToCourses={handleNavigateToCourses}
-              initialFilters={departmentFilters}
-            />
-          </TabsContent>
+            <TabsContent value="users">
+              <UserManagement initialFilters={userFilters} />
+            </TabsContent>
 
-          <TabsContent value="colleges">
-            <CollegeManagement 
-              onNavigateToUsers={handleNavigateToUsers}
-              onNavigateToDepartments={handleNavigateToDepartments}
-            />
-          </TabsContent>
+            <TabsContent value="courses">
+              <CourseManagement 
+                onNavigateToUsers={handleNavigateToUsers}
+                initialFilters={courseFilters}
+              />
+            </TabsContent>
 
-          <TabsContent value="setup">
-            <DatabaseSetup />
-          </TabsContent>
-        </Tabs>
+            <TabsContent value="departments">
+              <DepartmentManagement 
+                onNavigateToUsers={handleNavigateToUsers}
+                onNavigateToCourses={handleNavigateToCourses}
+                initialFilters={departmentFilters}
+              />
+            </TabsContent>
+
+            <TabsContent value="colleges">
+              <CollegeManagement 
+                onNavigateToUsers={handleNavigateToUsers}
+                onNavigateToDepartments={handleNavigateToDepartments}
+              />
+            </TabsContent>
+
+            <TabsContent value="setup">
+              <DatabaseSetup />
+            </TabsContent>
+          </Tabs>
+        </div>
       </div>
+    </ProtectedRoute>
+  )
+}
+
+// Connection Status Component
+function ConnectionStatus() {
+  const [backendStatus, setBackendStatus] = useState<'checking' | 'connected' | 'disconnected'>('checking')
+  const [lastChecked, setLastChecked] = useState<Date | null>(null)
+
+  const checkBackendConnection = async () => {
+    setBackendStatus('checking')
+    try {
+      const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
+      console.log('ConnectionStatus: Checking backend at:', API_BASE_URL)
+      
+      const response = await fetch(`${API_BASE_URL}/api/health`, {
+        method: 'GET',
+        credentials: 'include'
+      })
+      
+      console.log('ConnectionStatus: Response status:', response.status)
+      console.log('ConnectionStatus: Response headers:', Object.fromEntries(response.headers.entries()))
+      
+      if (response.ok) {
+        const data = await response.json()
+        console.log('ConnectionStatus: Health check successful:', data)
+        setBackendStatus('connected')
+      } else {
+        console.error('ConnectionStatus: Health check failed with status:', response.status)
+        setBackendStatus('disconnected')
+      }
+    } catch (error) {
+      console.error('ConnectionStatus: Health check error:', error)
+      setBackendStatus('disconnected')
+    }
+    setLastChecked(new Date())
+  }
+
+  // Check connection on mount and every 30 seconds
+  useEffect(() => {
+    checkBackendConnection()
+    const interval = setInterval(checkBackendConnection, 30000)
+    return () => clearInterval(interval)
+  }, [])
+
+  const getStatusColor = () => {
+    switch (backendStatus) {
+      case 'connected': return 'text-green-600'
+      case 'disconnected': return 'text-red-600'
+      case 'checking': return 'text-yellow-600'
+    }
+  }
+
+  const getStatusIcon = () => {
+    switch (backendStatus) {
+      case 'connected': return '✅'
+      case 'disconnected': return '❌'
+      case 'checking': return '⏳'
+    }
+  }
+
+  return (
+    <div className="flex items-center justify-between">
+      <div className="flex items-center space-x-2">
+        <span>{getStatusIcon()}</span>
+        <span className={`font-medium ${getStatusColor()}`}>
+          Backend: {backendStatus === 'checking' ? 'Checking...' : 
+                   backendStatus === 'connected' ? 'Connected' : 'Disconnected'}
+        </span>
+        {lastChecked && (
+          <span className="text-sm text-gray-500">
+            (Last checked: {lastChecked.toLocaleTimeString()})
+          </span>
+        )}
+      </div>
+      
+      {backendStatus === 'disconnected' && (
+        <div className="text-sm text-red-600">
+          Make sure the backend server is running on port 4000
+        </div>
+      )}
+      
+      <button
+        onClick={checkBackendConnection}
+        className="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600"
+        disabled={backendStatus === 'checking'}
+      >
+        Refresh
+      </button>
     </div>
   )
 }

@@ -11,35 +11,65 @@ import {
   EnrollmentResult, 
   CourseEnrollment 
 } from '@/types/admin'
+import Cookies from 'js-cookie'
 
 // Base API URL - should be configured from environment
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
 
-// Generic API request helper
+// Generic API request helper with authentication
 async function apiRequest<T>(endpoint: string, options?: RequestInit): Promise<T> {
   const url = `${API_BASE_URL}${endpoint}`
+  
+  console.log('Making API request to:', url);
+  
+  // Get auth token from cookies
+  const token = Cookies.get('auth_token')
   
   const response = await fetch(url, {
     headers: {
       'Content-Type': 'application/json',
+      ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
       ...options?.headers,
     },
+    credentials: 'include', // Include cookies
     ...options,
   })
 
-  const data = await response.json()
+  console.log('Response status:', response.status);
+  console.log('Response headers:', Object.fromEntries(response.headers.entries()));
 
-  // For 409 Conflict responses (dependency issues), return the data instead of throwing
-  // This allows the calling code to handle dependencies and offer force delete
-  if (response.status === 409) {
-    return data as T
+  const contentType = response.headers.get('content-type');
+  if (contentType && contentType.includes('application/json')) {
+    const data = await response.json()
+    console.log('Response data type:', typeof data);
+    console.log('Response data preview:', JSON.stringify(data).substring(0, 200) + '...');
+
+    // For 409 Conflict responses (dependency issues), return the data instead of throwing
+    // This allows the calling code to handle dependencies and offer force delete
+    if (response.status === 409) {
+      return data as T
+    }
+
+    if (!response.ok) {
+      throw new Error(`API request failed: ${response.status} ${response.statusText}`)
+    }
+
+    return data
+  } else {
+    const text = await response.text()
+    console.error('Non-JSON response received:');
+    console.error('URL:', url);
+    console.error('Status:', response.status);
+    console.error('Content-Type:', contentType);
+    console.error('Response text (first 500 chars):', text.substring(0, 500));
+    
+    // If it looks like HTML, it might be a Next.js routing issue
+    if (text.trim().startsWith('<!DOCTYPE')) {
+      throw new Error('Received HTML instead of JSON - possible routing issue or server error')
+    }
+    
+    throw new Error('Received non-JSON response from server')
   }
-
-  if (!response.ok) {
-    throw new Error(`API request failed: ${response.status} ${response.statusText}`)
-  }
-
-  return data
 }
 
 // Student API functions

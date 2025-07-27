@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import DatabaseService from './lib/database';
 
 // Import routes
+import authRoutes from './routes/auth';
 import databaseRoutes from './routes/database';
 import usersRoutes from './routes/users';
 import coursesRoutes from './routes/courses';
@@ -26,7 +27,12 @@ const app = express();
 
 console.log('=== INDEX.TS LOADED ===');
 
-app.use(cors());
+app.use(cors({
+  origin: ['http://localhost:3000', 'http://localhost:3001'],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.json());
 
 const PORT = process.env.PORT || 4000;
@@ -43,6 +49,8 @@ app.get('/', (req, res) => {
     database: 'Connected to PostgreSQL via Prisma',
     version: '1.0.0',
     endpoints: {
+      auth: '/api/auth/login',
+      currentUser: '/api/auth/me',
       health: '/api/db/health',
       summary: '/api/db/summary',
       users: '/api/users',
@@ -61,6 +69,7 @@ app.get('/', (req, res) => {
 });
 
 // Routes
+app.use('/api/auth', authRoutes);
 app.use('/api/db', databaseRoutes);
 app.use('/api/users', usersRoutes);
 app.use('/api/courses', coursesRoutes);
@@ -83,6 +92,26 @@ app.get('/health', async (req, res) => {
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     res.status(500).json({ status: 'unhealthy', database: 'disconnected', error: errorMessage });
+  }
+});
+
+// Simple health endpoint for frontend
+app.get('/api/health', async (req, res) => {
+  try {
+    const isHealthy = await DatabaseService.healthCheck();
+    res.json({ 
+      status: 'ok', 
+      timestamp: new Date().toISOString(),
+      database: isHealthy ? 'connected' : 'disconnected'
+    });
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    res.status(500).json({ 
+      status: 'error', 
+      timestamp: new Date().toISOString(),
+      database: 'disconnected', 
+      error: errorMessage 
+    });
   }
 });
 
