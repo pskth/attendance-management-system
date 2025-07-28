@@ -13,7 +13,10 @@ import {
   Building2,
   Users,
   RefreshCw,
-  AlertCircle
+  AlertCircle,
+  MessageSquarePlusIcon,
+  UserPlus
+  
 } from 'lucide-react'
 import { adminApi } from '@/lib/api'
 
@@ -70,7 +73,7 @@ interface Course {
       name: string
     }
   }[]
-}
+} 
 
 // Helper function to extract year from course - now uses backend year data
 const getCourseYear = (course: Course): string => {
@@ -177,7 +180,7 @@ export default function CourseManagement({ onNavigateToUsers, initialFilters }: 
           adminApi.getCourseManagement(),
           adminApi.getAllDepartments()
         ])
-        
+        console.log(coursesResponse)  
         if (coursesResponse.status === 'success') {
           // Transform API data to match our Course interface
           const transformedCourses: Course[] = coursesResponse.data.map((course: any) => ({
@@ -831,7 +834,7 @@ export default function CourseManagement({ onNavigateToUsers, initialFilters }: 
                       }`}>
                         {course.type.replace('_', ' ')}
                       </span>
-                    </td>
+                    </td> 
                     <td className="border border-gray-300 px-3 py-2">
                       <div className="text-sm text-gray-800">
                         {course.teacherAssigned && course.teacher ? (
@@ -847,6 +850,39 @@ export default function CourseManagement({ onNavigateToUsers, initialFilters }: 
                         )}
                       </div>
                     </td>
+                    {/* testing for number of teachers */}
+{/* <td className="border border-gray-300 px-3 py-2">
+      <div className="text-sm text-gray-800">
+        {assignedTeachers.length > 0 ? (
+          <div>
+            <div className="font-medium text-green-700">
+              {assignedTeachers.length} Teacher{assignedTeachers.length > 1 ? "s" : ""} Assigned
+              <button
+                className="ml-2 text-gray-500 hover:text-gray-700"
+                onClick={() => setShowNames(!showNames)}
+              >
+                ...
+              </button>
+            </div>
+            {showNames && (
+              <ul className="mt-1 text-xs text-gray-600 list-disc list-inside">
+                {assignedTeachers.map((teacher, index) => (
+                  <li key={index}>{teacher.name}</li>
+                ))}
+              </ul>
+            )}
+          </div>
+        ) : (
+          <div>
+            <div className="font-medium text-red-600">No Teacher</div>
+            <div className="text-xs text-gray-600">Unassigned</div>
+          </div>
+        )}
+      </div>
+    </td> */}
+
+
+                    {/* testing  */}
                     <td className="border border-gray-300 px-3 py-2">
                       <div className="text-sm text-gray-800">
                         {course.hasTheoryComponent && <span className="text-blue-600">Theory</span>}
@@ -874,7 +910,7 @@ export default function CourseManagement({ onNavigateToUsers, initialFilters }: 
                     </td>
                     <td className="border border-gray-300 px-3 py-2 text-center">
                       <div className="flex justify-center gap-1">
-                        <Button size="sm" variant="outline" onClick={() => openEditForm(course)}>
+                        <Button size="sm" title='Edit' variant="outline" onClick={() => openEditForm(course)}>
                           <Edit className="h-4 w-4" />
                         </Button>
                         <Button 
@@ -886,8 +922,12 @@ export default function CourseManagement({ onNavigateToUsers, initialFilters }: 
                         >
                           <Users className="h-4 w-4" />
                         </Button>
-                        <Button size="sm" variant="outline" onClick={() => deleteCourse(course.id)}>
+                        <Button title='Delete Course' size="sm" variant="outline" onClick={() => deleteCourse(course.id)}>
                           <Trash2 className="h-4 w-4" />
+                        </Button>
+                        {/* student assignment */}
+                        <Button size="sm" variant="outline" title='Assign students'>
+                          <UserPlus size={16} strokeWidth={2} />
                         </Button>
                       </div>
                     </td>

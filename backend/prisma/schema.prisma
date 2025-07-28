@@ -2,12 +2,17 @@ generator client {
   provider = "prisma-client-js"
   output   = "../generated/prisma"
 }
-
+generator dbml {
+  provider = "prisma-dbml-generator"
+  output   = "./prisma/dbml"
+}
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
+
+// schema to store diff college name eg: NMAMIT ,NMIT ... etc
 model College {
   id                         String                    @id @default(dbgenerated("uuid_generate_v4()")) @map("college_id") @db.Uuid
   name                       String                    @unique @map("college_name") @db.VarChar(150)
@@ -23,6 +28,8 @@ model College {
   @@map("colleges")
 }
 
+
+//schema for  storing different department in each college 
 model Department {
   id                       String                    @id @default(dbgenerated("uuid_generate_v4()")) @map("department_id") @db.Uuid
   college_id               String                    @db.Uuid
@@ -41,6 +48,7 @@ model Department {
   @@map("departments")
 }
 
+//schema to store diff types of user( students,teacher,admin ...etc )
 model User {
   id           String               @id @default(dbgenerated("uuid_generate_v4()")) @map("user_id") @db.Uuid
   username     String               @unique @db.VarChar(100)

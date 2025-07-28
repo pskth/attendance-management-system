@@ -1,0 +1,349 @@
+//// ------------------------------------------------------
+//// THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+//// ------------------------------------------------------
+
+Table colleges {
+  id String [pk]
+  name String [unique, not null]
+  code String [unique, not null]
+  logoUrl String
+  academic_years academic_years [not null]
+  courses courses [not null]
+  department_elective_groups department_elective_groups [not null]
+  departments departments [not null]
+  students students [not null]
+  teachers teachers [not null]
+}
+
+Table departments {
+  id String [pk]
+  college_id String [not null]
+  name String [not null]
+  code String
+  courses courses [not null]
+  departmentElectiveGroups department_elective_groups [not null]
+  colleges colleges [not null]
+  openElectiveRestrictions open_elective_restrictions [not null]
+  sections sections [not null]
+  students students [not null]
+  teachers teachers [not null]
+
+  indexes {
+    (college_id, code) [unique]
+    (college_id, name) [unique]
+  }
+}
+
+Table users {
+  id String [pk]
+  username String [unique, not null]
+  email String
+  passwordHash String [not null]
+  name String [not null]
+  phone String
+  photoUrl String
+  createdAt DateTime [default: `now()`]
+  admin admins
+  reportViewer report_viewers
+  student students
+  teacher teachers
+  userRoles user_roles [not null]
+}
+
+Table user_roles {
+  userId String [not null]
+  role user_role [not null]
+  user users [not null]
+
+  indexes {
+    (userId, role) [pk]
+  }
+}
+
+Table students {
+  id String [pk]
+  userId String [unique, not null]
+  college_id String [not null]
+  department_id String
+  section_id String
+  usn String [unique, not null]
+  semester Int
+  batchYear Int [not null]
+  attendanceRecords attendance_records [not null]
+  enrollments student_enrollments [not null]
+  colleges colleges [not null]
+  departments departments
+  sections sections
+  user users [not null]
+}
+
+Table teachers {
+  id String [pk]
+  userId String [unique, not null]
+  college_id String [not null]
+  departmentId String
+  attendances attendance [not null]
+  courseOfferings course_offerings [not null]
+  colleges colleges [not null]
+  department departments
+  user users [not null]
+}
+
+Table courses {
+  id String [pk]
+  college_id String [not null]
+  code String [not null]
+  name String [not null]
+  departmentId String
+  type course_type
+  hasTheoryComponent Boolean [not null, default: true]
+  hasLabComponent Boolean [not null, default: false]
+  courseElectiveGroupMembers course_elective_group_members [not null]
+  courseOfferings course_offerings [not null]
+  colleges colleges [not null]
+  department departments
+  openElectiveRestrictions open_elective_restrictions [not null]
+
+  indexes {
+    (college_id, code) [unique]
+  }
+}
+
+Table department_elective_groups {
+  id String [pk]
+  college_id String [not null]
+  name String [not null]
+  departmentId String [not null]
+  semester Int [not null]
+  batchYear Int [not null]
+  courseElectiveGroupMembers course_elective_group_members [not null]
+  colleges colleges [not null]
+  department departments [not null]
+
+  indexes {
+    (college_id, name, departmentId, semester, batchYear) [unique]
+  }
+}
+
+Table course_elective_group_members {
+  groupId String [not null]
+  courseId String [not null]
+  course courses [not null]
+  group department_elective_groups [not null]
+
+  indexes {
+    (groupId, courseId) [pk]
+  }
+}
+
+Table open_elective_restrictions {
+  id String [pk]
+  courseId String
+  restrictedDepartmentId String [not null]
+  course courses
+  restrictedDepartment departments [not null]
+
+  indexes {
+    (courseId, restrictedDepartmentId) [unique]
+  }
+}
+
+Table course_offerings {
+  id String [pk]
+  courseId String [not null]
+  teacherId String
+  section_id String
+  year_id String
+  semester Int
+  attendances attendance [not null]
+  course courses [not null]
+  sections sections
+  teacher teachers
+  academic_years academic_years
+  enrollments student_enrollments [not null]
+}
+
+Table student_enrollments {
+  id String [pk]
+  studentId String
+  offeringId String
+  attemptNumber Int [default: 1]
+  year_id String
+  labMarks lab_marks
+  offering course_offerings
+  student students
+  academic_years academic_years
+  theoryMarks theory_marks
+}
+
+Table attendance {
+  id String [pk]
+  offeringId String
+  teacherId String
+  classDate DateTime [not null]
+  periodNumber Int
+  syllabusCovered String
+  status String [default: 'held']
+  offering course_offerings
+  teacher teachers
+  attendanceRecords attendance_records [not null]
+}
+
+Table attendance_records {
+  id String [pk]
+  attendanceId String
+  studentId String
+  status attendance_status
+  attendance attendance
+  student students
+}
+
+Table theory_marks {
+  id String [pk]
+  enrollmentId String [unique, not null]
+  mse1Marks Int
+  mse2Marks Int
+  mse3Marks Int
+  task1Marks Int
+  task2Marks Int
+  task3Marks Int
+  lastUpdatedAt DateTime [default: `now()`]
+  enrollment student_enrollments [not null]
+}
+
+Table lab_marks {
+  id String [pk]
+  enrollmentId String [unique, not null]
+  recordMarks Int
+  continuousEvaluationMarks Int
+  labMseMarks Int
+  lastUpdatedAt DateTime [default: `now()`]
+  enrollment student_enrollments [not null]
+}
+
+Table admins {
+  id String [pk]
+  userId String [unique, not null]
+  user users [not null]
+}
+
+Table report_viewers {
+  id String [pk]
+  userId String [unique, not null]
+  user users [not null]
+}
+
+Table academic_years {
+  year_id String [pk]
+  college_id String [not null]
+  year_name String [not null]
+  start_date DateTime
+  end_date DateTime
+  is_active Boolean [default: false]
+  colleges colleges [not null]
+  course_offerings course_offerings [not null]
+  student_enrollments student_enrollments [not null]
+
+  indexes {
+    (college_id, year_name) [unique]
+  }
+}
+
+Table sections {
+  section_id String [pk]
+  department_id String [not null]
+  section_name String [not null]
+  course_offerings course_offerings [not null]
+  departments departments [not null]
+  students students [not null]
+
+  indexes {
+    (department_id, section_name) [unique]
+  }
+}
+
+Enum attendance_status {
+  present
+  absent
+}
+
+Enum course_type {
+  core
+  department_elective
+  open_elective
+}
+
+Enum user_role {
+  student
+  teacher
+  admin
+  report_viewer
+}
+
+Ref: departments.college_id > colleges.id [delete: Cascade]
+
+Ref: user_roles.userId > users.id [delete: Cascade]
+
+Ref: students.college_id > colleges.id
+
+Ref: students.department_id > departments.id
+
+Ref: students.section_id > sections.section_id
+
+Ref: students.userId - users.id [delete: Cascade]
+
+Ref: teachers.college_id > colleges.id [delete: Cascade]
+
+Ref: teachers.departmentId > departments.id
+
+Ref: teachers.userId - users.id [delete: Cascade]
+
+Ref: courses.college_id > colleges.id [delete: Cascade]
+
+Ref: courses.departmentId > departments.id
+
+Ref: department_elective_groups.college_id > colleges.id [delete: Cascade]
+
+Ref: department_elective_groups.departmentId > departments.id [delete: Cascade]
+
+Ref: course_elective_group_members.courseId > courses.id [delete: Cascade]
+
+Ref: course_elective_group_members.groupId > department_elective_groups.id [delete: Cascade]
+
+Ref: open_elective_restrictions.courseId > courses.id [delete: Cascade]
+
+Ref: open_elective_restrictions.restrictedDepartmentId > departments.id [delete: Cascade]
+
+Ref: course_offerings.courseId > courses.id [delete: Cascade]
+
+Ref: course_offerings.section_id > sections.section_id [delete: Cascade]
+
+Ref: course_offerings.teacherId > teachers.id
+
+Ref: course_offerings.year_id > academic_years.year_id [delete: Cascade]
+
+Ref: student_enrollments.offeringId > course_offerings.id [delete: Cascade]
+
+Ref: student_enrollments.studentId > students.id [delete: Cascade]
+
+Ref: student_enrollments.year_id > academic_years.year_id [delete: Cascade]
+
+Ref: attendance.offeringId > course_offerings.id [delete: Cascade]
+
+Ref: attendance.teacherId > teachers.id
+
+Ref: attendance_records.attendanceId > attendance.id [delete: Cascade]
+
+Ref: attendance_records.studentId > students.id [delete: Cascade]
+
+Ref: theory_marks.enrollmentId - student_enrollments.id [delete: Cascade]
+
+Ref: lab_marks.enrollmentId - student_enrollments.id [delete: Cascade]
+
+Ref: admins.userId - users.id [delete: Cascade]
+
+Ref: report_viewers.userId - users.id [delete: Cascade]
+
+Ref: academic_years.college_id > colleges.id [delete: Cascade]
+
+Ref: sections.department_id > departments.id [delete: Cascade]
