@@ -1,8 +1,10 @@
 // src/routes/courses.ts
 import { Router } from 'express';
+import * as multer from 'multer';
 import Database from '../lib/database';
 
 const router = Router();
+const upload = multer.default({ storage: multer.default.memoryStorage() });
 
 // Get all courses
 router.get('/', async (req, res) => {
@@ -747,6 +749,300 @@ router.delete('/:id/force', async (req, res) => {
       timestamp: new Date().toISOString()
     });
   } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    res.status(500).json({ 
+      status: 'error', 
+      error: errorMessage,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
+// Upload students to course endpoint
+router.post('/:courseId/students/upload', upload.single('file'), async (req, res) => {
+  try {
+    const { courseId } = req.params;
+    const { academicYear, semester } = req.body;
+    const file = req.file;
+
+    if (!file) {
+      return res.status(400).json({ 
+        status: 'error', 
+        error: 'No CSV file uploaded' 
+      });
+    }
+
+    if (!academicYear || !semester) {
+      return res.status(400).json({ 
+        status: 'error', 
+        error: 'Academic year and semester are required' 
+      });
+    }
+
+    const prisma = Database.getInstance();
+
+    // Verify course exists
+    const course = await prisma.course.findUnique({
+      where: { id: courseId },
+      include: {
+        department: true,
+        colleges: true
+      }
+    });
+
+    if (!course) {
+      return res.status(404).json({ 
+        status: 'error', 
+        error: 'Course not found' 
+      });
+    }
+
+    // Find or create course offering
+    let courseOffering = await prisma.courseOffering.findFirst({
+      where: {
+        courseId: courseId,
+        semester: parseInt(semester),
+        academic_years: {
+          year_name: academicYear
+        }
+      },
+      include: {
+        academic_years: true
+      }
+    });
+
+    if (!courseOffering) {
+      // First find or create the academic year
+      let academicYearRecord = await prisma.academic_years.findFirst({
+        where: {
+          year_name: academicYear,
+          college_id: course.college_id
+        }
+      });
+
+      if (!academicYearRecord) {
+        academicYearRecord = await prisma.academic_years.create({
+          data: {
+            year_name: academicYear,
+            college_id: course.college_id,
+            is_active: true
+          }
+        });
+      }
+
+      courseOffering = await prisma.courseOffering.create({
+        data: {
+          courseId: courseId,
+          semester: parseInt(semester),
+          year_id: academicYearRecord.year_id
+        },
+        include: {
+          academic_years: true
+        }
+      });
+    }
+
+    // Parse CSV data
+    const csvData = file.buffer.toString('utf-8');
+    const lines = csvData.split('\n').filter(line => line.trim());
+    
+    if (lines.length < 2) {
+      return res.status(400).json({ 
+        status: 'error', 
+        error: 'CSV file must contain headers and at least one student record' 
+      });
+    }
+
+    const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+    
+    // Validate required headers
+    const requiredHeaders = ['usn'];
+    const optionalHeaders = ['name', 'email', 'section'];
+    
+    for (const required of requiredHeaders) {
+      if (!headers.includes(required)) {
+        return res.status(400).json({ 
+          status: 'error', 
+          error: `Missing required column: ${required}` 
+        });
+      }
+    }
+
+    const results = {
+      total: 0,
+      successful: 0,
+      failed: 0,
+      errors: [] as string[]
+    };
+
+    // Process each student record
+    for (let i = 1; i < lines.length; i++) {
+      const values = lines[i].split(',').map(v => v.trim());
+      
+      if (values.length !== headers.length) {
+        results.failed++;
+        results.errors.push(`Line ${i + 1}: Column count mismatch`);
+        continue;
+      }
+
+      const record: any = {};
+      headers.forEach((header, index) => {
+        record[header] = values[index];
+      });
+
+      results.total++;
+
+      try {
+        // Find student by USN
+        const student = await prisma.student.findUnique({
+          where: { usn: record.usn }
+        });
+
+        if (!student) {
+          results.failed++;
+          results.errors.push(`Line ${i + 1}: Student with USN ${record.usn} not found`);
+          continue;
+        }
+
+        // Check if enrollment already exists
+        const existingEnrollment = await prisma.studentEnrollment.findFirst({
+          where: {
+            studentId: student.id,
+            offeringId: courseOffering.id
+          }
+        });
+
+        if (existingEnrollment) {
+          results.failed++;
+          results.errors.push(`Line ${i + 1}: Student ${record.usn} is already enrolled in this course offering`);
+          continue;
+        }
+
+        // Create enrollment
+        await prisma.studentEnrollment.create({
+          data: {
+            studentId: student.id,
+            offeringId: courseOffering.id,
+            attemptNumber: 1
+          }
+        });
+
+        results.successful++;
+      } catch (error) {
+        results.failed++;
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        results.errors.push(`Line ${i + 1}: ${errorMessage}`);
+      }
+    }
+
+    res.json({
+      status: 'success',
+      message: `Student enrollment upload completed`,
+      data: {
+        course: {
+          id: course.id,
+          code: course.code,
+          name: course.name
+        },
+        offering: {
+          id: courseOffering.id,
+          academicYear: courseOffering.academic_years?.year_name || academicYear,
+          semester: courseOffering.semester
+        },
+        results
+      }
+    });
+
+  } catch (error) {
+    console.error('Upload students error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    res.status(500).json({ 
+      status: 'error', 
+      error: errorMessage,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
+// Get enrolled students for a course offering
+router.get('/:courseId/students', async (req, res) => {
+  try {
+    const { courseId } = req.params;
+    const { academicYear, semester } = req.query;
+
+    const prisma = Database.getInstance();
+
+    // Build where clause for course offering
+    const offeringWhere: any = { courseId };
+    if (semester) offeringWhere.semester = parseInt(semester as string);
+    if (academicYear) {
+      offeringWhere.academic_years = {
+        year_name: academicYear as string
+      };
+    }
+
+    const enrollments = await prisma.studentEnrollment.findMany({
+      where: {
+        offering: offeringWhere
+      },
+      include: {
+        student: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+                username: true
+              }
+            },
+            sections: {
+              select: {
+                section_id: true,
+                section_name: true
+              }
+            },
+            departments: {
+              select: {
+                id: true,
+                name: true,
+                code: true
+              }
+            }
+          }
+        },
+        offering: {
+          include: {
+            course: {
+              select: {
+                id: true,
+                code: true,
+                name: true
+              }
+            },
+            academic_years: {
+              select: {
+                year_id: true,
+                year_name: true
+              }
+            }
+          }
+        }
+      },
+      orderBy: {
+        student: {
+          usn: 'asc'
+        }
+      }
+    });
+
+    res.json({
+      status: 'success',
+      data: enrollments
+    });
+
+  } catch (error) {
+    console.error('Get enrolled students error:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     res.status(500).json({ 
       status: 'error', 

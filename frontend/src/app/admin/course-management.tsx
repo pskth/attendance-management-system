@@ -16,6 +16,7 @@ import {
   AlertCircle
 } from 'lucide-react'
 import { adminApi } from '@/lib/api'
+import Cookies from 'js-cookie'
 
 interface CourseManagementProps {
   onNavigateToUsers?: (filters: {
@@ -148,6 +149,12 @@ export default function CourseManagement({ onNavigateToUsers, initialFilters }: 
   const [selectedTeacher, setSelectedTeacher] = useState('')
   const [teachers, setTeachers] = useState<any[]>([])
   const [enrollmentLoading, setEnrollmentLoading] = useState(false)
+
+  // CSV Upload state
+  const [csvFile, setCsvFile] = useState<File | null>(null)
+  const [csvUploadLoading, setCsvUploadLoading] = useState(false)
+  const [uploadResults, setUploadResults] = useState<any>(null)
+  const [showManualSelection, setShowManualSelection] = useState(true)
 
   // Handle enrollment filter changes
   const handleEnrollmentFilterChange = useCallback(async () => {
@@ -630,6 +637,70 @@ export default function CourseManagement({ onNavigateToUsers, initialFilters }: 
   const handleEnrollmentSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     handleEnrollStudents()
+  }
+
+  // Handle CSV file selection
+  const handleCsvFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file && file.type === 'text/csv') {
+      setCsvFile(file)
+      setUploadResults(null)
+    } else {
+      alert('Please select a valid CSV file')
+      e.target.value = ''
+    }
+  }
+
+  // Handle CSV upload
+  const handleCsvUpload = async () => {
+    if (!csvFile || !selectedCourse) {
+      alert('Please select a CSV file and ensure a course is selected')
+      return
+    }
+
+    try {
+      setCsvUploadLoading(true)
+      setUploadResults(null)
+
+      const formData = new FormData()
+      formData.append('file', csvFile)
+      formData.append('academicYear', enrollmentYear)
+      formData.append('semester', enrollmentSemester)
+
+      // Get auth token from cookies (consistent with API client)
+      const token = Cookies.get('auth_token')
+
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/courses/${selectedCourse.id}/students/upload`, {
+        method: 'POST',
+        body: formData,
+        credentials: 'include',
+        headers: {
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+        }
+      })
+
+      const result = await response.json()
+
+      if (response.ok && result.status === 'success') {
+        setUploadResults(result.data.results)
+        setCsvFile(null)
+        // Reset file input
+        const fileInput = document.getElementById('csv-upload') as HTMLInputElement
+        if (fileInput) fileInput.value = ''
+        
+        // Refresh eligible students list
+        if (selectedCourse) {
+          await fetchEligibleStudents(selectedCourse.id, enrollmentYear, enrollmentSemester)
+        }
+      } else {
+        alert('Upload failed: ' + (result.error || 'Unknown error'))
+      }
+    } catch (error) {
+      console.error('Error uploading CSV:', error)
+      alert('Error uploading CSV file')
+    } finally {
+      setCsvUploadLoading(false)
+    }
   }
 
   if (loading) {
@@ -1252,8 +1323,82 @@ export default function CourseManagement({ onNavigateToUsers, initialFilters }: 
                   )}
                 </div>
               </div>
+
+              {/* CSV Upload Section */}
+              <div className="mb-6 p-4 bg-gray-50 rounded-lg border">
+                <h3 className="font-semibold text-gray-900 mb-3">Upload Students via CSV</h3>
+                <p className="text-sm text-gray-600 mb-3">
+                  Upload a CSV file with student data. Required column: <strong>usn</strong>. Optional columns: name, email, section.
+                </p>
+                
+                {/* CSV Upload Form */}
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3">
+                    <input
+                      id="csv-upload"
+                      type="file"
+                      accept=".csv"
+                      onChange={handleCsvFileChange}
+                      className="flex-1 px-3 py-2 border rounded-md text-sm"
+                      disabled={csvUploadLoading}
+                    />
+                    <Button
+                      type="button"
+                      onClick={handleCsvUpload}
+                      disabled={!csvFile || csvUploadLoading}
+                      className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white disabled:bg-gray-400"
+                    >
+                      {csvUploadLoading ? 'Uploading...' : 'Upload CSV'}
+                    </Button>
+                  </div>
+                  
+                  {/* Upload Results */}
+                  {uploadResults && (
+                    <div className="mt-3 p-3 bg-white rounded border">
+                      <h4 className="font-medium text-gray-900 mb-2">Upload Results</h4>
+                      <div className="text-sm space-y-1">
+                        <p><span className="font-medium">Total:</span> {uploadResults.total}</p>
+                        <p><span className="font-medium text-green-600">Successful:</span> {uploadResults.successful}</p>
+                        <p><span className="font-medium text-red-600">Failed:</span> {uploadResults.failed}</p>
+                        {uploadResults.errors.length > 0 && (
+                          <div className="mt-2">
+                            <p className="font-medium text-red-600">Errors:</p>
+                            <ul className="list-disc list-inside text-red-600 text-xs max-h-24 overflow-y-auto">
+                              {uploadResults.errors.map((error: string, index: number) => (
+                                <li key={index}>{error}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <div className="mt-3 text-xs text-gray-500">
+                  <p><strong>CSV Format Example:</strong></p>
+                  <code className="bg-white px-2 py-1 rounded text-xs">
+                    usn,name,email,section<br/>
+                    1BG22CS001,John Doe,john@example.com,A<br/>
+                    1BG22CS002,Jane Smith,jane@example.com,B
+                  </code>
+                </div>
+              </div>
+
+              {/* Toggle Manual Selection */}
+              <div className="mb-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setShowManualSelection(!showManualSelection)}
+                  className="text-sm"
+                >
+                  {showManualSelection ? 'Hide Manual Selection' : 'Show Manual Selection'}
+                </Button>
+              </div>
               
               {/* Enrollment Form */}
+              {showManualSelection && (
               <form onSubmit={handleEnrollmentSubmit} className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-900 mb-1">Batch Year</label>
@@ -1408,6 +1553,7 @@ export default function CourseManagement({ onNavigateToUsers, initialFilters }: 
                   </Button>
                 </div>
               </form>
+              )}
             </div>
           </div>
         </div>
