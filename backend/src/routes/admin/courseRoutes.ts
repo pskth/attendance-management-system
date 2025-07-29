@@ -133,7 +133,11 @@ router.get('/courses/:courseId/eligible-students', async (req, res) => {
             id: course.department.id,
             name: course.department.name,
             code: course.department.code
-          } : null
+          } : null,
+          restrictions: course.openElectiveRestrictions?.map((r: any) => ({
+            departmentCode: r.restrictedDepartment.code,
+            departmentName: r.restrictedDepartment.name
+          })) || []
         },
         eligibleStudents: transformedStudents,
         filters: {
