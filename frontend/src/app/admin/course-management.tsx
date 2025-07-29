@@ -1379,7 +1379,7 @@ export default function CourseManagement({ onNavigateToUsers, initialFilters }: 
                       type="file"
                       accept=".csv"
                       onChange={handleCsvFileChange}
-                      className="flex-1 px-3 py-2 border rounded-md text-sm"
+                      className="flex-1 px-3 py-2 border rounded-md text-sm text-black"
                       disabled={csvUploadLoading}
                     />
                     <Button
@@ -1396,7 +1396,7 @@ export default function CourseManagement({ onNavigateToUsers, initialFilters }: 
                   {uploadResults && (
                     <div className="mt-3 p-3 bg-white rounded border">
                       <h4 className="font-medium text-gray-900 mb-2">Upload Results</h4>
-                      <div className="text-sm space-y-1">
+                      <div className="text-sm space-y-1 text-black">
                         <p><span className="font-medium">Total:</span> {uploadResults.total}</p>
                         <p><span className="font-medium text-green-600">Successful:</span> {uploadResults.successful}</p>
                         <p><span className="font-medium text-red-600">Failed:</span> {uploadResults.failed}</p>
