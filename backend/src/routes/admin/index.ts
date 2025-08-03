@@ -6,6 +6,7 @@ import marksRoutes from './marksRoutes';
 import courseRoutes from './courseRoutes';
 import attendanceRoutes from './attendanceRoutes';
 import debugRoutes from './debugRoutes';
+import enrollmentRoutes from './enrollmentRoutes';
 
 const router = Router();
 
@@ -21,5 +22,6 @@ router.use('/', marksRoutes);
 router.use('/', courseRoutes);
 router.use('/', attendanceRoutes);
 router.use('/', debugRoutes);
+router.use('/', enrollmentRoutes);
 
 export default router;
