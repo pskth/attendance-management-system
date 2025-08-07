@@ -11,7 +11,10 @@ import ExportReports from '@/app/analytics/ExportReports';
 //import { AttendanceStats } from '@/app/student/attendance-stats'
 
 export default function AnalyticsPage() {
+  const institutions = ['Nitte Menakshi Institute Of Technology', 'Nitte Mahalinga Adyantheya Memorial Institute Of Technology'];
+
   const [selectedAcademicYear, setSelectedAcademicYear] = useState<string>('2024-25');
+const [selectedInstitution, setSelectedInstitution] = useState('');
 
   const academicYears = ['2024-25', '2023-24', '2022-23', '2021-22'];
 
@@ -42,6 +45,21 @@ export default function AnalyticsPage() {
               </CardHeader>
               <CardContent className="space-y-4 sm:space-y-5">
                 <div className="space-y-2">
+
+<label className="text-xs sm:text-sm font-medium text-gray-700">Institution :</label>
+                        <Select value={selectedInstitution} onValueChange={setSelectedInstitution}>
+        <SelectTrigger className="h-10 sm:h-11">
+          <SelectValue placeholder="Select institution" />
+        </SelectTrigger>
+        <SelectContent>
+          {institutions.map((institution) => (
+            <SelectItem key={institution} value={institution}>
+              {institution}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+
                   <label className="text-xs sm:text-sm font-medium text-gray-700">Academic Year</label>
                   <Select value={selectedAcademicYear} onValueChange={setSelectedAcademicYear}>
                     <SelectTrigger className="h-10 sm:h-11">

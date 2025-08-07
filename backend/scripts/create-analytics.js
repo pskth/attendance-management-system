@@ -6,37 +6,12 @@ const prisma = new PrismaClient();
 
 const DEMO_USERS = [
   {
-    username: 'admin',
-    password: 'admin123',
-    name: 'Demo Admin',
-    email: 'admin@demo.com',
-    phone: '9999999999',
-    roles: ['admin']
-  },
-  {
     username: 'amalytics',
     password: 'analytics123',
     name: 'Demo analytics',
     email: 'amalytics@demo.com',
     phone: '9999999991',
     roles: ['report_viewer']
-  }
-,
-  {
-    username: 'teacher',
-    password: 'teacher123',
-    name: 'Demo Teacher',
-    email: 'teacher@demo.com',
-    phone: '9999999998',
-    roles: ['teacher']
-  },
-  {
-    username: 'student',
-    password: 'student123',
-    name: 'Demo Student',
-    email: 'student@demo.com',
-    phone: '9999999997',
-    roles: ['student']
   }
 ];
 
@@ -56,7 +31,7 @@ async function createDemoUsers() {
       });
 
       if (existingUser) {
-        console.log(`⚠️  User ${user.username} already exists, updating password...`);
+        console.log(`  User ${user.username} already exists, updating password...`);
         
         // Update password
         const hashedPassword = await bcrypt.hash(user.password, 12);

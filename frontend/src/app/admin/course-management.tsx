@@ -404,6 +404,9 @@ export default function CourseManagement({ onNavigateToUsers, initialFilters }: 
       alert('Error force deleting course: ' + errorMsg)
     }
   }
+//
+// const openStudentAssignmentModal = (course: Course) => { }
+
 
   // Open edit form
   const openEditForm = (course: Course) => {
@@ -741,7 +744,7 @@ export default function CourseManagement({ onNavigateToUsers, initialFilters }: 
     )
   }
  
-  return (
+  return ( <>  
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
         <div>
@@ -878,7 +881,7 @@ export default function CourseManagement({ onNavigateToUsers, initialFilters }: 
                 </tr>
               </thead>
               <tbody className="bg-white">
-                {filteredCourses.map((course) => {
+                {/* {filteredCourses.map((course) => {
                       const uniqueTeachers = course.offerings
                         ?.filter(o => o.teacher)
                         .reduce((acc, o) => {
@@ -886,7 +889,21 @@ export default function CourseManagement({ onNavigateToUsers, initialFilters }: 
                             acc.push(o.teacher!)
                           }
                           return acc
-                        }, [] as { id: string; name: string }[]) ?? []
+                        }, [] as { id: string; name: string }[]) ?? [] */}
+                {filteredCourses.map((course) => {
+                    const uniqueTeachers = course.offerings
+                      ?.filter(o => o.teacher)
+                      .reduce((acc, o) => {
+                        const exists = acc.find(t => t.id === o.teacher!.id && t.section === o.section)
+                        if (!exists) {
+                          acc.push({
+                            id: o.teacher!.id,
+                            name: o.teacher!.name,
+                            section: o.section,
+                          })
+                        }
+                        return acc
+                      }, [] as { id: string; name: string; section: string }[]) ?? []
 
 
                 return(
@@ -994,11 +1011,11 @@ export default function CourseManagement({ onNavigateToUsers, initialFilters }: 
 </button>
 
             {showTeachers === course.id && (
-    <div className="absolute z-20 bg-white border shadow-md rounded-md p-3 mt-2 w-56">
-      <p className="text-sm font-semibold mb-2">Assigned Teachers:</p>
+    <div className="absolute z-20 bg-white border shadow-md rounded-md p-3 mt-2 w-100">
+      <p className="text-sm font-semibold mb-2">Assigned Teachers:    Section</p>
       <ul className="text-sm text-gray-700 list-disc list-inside space-y-1">
         {uniqueTeachers.map(t => (
-          <li key={t.id}>{t.name}</li>
+          <li key={t.id}>{t.name}   &nbsp; {t.section}</li>
         ))}
       </ul>
     </div>
@@ -1095,7 +1112,7 @@ export default function CourseManagement({ onNavigateToUsers, initialFilters }: 
                           <Trash2 className="h-4 w-4" />
                         </Button>
                         {/* student assignment */}
-                        <Button size="sm" variant="outline" title='Assign students'>
+                        <Button size="sm" variant="outline" title='Assign students'  >
                           <UserPlus size={16} strokeWidth={2} />
                         </Button>
                       </div>
@@ -1598,7 +1615,7 @@ export default function CourseManagement({ onNavigateToUsers, initialFilters }: 
                           </p>
                         </div>
                         {eligibleStudents.map(student => {
-                          console.log(student)git checkout 
+                          console.log(student) 
                           return <> 
                           <div key={student.id} className="flex items-center text-gray-900 bg-green-50 p-1 rounded">
                             <div className="mr-2 text-gregit checkout en-600">✓</div>
@@ -1706,5 +1723,5 @@ export default function CourseManagement({ onNavigateToUsers, initialFilters }: 
         </div>
       )}
     </div>
-  )
+  </>)
 }
