@@ -34,24 +34,35 @@ router.get('/overview/:academicYear?', authenticateToken, async (req: Authentica
     const attendanceRecords = await prisma.attendanceRecord.findMany();
     const presentCount = attendanceRecords.filter(record => record.status === 'present').length;
     const totalRecords = attendanceRecords.length;
-    const averageAttendance = totalRecords > 0 ? (presentCount / totalRecords) * 100 : 87.3;
+    const averageAttendance = totalRecords > 0 ? (presentCount / totalRecords) * 100 : 0;
 
-    // Get theory marks for average calculation
+    // Get theory and lab marks for average calculation
     const theoryMarks = await prisma.theoryMarks.findMany();
-    let totalTheoryScore = 0;
-    let theoryCount = 0;
+    const labMarks = await prisma.labMarks.findMany();
+    
+    let totalScore = 0;
+    let markCount = 0;
     let passedStudents = 0;
 
+    // Process theory marks
     theoryMarks.forEach(marks => {
       const totalMarks = (marks.mse1Marks || 0) + (marks.mse2Marks || 0) + (marks.mse3Marks || 0) + 
                         (marks.task1Marks || 0) + (marks.task2Marks || 0) + (marks.task3Marks || 0);
-      totalTheoryScore += totalMarks;
-      theoryCount++;
-      if (totalMarks >= 180) passedStudents++; // Assuming 300 is full marks, 60% pass
+      totalScore += totalMarks;
+      markCount++;
+      if (totalMarks >= 30) passedStudents++; // Adjusted pass threshold based on actual data scale
     });
 
-    const avgTheoryMarks = theoryCount > 0 ? (totalTheoryScore / theoryCount) : 76.8;
-    const passRate = theoryCount > 0 ? (passedStudents / theoryCount) * 100 : 92.1;
+    // Process lab marks
+    labMarks.forEach(marks => {
+      const totalMarks = (marks.recordMarks || 0) + (marks.continuousEvaluationMarks || 0) + (marks.labMseMarks || 0);
+      totalScore += totalMarks;
+      markCount++;
+      if (totalMarks >= 30) passedStudents++; // Adjusted pass threshold
+    });
+
+    const averageMarks = markCount > 0 ? (totalScore / markCount) : 0;
+    const passRate = markCount > 0 ? (passedStudents / markCount) * 100 : 0;
 
     res.json({
       status: 'success',
@@ -61,7 +72,7 @@ router.get('/overview/:academicYear?', authenticateToken, async (req: Authentica
         totalCourses,
         totalSections,
         averageAttendance: parseFloat(averageAttendance.toFixed(1)),
-        averageMarks: parseFloat(avgTheoryMarks.toFixed(1)),
+        averageMarks: parseFloat(averageMarks.toFixed(1)),
         passRate: parseFloat(passRate.toFixed(1)),
         totalAttendanceSessions,
         totalTeachers,
@@ -84,46 +95,108 @@ router.get('/attendance/:academicYear?', authenticateToken, async (req: Authenti
     const academicYear = req.params.academicYear || '2024-25';
     const prisma = DatabaseService.getInstance();
 
-    // Get departments with their sections and students
+    // Get departments with their sections, students, and actual course offerings
     const departments = await prisma.department.findMany({
       include: {
         sections: {
           include: {
-            students: true
+            students: {
+              include: {
+                user: true
+              }
+            },
+            course_offerings: {
+              include: {
+                course: true,
+                enrollments: {
+                  include: {
+                    student: {
+                      include: {
+                        user: true
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
     });
 
-    const departmentAnalytics = departments.map(dept => {
+    const departmentAnalytics = await Promise.all(departments.map(async dept => {
       const totalStudents = dept.sections.reduce((sum, section) => sum + section.students.length, 0);
       
-      // For demo purposes, generate realistic attendance data
-      const baseAttendance = 75 + Math.random() * 20; // 75-95%
+      // Calculate real department attendance
+      let deptTotalRecords = 0;
+      let deptPresentRecords = 0;
       
-      const sectionAnalytics = dept.sections.map(section => {
-        const sectionAttendance = baseAttendance + (Math.random() - 0.5) * 10;
+      const sectionAnalytics = await Promise.all(dept.sections.map(async section => {
+        let sectionTotalRecords = 0;
+        let sectionPresentRecords = 0;
+        
+        // Get actual courses for this section with real attendance data
+        const actualCourses = await Promise.all(section.course_offerings.map(async offering => {
+          // Get real attendance records for this course offering
+          const attendanceRecords = await prisma.attendanceRecord.findMany({
+            where: {
+              attendance: {
+                offeringId: offering.id
+              }
+            }
+          });
+          
+          const coursePresentRecords = attendanceRecords.filter(record => record.status === 'present').length;
+          const courseTotalRecords = attendanceRecords.length;
+          const courseAttendance = courseTotalRecords > 0 ? (coursePresentRecords / courseTotalRecords) * 100 : 0;
+          
+          // Add to section totals
+          sectionTotalRecords += courseTotalRecords;
+          sectionPresentRecords += coursePresentRecords;
+          
+          return {
+            name: offering.course.name,
+            code: offering.course.code,
+            attendance: parseFloat(courseAttendance.toFixed(1)),
+            enrollments: offering.enrollments.length,
+            students: offering.enrollments.map(enrollment => ({
+              id: enrollment.student?.id,
+              name: enrollment.student?.user?.name,
+              usn: enrollment.student?.usn,
+              semester: enrollment.student?.semester
+            })).filter(student => student.name)
+          };
+        }));
+        
+        // Calculate section attendance
+        const sectionAttendance = sectionTotalRecords > 0 ? (sectionPresentRecords / sectionTotalRecords) * 100 : 0;
+        
+        // Add to department totals
+        deptTotalRecords += sectionTotalRecords;
+        deptPresentRecords += sectionPresentRecords;
+
         return {
           section: section.section_name,
           attendance: parseFloat(sectionAttendance.toFixed(1)),
           students: section.students.length,
-          courses: 5 + Math.floor(Math.random() * 3), // 5-7 courses
-          courseStats: [
-            { name: 'Main Course 1', code: `${dept.code || 'XXX'}301`, attendance: parseFloat((sectionAttendance + Math.random() * 10 - 5).toFixed(1)) },
-            { name: 'Main Course 2', code: `${dept.code || 'XXX'}302`, attendance: parseFloat((sectionAttendance + Math.random() * 10 - 5).toFixed(1)) },
-            { name: 'Main Course 3', code: `${dept.code || 'XXX'}303`, attendance: parseFloat((sectionAttendance + Math.random() * 10 - 5).toFixed(1)) }
+          courses: actualCourses.length,
+          courseStats: actualCourses.length > 0 ? actualCourses : [
+            { name: 'No Courses Available', code: 'N/A', attendance: 0, enrollments: 0, students: [] }
           ]
         };
-      });
+      }));
+      
+      // Calculate department attendance
+      const deptAttendance = deptTotalRecords > 0 ? (deptPresentRecords / deptTotalRecords) * 100 : 0;
 
       return {
         name: dept.name,
         code: dept.code || 'XXX',
-        attendance: parseFloat(baseAttendance.toFixed(1)),
+        attendance: parseFloat(deptAttendance.toFixed(1)),
         students: totalStudents,
         sections: sectionAnalytics
       };
-    });
+    }));
 
     res.json({
       status: 'success',
@@ -148,69 +221,157 @@ router.get('/marks/:academicYear?', authenticateToken, async (req: Authenticated
     const academicYear = req.params.academicYear || '2024-25';
     const prisma = DatabaseService.getInstance();
 
-    // Get departments with their sections and students
+    // Get departments with their sections, students, and actual course offerings
     const departments = await prisma.department.findMany({
       include: {
         sections: {
           include: {
-            students: true
+            students: {
+              include: {
+                user: true
+              }
+            },
+            course_offerings: {
+              include: {
+                course: true,
+                enrollments: {
+                  include: {
+                    student: {
+                      include: {
+                        user: true
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
     });
 
-    const departmentAnalytics = departments.map(dept => {
+    const departmentAnalytics = await Promise.all(departments.map(async dept => {
       const totalStudents = dept.sections.reduce((sum, section) => sum + section.students.length, 0);
       
-      // For demo purposes, generate realistic marks data
-      const baseMarks = 70 + Math.random() * 15; // 70-85%
-      const basePassRate = 85 + Math.random() * 12; // 85-97%
+      // Calculate real department marks
+      let deptTotalMarks = 0;
+      let deptMarkCount = 0;
+      let deptPassedStudents = 0;
       
-      const sectionAnalytics = dept.sections.map(section => {
-        const sectionMarks = baseMarks + (Math.random() - 0.5) * 10;
-        const sectionPassRate = basePassRate + (Math.random() - 0.5) * 8;
+      const sectionAnalytics = await Promise.all(dept.sections.map(async section => {
+        let sectionTotalMarks = 0;
+        let sectionMarkCount = 0;
+        let sectionPassedStudents = 0;
         
+        // Get actual courses for this section with real marks data
+        const actualCourses = await Promise.all(section.course_offerings.map(async offering => {
+          // Get real theory marks for this course offering
+          const theoryMarks = await prisma.theoryMarks.findMany({
+            where: {
+              enrollment: {
+                offeringId: offering.id
+              }
+            }
+          });
+          
+          // Get real lab marks for this course offering
+          const labMarks = await prisma.labMarks.findMany({
+            where: {
+              enrollment: {
+                offeringId: offering.id
+              }
+            }
+          });
+          
+          // Calculate course averages
+          let courseTotalMarks = 0;
+          let courseMarkCount = 0;
+          let coursePassed = 0;
+          
+          // Process theory marks
+          theoryMarks.forEach(mark => {
+            const theoryTotal = (mark.mse1Marks || 0) + (mark.mse2Marks || 0) + (mark.mse3Marks || 0) + 
+                               (mark.task1Marks || 0) + (mark.task2Marks || 0) + (mark.task3Marks || 0);
+            courseTotalMarks += theoryTotal;
+            courseMarkCount++;
+            if (theoryTotal >= 30) coursePassed++; // Adjusted pass threshold
+          });
+          
+          // Process lab marks
+          labMarks.forEach(mark => {
+            const labTotal = (mark.recordMarks || 0) + (mark.continuousEvaluationMarks || 0) + (mark.labMseMarks || 0);
+            courseTotalMarks += labTotal;
+            courseMarkCount++;
+            if (labTotal >= 30) coursePassed++; // Adjusted pass threshold
+          });
+          
+          const courseAvgMarks = courseMarkCount > 0 ? courseTotalMarks / courseMarkCount : 0;
+          const coursePassRate = courseMarkCount > 0 ? (coursePassed / courseMarkCount) * 100 : 0;
+          const courseFailRate = 100 - coursePassRate;
+          
+          // Add to section totals
+          sectionTotalMarks += courseTotalMarks;
+          sectionMarkCount += courseMarkCount;
+          sectionPassedStudents += coursePassed;
+
+          return {
+            name: offering.course.name,
+            code: offering.course.code,
+            avgMarks: parseFloat(courseAvgMarks.toFixed(1)),
+            passRate: parseFloat(coursePassRate.toFixed(1)),
+            failRate: parseFloat(courseFailRate.toFixed(1)),
+            enrollments: offering.enrollments.length,
+            students: offering.enrollments.map(enrollment => ({
+              id: enrollment.student?.id,
+              name: enrollment.student?.user?.name,
+              usn: enrollment.student?.usn,
+              semester: enrollment.student?.semester
+            })).filter(student => student.name)
+          };
+        }));
+        
+        // Calculate section averages
+        const sectionAvgMarks = sectionMarkCount > 0 ? sectionTotalMarks / sectionMarkCount : 0;
+        const sectionPassRate = sectionMarkCount > 0 ? (sectionPassedStudents / sectionMarkCount) * 100 : 0;
+        
+        // Add to department totals
+        deptTotalMarks += sectionTotalMarks;
+        deptMarkCount += sectionMarkCount;
+        deptPassedStudents += sectionPassedStudents;
+
         return {
           section: section.section_name,
-          avgMarks: parseFloat(sectionMarks.toFixed(1)),
+          avgMarks: parseFloat(sectionAvgMarks.toFixed(1)),
           passRate: parseFloat(sectionPassRate.toFixed(1)),
           students: section.students.length,
-          courses: 5 + Math.floor(Math.random() * 3), // 5-7 courses
-          courseStats: [
+          courses: actualCourses.length,
+          courseStats: actualCourses.length > 0 ? actualCourses : [
             { 
-              name: 'Main Course 1', 
-              code: `${dept.code || 'XXX'}301`, 
-              avgMarks: parseFloat((sectionMarks + Math.random() * 10 - 5).toFixed(1)),
-              passRate: parseFloat((sectionPassRate + Math.random() * 8 - 4).toFixed(1)),
-              failRate: parseFloat((100 - sectionPassRate - Math.random() * 8 + 4).toFixed(1))
-            },
-            { 
-              name: 'Main Course 2', 
-              code: `${dept.code || 'XXX'}302`, 
-              avgMarks: parseFloat((sectionMarks + Math.random() * 10 - 5).toFixed(1)),
-              passRate: parseFloat((sectionPassRate + Math.random() * 8 - 4).toFixed(1)),
-              failRate: parseFloat((100 - sectionPassRate - Math.random() * 8 + 4).toFixed(1))
-            },
-            { 
-              name: 'Main Course 3', 
-              code: `${dept.code || 'XXX'}303`, 
-              avgMarks: parseFloat((sectionMarks + Math.random() * 10 - 5).toFixed(1)),
-              passRate: parseFloat((sectionPassRate + Math.random() * 8 - 4).toFixed(1)),
-              failRate: parseFloat((100 - sectionPassRate - Math.random() * 8 + 4).toFixed(1))
+              name: 'No Courses Available', 
+              code: 'N/A', 
+              avgMarks: 0,
+              passRate: 0,
+              failRate: 0,
+              enrollments: 0,
+              students: []
             }
           ]
         };
-      });
+      }));
+      
+      // Calculate department averages
+      const deptAvgMarks = deptMarkCount > 0 ? deptTotalMarks / deptMarkCount : 0;
+      const deptPassRate = deptMarkCount > 0 ? (deptPassedStudents / deptMarkCount) * 100 : 0;
 
       return {
         name: dept.name,
         code: dept.code || 'XXX',
-        avgMarks: parseFloat(baseMarks.toFixed(1)),
-        passRate: parseFloat(basePassRate.toFixed(1)),
+        avgMarks: parseFloat(deptAvgMarks.toFixed(1)),
+        passRate: parseFloat(deptPassRate.toFixed(1)),
         students: totalStudents,
         sections: sectionAnalytics
       };
-    });
+    }));
 
     res.json({
       status: 'success',

@@ -13,18 +13,22 @@ import analyticsService from '@/lib/analytics-service';
 
 export default function AnalyticsPage() {
   const [selectedAcademicYear, setSelectedAcademicYear] = useState<string>('2024-25');
-  const [academicYears, setAcademicYears] = useState<string[]>(['2024-25', '2023-24', '2022-23', '2021-22']);
+  const [academicYears, setAcademicYears] = useState<string[]>([]);
 
   useEffect(() => {
     const fetchAcademicYears = async () => {
       try {
         const years = await analyticsService.getAcademicYears();
         if (years.length > 0) {
-          setAcademicYears(years);
+          // Remove duplicates and sort years in descending order
+          const uniqueYears = Array.from(new Set(years)).sort((a, b) => b.localeCompare(a));
+          setAcademicYears(uniqueYears);
         }
       } catch (error) {
         console.error('Failed to fetch academic years:', error);
-        // Keep default years if API fails
+        // Keep default years if API fails, but ensure they're unique
+        const defaultYears = ['2024-25', '2023-24', '2022-23', '2021-22'];
+        setAcademicYears(Array.from(new Set(defaultYears)));
       }
     };
 

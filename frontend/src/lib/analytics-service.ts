@@ -23,6 +23,14 @@ export interface CourseStats {
   avgMarks?: number;
   passRate?: number;
   failRate?: number;
+  students?: StudentInfo[];
+}
+
+export interface StudentInfo {
+  id?: string;
+  name?: string;
+  usn?: string;
+  semester?: number;
 }
 
 export interface SectionStats {

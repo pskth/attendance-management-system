@@ -11,6 +11,7 @@ interface AttendanceAnalyticsProps {
 
 export default function AttendanceAnalytics({ academicYear }: AttendanceAnalyticsProps) {
   const [expandedDepts, setExpandedDepts] = useState<string[]>([]);
+  const [expandedCourses, setExpandedCourses] = useState<string[]>([]);
   const [data, setData] = useState<AttendanceAnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -87,6 +88,14 @@ export default function AttendanceAnalytics({ academicYear }: AttendanceAnalytic
     );
   };
 
+  const toggleCourse = (courseKey: string) => {
+    setExpandedCourses(prev => 
+      prev.includes(courseKey) 
+        ? prev.filter(key => key !== courseKey)
+        : [...prev, courseKey]
+    );
+  };
+
   const getAttendanceColor = (attendance: number) => {
     if (attendance >= 90) return 'text-green-600 bg-green-50';
     if (attendance >= 80) return 'text-yellow-600 bg-yellow-50';
@@ -139,17 +148,57 @@ export default function AttendanceAnalytics({ academicYear }: AttendanceAnalytic
                       </div>
                       
                       <div className="grid grid-cols-1 gap-2">
-                        {section.courseStats.map((course) => (
-                          <div key={course.code} className="flex items-center justify-between text-sm bg-gray-50 p-2 rounded">
-                            <div className="flex-1 min-w-0">
-                              <span className="font-medium truncate block">{course.name}</span>
-                              <span className="text-gray-500 text-xs">{course.code}</span>
+                        {section.courseStats.map((course) => {
+                          const courseKey = `${dept.code}-${section.section}-${course.code}`;
+                          const isExpanded = expandedCourses.includes(courseKey);
+                          
+                          return (
+                            <div key={course.code} className="bg-gray-50 p-3 rounded">
+                              <div 
+                                className="flex items-center justify-between text-sm cursor-pointer hover:bg-gray-100 p-1 rounded"
+                                onClick={() => toggleCourse(courseKey)}
+                              >
+                                <div className="flex-1 min-w-0">
+                                  <span className="font-medium truncate block">{course.name}</span>
+                                  <span className="text-gray-500 text-xs">{course.code}</span>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                  <span className={`px-2 py-1 rounded text-xs ${getAttendanceColor(course.attendance || 0)}`}>
+                                    {course.attendance?.toFixed(1)}%
+                                  </span>
+                                  {isExpanded ? 
+                                    <ChevronDown className="h-4 w-4" /> : 
+                                    <ChevronRight className="h-4 w-4" />
+                                  }
+                                </div>
+                              </div>
+                              
+                              {isExpanded && course.students && course.students.length > 0 && (
+                                <div className="mt-2 pl-2 border-l-2 border-blue-200">
+                                  <p className="text-xs font-medium text-gray-600 mb-1">
+                                    Enrolled Students ({course.students.length}):
+                                  </p>
+                                  <div className="grid grid-cols-1 gap-1">
+                                    {course.students.map((student, studentIndex) => (
+                                      <div key={student.id || studentIndex} className="text-xs bg-white p-2 rounded border">
+                                        <div className="font-medium">{student.name || 'Unknown Student'}</div>
+                                        <div className="text-gray-500">
+                                          USN: {student.usn || 'N/A'} • Sem: {student.semester || 'N/A'}
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                              
+                              {isExpanded && (!course.students || course.students.length === 0) && (
+                                <div className="mt-2 pl-2 border-l-2 border-gray-200">
+                                  <p className="text-xs text-gray-500">No students enrolled in this course</p>
+                                </div>
+                              )}
                             </div>
-                            <span className={`px-2 py-1 rounded text-xs ${getAttendanceColor(course.attendance || 0)}`}>
-                              {course.attendance?.toFixed(1)}%
-                            </span>
-                          </div>
-                        ))}
+                          );
+                        })}
                       </div>
                     </div>
                   ))}
