@@ -10,7 +10,6 @@ import MarksAnalytics from './MarksAnalytics';
 import ExportReports from './ExportReports';
 import OverviewStats from './OverviewStats';
 import analyticsService from '@/lib/analytics-service';
-import AuthDebug from '@/components/AuthDebug';
 
 export default function AnalyticsPage() {
   const [selectedAcademicYear, setSelectedAcademicYear] = useState<string>('2024-25');
@@ -127,7 +126,6 @@ export default function AnalyticsPage() {
         </TabsContent>
       </Tabs>
       </div>
-      <AuthDebug />
     </div>
   );
 }
