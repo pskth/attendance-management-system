@@ -13,6 +13,15 @@ import departmentsRoutes from './routes/departments';
 import collegesRoutes from './routes/colleges';
 import analyticsRoutes from './routes/analytics';
 
+console.log('=== About to import export routes ===');
+let exportRoutes;
+try {
+  exportRoutes = require('./routes/export').default;
+  console.log('=== Export routes imported successfully ===');
+} catch (error) {
+  console.error('=== Error importing export routes ===', error);
+}
+
 console.log('=== About to import admin routes ===');
 let adminRoutes;
 try {
@@ -81,6 +90,10 @@ app.use('/api/courses', coursesRoutes);
 app.use('/api/departments', departmentsRoutes);
 app.use('/api/colleges', collegesRoutes);
 app.use('/api/analytics', analyticsRoutes);
+if (exportRoutes) {
+  app.use('/api/export', exportRoutes);
+  console.log('=== Export routes registered ===');
+}
 if (adminRoutes) {
   app.use('/api/admin', adminRoutes);
   console.log('=== Admin routes registered ===');
