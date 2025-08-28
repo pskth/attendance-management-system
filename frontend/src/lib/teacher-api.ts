@@ -272,4 +272,113 @@ export class TeacherAPI {
 
         return result.data;
     }
+
+    // Get course statistics (classes completed, total classes, attendance percentage)
+    static async getCourseStatistics(offeringId: string): Promise<{
+        totalClasses: number;
+        classesCompleted: number;
+        overallAttendancePercentage: number;
+    }> {
+        try {
+            // Get attendance history to calculate statistics
+            const [historyData, analyticsData] = await Promise.all([
+                this.getAttendanceHistory(offeringId, 100), // Get more records for accurate count
+                this.getAttendanceAnalytics(offeringId)
+            ]);
+
+            const totalClasses = historyData.length;
+            const classesCompleted = historyData.length; // All records represent completed classes
+
+            // Calculate overall attendance percentage from analytics
+            const overallAttendancePercentage = analyticsData.length > 0
+                ? analyticsData.reduce((sum, student) => sum + student.attendance.attendancePercentage, 0) / analyticsData.length
+                : 0;
+
+            return {
+                totalClasses,
+                classesCompleted,
+                overallAttendancePercentage: Math.round(overallAttendancePercentage * 10) / 10
+            };
+        } catch (error) {
+            console.error('Error fetching course statistics:', error);
+            // Return default values if API call fails
+            return {
+                totalClasses: 0,
+                classesCompleted: 0,
+                overallAttendancePercentage: 0
+            };
+        }
+    }
+
+    // Search functionality for master search
+    static async searchAllEntities(searchTerm: string): Promise<{
+        courses: CourseOffering[];
+        students: (Student & { courseName: string; courseCode: string })[];
+    }> {
+        try {
+            const [coursesData, allStudentsData] = await Promise.all([
+                this.getCourses(),
+                this.getAllStudents()
+            ]);
+
+            const searchLower = searchTerm.toLowerCase();
+
+            // Filter courses
+            const filteredCourses = coursesData.filter(course =>
+                course.course.name.toLowerCase().includes(searchLower) ||
+                course.course.code.toLowerCase().includes(searchLower) ||
+                course.course.department.toLowerCase().includes(searchLower) ||
+                course.academicYear.toLowerCase().includes(searchLower) ||
+                (course.section && course.section.name.toLowerCase().includes(searchLower))
+            );
+
+            // Filter students
+            const filteredStudents = allStudentsData.filter(student =>
+                student.student.name.toLowerCase().includes(searchLower) ||
+                student.student.usn.toLowerCase().includes(searchLower) ||
+                student.student.email.toLowerCase().includes(searchLower) ||
+                student.courseName.toLowerCase().includes(searchLower) ||
+                student.courseCode.toLowerCase().includes(searchLower) ||
+                student.student.department.toLowerCase().includes(searchLower)
+            );
+
+            return {
+                courses: filteredCourses,
+                students: filteredStudents
+            };
+        } catch (error) {
+            console.error('Error searching entities:', error);
+            return {
+                courses: [],
+                students: []
+            };
+        }
+    }
+
+    // Get all students across all courses (helper method for search)
+    static async getAllStudents(): Promise<(Student & { courseName: string; courseCode: string })[]> {
+        try {
+            const courses = await this.getCourses();
+
+            const studentPromises = courses.map(async (course) => {
+                try {
+                    const students = await this.getCourseStudents(course.offeringId);
+                    return students.map(student => ({
+                        ...student,
+                        courseName: course.course.name,
+                        courseCode: course.course.code
+                    }));
+                } catch (err) {
+                    console.error(`Error loading students for course ${course.course.code}:`, err);
+                    return [];
+                }
+            });
+
+            const studentsData = await Promise.all(studentPromises);
+            return studentsData.flat();
+        } catch (error) {
+            console.error('Error getting all students:', error);
+            return [];
+        }
+    }
 }

@@ -1,11 +1,11 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import { Card, CardHeader } from '@/components/ui/card'
 import { DropdownNavigation, type Course, type Section } from '@/app/teacher/dropdown-navigation'
 import { CourseManagement } from '@/app/teacher/course-management'
-import { MasterSearch } from '@/app/teacher/master-search'
+import { MasterSearch, type MasterSearchRef } from '@/app/teacher/master-search'
 import { CoursesModal } from '@/components/teacher/courses-modal'
 import { StudentsModal } from '@/components/teacher/students-modal'
 import { TeacherAPI, type TeacherDashboardData, type CourseOffering } from '@/lib/teacher-api'
@@ -24,10 +24,14 @@ export default function TeacherDashboard() {
   const [courses, setCourses] = useState<CourseOffering[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [courseStatsLoading, setCourseStatsLoading] = useState(false)
 
   // Modal states
   const [showCoursesModal, setShowCoursesModal] = useState(false)
   const [showStudentsModal, setShowStudentsModal] = useState(false)
+
+  // Master search ref
+  const masterSearchRef = useRef<MasterSearchRef>(null)
 
   const [selectedYear, setSelectedYear] = useState<string | null>(null)
   const [selectedDepartment, setSelectedDepartment] = useState<string | null>(null)
@@ -72,7 +76,7 @@ export default function TeacherDashboard() {
   }
 
   // Handle navigation from master search
-  const handleSearchNavigation = (result: {
+  const handleSearchNavigation = async (result: {
     id: string
     type: 'year' | 'department' | 'course' | 'student' | 'elective'
     title: string
@@ -86,20 +90,27 @@ export default function TeacherDashboard() {
       section?: string
       academic_year?: string
       semester?: number
+      offering_id?: string
     }
   }) => {
     switch (result.type) {
       case 'course':
+      case 'elective':
         resetSelection()
         // Find the actual course offering from our data
         const courseOffering = courses.find(c =>
+          c.offeringId === result.metadata?.offering_id ||
           c.course.code === result.metadata?.course_code ||
           c.course.id === result.id
         )
 
         if (courseOffering) {
-          navigateToCourse(courseOffering)
+          await navigateToCourse(courseOffering)
         }
+        break
+      case 'student':
+        // For student searches, open the students modal with a filter
+        setShowStudentsModal(true)
         break
       default:
         console.log('Search result type not yet implemented:', result.type)
@@ -107,40 +118,88 @@ export default function TeacherDashboard() {
   }
 
   // Handle course selection from courses modal
-  const handleCourseSelect = (courseOffering: CourseOffering) => {
+  const handleCourseSelect = async (courseOffering: CourseOffering) => {
     resetSelection()
-    navigateToCourse(courseOffering)
+    await navigateToCourse(courseOffering)
   }
 
-  const navigateToCourse = (courseOffering: CourseOffering) => {
+  const navigateToCourse = async (courseOffering: CourseOffering) => {
     setSelectedYear(courseOffering.academicYear)
     setSelectedDepartment(courseOffering.course.department)
+    setCourseStatsLoading(true)
 
-    setSelectedCourse({
-      course_id: courseOffering.course.id,
-      course_code: courseOffering.course.code,
-      course_name: courseOffering.course.name,
-      department_id: courseOffering.course.department,
-      total_students: courseOffering.enrolledStudents,
-      classes_completed: 25, // TODO: Get from API
-      total_classes: 40, // TODO: Get from API
-      attendance_percentage: 85.0, // TODO: Get from API
-      has_theory_component: courseOffering.course.hasTheoryComponent,
-      has_lab_component: courseOffering.course.hasLabComponent,
-      course_type: courseOffering.course.type as 'regular' | 'open_elective',
-      offering_id: courseOffering.offeringId
-    })
+    try {
+      // Get real course statistics from API
+      const courseStats = await TeacherAPI.getCourseStatistics(courseOffering.offeringId)
 
-    if (courseOffering.section) {
-      setSelectedSection({
-        section_id: courseOffering.section.id,
-        section_name: courseOffering.section.name,
+      setSelectedCourse({
+        course_id: courseOffering.course.id,
+        course_code: courseOffering.course.code,
+        course_name: courseOffering.course.name,
         department_id: courseOffering.course.department,
         total_students: courseOffering.enrolledStudents,
-        present_today: Math.floor(courseOffering.enrolledStudents * 0.85), // Mock
-        attendance_percentage: 85.0 // Mock
+        classes_completed: courseStats.classesCompleted,
+        total_classes: courseStats.totalClasses,
+        attendance_percentage: courseStats.overallAttendancePercentage,
+        has_theory_component: courseOffering.course.hasTheoryComponent,
+        has_lab_component: courseOffering.course.hasLabComponent,
+        course_type: courseOffering.course.type as 'regular' | 'open_elective',
+        offering_id: courseOffering.offeringId
+      })
+    } catch (error) {
+      console.error('Error fetching course statistics:', error)
+      // Fallback to default values if API fails
+      setSelectedCourse({
+        course_id: courseOffering.course.id,
+        course_code: courseOffering.course.code,
+        course_name: courseOffering.course.name,
+        department_id: courseOffering.course.department,
+        total_students: courseOffering.enrolledStudents,
+        classes_completed: 0,
+        total_classes: 0,
+        attendance_percentage: 0,
+        has_theory_component: courseOffering.course.hasTheoryComponent,
+        has_lab_component: courseOffering.course.hasLabComponent,
+        course_type: courseOffering.course.type as 'regular' | 'open_elective',
+        offering_id: courseOffering.offeringId
       })
     }
+
+    if (courseOffering.section) {
+      try {
+        // Get real attendance analytics for the section
+        const analyticsData = await TeacherAPI.getAttendanceAnalytics(courseOffering.offeringId)
+
+        // Calculate today's presence (this is an approximation since we don't have real-time data)
+        const avgAttendancePercentage = analyticsData.length > 0
+          ? analyticsData.reduce((sum, student) => sum + student.attendance.attendancePercentage, 0) / analyticsData.length
+          : 0
+
+        const presentToday = Math.floor(courseOffering.enrolledStudents * (avgAttendancePercentage / 100))
+
+        setSelectedSection({
+          section_id: courseOffering.section.id,
+          section_name: courseOffering.section.name,
+          department_id: courseOffering.course.department,
+          total_students: courseOffering.enrolledStudents,
+          present_today: presentToday,
+          attendance_percentage: Math.round(avgAttendancePercentage * 10) / 10
+        })
+      } catch (error) {
+        console.error('Error fetching section analytics:', error)
+        // Fallback to default values
+        setSelectedSection({
+          section_id: courseOffering.section.id,
+          section_name: courseOffering.section.name,
+          department_id: courseOffering.course.department,
+          total_students: courseOffering.enrolledStudents,
+          present_today: 0,
+          attendance_percentage: 0
+        })
+      }
+    }
+
+    setCourseStatsLoading(false)
   }
 
   if (loading) {
@@ -242,7 +301,10 @@ export default function TeacherDashboard() {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <Card
             className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:border-emerald-300"
-            onClick={() => setShowCoursesModal(true)}
+            onClick={() => {
+              masterSearchRef.current?.clearSearch()
+              setShowCoursesModal(true)
+            }}
           >
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <div className="text-sm font-medium">Total Courses</div>
@@ -255,7 +317,10 @@ export default function TeacherDashboard() {
           </Card>
           <Card
             className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:border-emerald-300"
-            onClick={() => setShowStudentsModal(true)}
+            onClick={() => {
+              masterSearchRef.current?.clearSearch()
+              setShowStudentsModal(true)
+            }}
           >
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <div className="text-sm font-medium">Total Students</div>
@@ -289,6 +354,7 @@ export default function TeacherDashboard() {
         {/* Master Search */}
         <div className="flex justify-center">
           <MasterSearch
+            ref={masterSearchRef}
             onNavigate={handleSearchNavigation}
             placeholder="Search courses, students..."
           />
@@ -309,7 +375,14 @@ export default function TeacherDashboard() {
 
         {/* Main Content */}
         <div className="space-y-6">
-          {selectedYear && selectedDepartment && selectedCourse && selectedSection && (
+          {courseStatsLoading && (
+            <div className="flex items-center justify-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>
+              <span className="ml-2 text-gray-600">Loading course statistics...</span>
+            </div>
+          )}
+
+          {selectedYear && selectedDepartment && selectedCourse && selectedSection && !courseStatsLoading && (
             <CourseManagement
               courseOffering={selectedCourse}
               selectedYear={selectedYear}
