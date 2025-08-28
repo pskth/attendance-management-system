@@ -12,7 +12,7 @@ import {
   Circle,
   RefreshCw
 } from 'lucide-react'
-import mockAttendanceData from '@/data/mockAttendanceData.json'
+import { studentApi } from '@/lib/api'
 
 interface AttendanceCalendarProps {
   studentId: string
@@ -21,7 +21,7 @@ interface AttendanceCalendarProps {
 }
 
 interface MonthlyAttendance {
-  [date: string]: {
+  [date: string]: { 
     present: number
     absent: number
     total: number
@@ -41,8 +41,13 @@ export function AttendanceCalendar({ studentId, onDateSelect }: AttendanceCalend
     setLoading(true)
     try {
       // Simulate API call
+
+      
       await new Promise(resolve => setTimeout(resolve, 1000))
-      setMonthlyData(mockAttendanceData as MonthlyAttendance)
+
+      const res = await studentApi.getMonthlyAttendance(studentId, currentDate.getFullYear(), currentDate.getMonth() + 1)
+      console.log("Monthly attendance data:", res.data)
+      setMonthlyData(res.data)
     } catch (error) {
       console.error('Error loading monthly attendance:', error)
     } finally {
@@ -149,7 +154,7 @@ export function AttendanceCalendar({ studentId, onDateSelect }: AttendanceCalend
           <div>
             <CardTitle className="flex items-center space-x-2 text-sm sm:text-base">
               <CalendarIcon className="w-4 h-4 text-blue-600" />
-              <span>Attendance Calendar</span>
+              <span>Attendance Calendar </span>
             </CardTitle>
             <CardDescription className="text-xs sm:text-sm">
               Click dates to view details

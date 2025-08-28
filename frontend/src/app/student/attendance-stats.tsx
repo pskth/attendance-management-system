@@ -19,10 +19,10 @@ import {
   Award,
   AlertTriangle,
 } from "lucide-react";
-import mockAttendanceStats from "@/data/mockAttendanceStats.json";
+import { studentApi } from "@/lib/api"; // <-- make sure this path matches your project
 
 interface AttendanceStatsProps {
-  studentId: string;
+  userId: string;
   compact?: boolean;
 }
 
@@ -48,24 +48,31 @@ interface OverallStats {
     percentage: number;
   }>;
 }
+
 export function AttendanceStats({
-  studentId,
+  userId,
   compact = false,
 }: AttendanceStatsProps) {
+  console.log("Loading attendance stats for user:", userId);
   const [courseData, setCourseData] = useState<CourseAttendance[]>([]);
   const [overallStats, setOverallStats] = useState<OverallStats | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // Mock function to load attendance statistics - replace with actual API call
   const loadAttendanceStats = async () => {
     setLoading(true);
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      setCourseData(mockAttendanceStats.courseAttendance as CourseAttendance[]);
-      setOverallStats(mockAttendanceStats.overallStats as OverallStats);
+      const data = await studentApi.getAllStats(userId); // <-- call your wrapper
+      if (data) {
+        setCourseData(data.courseAttendance as CourseAttendance[]);
+        setOverallStats(data.overallStats as OverallStats);
+      } else {
+        setCourseData([]);
+        setOverallStats(null);
+      }
     } catch (error) {
       console.error("Error loading attendance stats:", error);
+      setCourseData([]);
+      setOverallStats(null);
     } finally {
       setLoading(false);
     }
@@ -73,7 +80,8 @@ export function AttendanceStats({
 
   useEffect(() => {
     loadAttendanceStats();
-  }, [studentId]);
+  }, [userId]);
+
   if (loading) {
     return (
       <Card>
@@ -147,10 +155,12 @@ export function AttendanceStats({
       </Card>
     );
   }
+
   return (
     <div className="space-y-4 sm:space-y-6">
       {/* Overall Statistics */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
+        {/* Present */}
         <Card>
           <CardContent className="flex items-center p-3 sm:p-4 lg:p-6">
             <div className="flex items-center space-x-2 sm:space-x-4">
@@ -169,6 +179,7 @@ export function AttendanceStats({
           </CardContent>
         </Card>
 
+        {/* Absent */}
         <Card>
           <CardContent className="flex items-center p-3 sm:p-4 lg:p-6">
             <div className="flex items-center space-x-2 sm:space-x-4">
@@ -187,6 +198,7 @@ export function AttendanceStats({
           </CardContent>
         </Card>
 
+        {/* Total */}
         <Card>
           <CardContent className="flex items-center p-3 sm:p-4 lg:p-6">
             <div className="flex items-center space-x-2 sm:space-x-4">
@@ -205,43 +217,42 @@ export function AttendanceStats({
           </CardContent>
         </Card>
 
+        {/* Percentage */}
         <Card>
           <CardContent className="flex items-center p-3 sm:p-4 lg:p-6">
-            <div className="flex items-center space-x-2 sm:space-x-4">
-              <div
-                className={`p-1.5 sm:p-2 rounded-lg ${
+            <div
+              className={`p-1.5 sm:p-2 rounded-lg ${
+                overallStats.overall_percentage >= 75
+                  ? "bg-green-100"
+                  : "bg-red-100"
+              }`}
+            >
+              {overallStats.overall_percentage >= 75 ? (
+                <Award className="w-4 h-4 sm:w-6 sm:h-6 text-green-600" />
+              ) : (
+                <AlertTriangle className="w-4 h-4 sm:w-6 sm:h-6 text-red-600" />
+              )}
+            </div>
+            <div>
+              <p
+                className={`text-lg sm:text-2xl font-bold ${
                   overallStats.overall_percentage >= 75
-                    ? "bg-green-100"
-                    : "bg-red-100"
+                    ? "text-green-600"
+                    : "text-red-600"
                 }`}
               >
-                {overallStats.overall_percentage >= 75 ? (
-                  <Award className="w-4 h-4 sm:w-6 sm:h-6 text-green-600" />
-                ) : (
-                  <AlertTriangle className="w-4 h-4 sm:w-6 sm:h-6 text-red-600" />
-                )}
-              </div>
-              <div>
-                <p
-                  className={`text-lg sm:text-2xl font-bold ${
-                    overallStats.overall_percentage >= 75
-                      ? "text-green-600"
-                      : "text-red-600"
-                  }`}
-                >
-                  {overallStats.overall_percentage.toFixed(1)}%
-                </p>
-                <p className="text-xs sm:text-sm text-gray-600">
-                  Overall Percentage
-                </p>
-              </div>
+                {overallStats.overall_percentage.toFixed(1)}%
+              </p>
+              <p className="text-xs sm:text-sm text-gray-600">
+                Overall Percentage
+              </p>
             </div>
-          </CardContent>{" "}
+          </CardContent>
         </Card>
-      </div>{" "}
+      </div>
+
       {/* Subject-wise Attendance */}
       <Card>
-        {" "}
         <CardHeader className="pb-3 sm:pb-4">
           <div className="flex items-center justify-between">
             <div>
@@ -258,7 +269,6 @@ export function AttendanceStats({
           <div className="overflow-x-auto -mx-3 sm:mx-0">
             <div className="inline-block min-w-full align-middle">
               <table className="min-w-full text-xs sm:text-sm">
-                
                 <thead>
                   <tr className="border-b border-gray-200">
                     <th className="text-left py-2 sm:py-3 px-1 sm:px-2 font-medium text-gray-700 lg:hidden">
@@ -283,14 +293,13 @@ export function AttendanceStats({
                       %
                     </th>
                   </tr>
-                </thead>{" "}
+                </thead>
                 <tbody>
                   {courseData.map((course, index) => (
                     <tr
                       key={index}
                       className="border-b border-gray-100 hover:bg-gray-50"
                     >
-                      {/* Combined course info for mobile/tablet */}
                       <td className="py-2 sm:py-3 px-1 sm:px-2 lg:hidden">
                         <div className="min-w-[120px] sm:min-w-[140px]">
                           <div className="font-medium text-gray-900 text-xs sm:text-sm">
@@ -301,13 +310,11 @@ export function AttendanceStats({
                           </div>
                         </div>
                       </td>
-                      {/* Separate course code for desktop */}
                       <td className="hidden lg:table-cell py-2 sm:py-3 px-1 sm:px-2">
                         <div className="font-medium text-gray-900 text-sm">
                           {course.course_code}
                         </div>
                       </td>
-                      {/* Separate course name for desktop */}
                       <td className="hidden lg:table-cell py-2 sm:py-3 px-1 sm:px-2">
                         <div className="font-medium text-gray-900 text-sm min-w-[200px]">
                           {course.course_name}

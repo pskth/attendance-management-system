@@ -80,8 +80,50 @@ export default function TestApiPage() {
     
     setLoading(false)
   }
+//checking for dynamic table
+  type Row = Record<string, string>;
+  const [columns, setColumns] = useState<string[]>(["Name", "Age"]);
+  const [rows, setRows] = useState<Row[]>([{ Name: "", Age: "" }]);
+  const [newColumn, setNewColumn] = useState<string>("");
+
+  // Add a new column
+  const addColumn = () => {
+    if (!newColumn.trim()) return;
+    setColumns((prev) => [...prev, newColumn]);
+    setRows((prevRows) =>
+      prevRows.map((row) => ({ ...row, [newColumn]: "" }))
+    );
+    setNewColumn("");
+  };
+
+  // Add a new row
+  const addRow = () => {
+    const emptyRow: Row = {};
+    columns.forEach((col) => {
+      emptyRow[col] = "";
+    });
+    setRows((prev) => [...prev, emptyRow]);
+  };
+
+  // Update a cell
+  const updateCell = (rowIndex: number, column: string, value: string) => {
+    setRows((prevRows) => {
+      const updatedRows = [...prevRows];
+      updatedRows[rowIndex] = { ...updatedRows[rowIndex], [column]: value };
+      return updatedRows;
+    });
+  };
+
+  // Remove a column
+  const removeColumn = (colToRemove: string) => {
+    setColumns((prev) => prev.filter((col) => col !== colToRemove));
+    setRows((prevRows) =>
+      prevRows.map(({ [colToRemove]: _, ...rest }) => rest)
+    );
+  };
 
   return (
+    <>
     <div className="p-8">
       <h1 className="text-2xl font-bold mb-6">API Connection Test</h1>
       
@@ -111,6 +153,95 @@ export default function TestApiPage() {
           </pre>
         </div>
       )}
-    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </div> 
+    <div className="p-4">
+      <h2 className="text-xl font-semibold mb-4">Dynamic Table</h2>
+
+      {/* Input for new column */}
+      <div className="flex gap-2 mb-4">
+        <input
+          type="text"
+          value={newColumn}
+          onChange={(e) => setNewColumn(e.target.value)}
+          placeholder="New Column Name"
+          className="border rounded px-2 py-1"
+        />
+        <button
+          onClick={addColumn}
+          className="bg-blue-500 text-white px-3 py-1 rounded"
+        >
+          Add Column
+        </button>
+      </div>
+
+      {/* Table */}
+      <div className="overflow-x-auto">
+        <table className="border-collapse border w-full min-w-max">
+          <thead>
+            <tr>
+              {columns.map((col) => (
+                <th key={col} className="border px-3 py-1">
+                  <div className="flex justify-between items-center">
+                    {col}
+                    <button
+                      onClick={() => removeColumn(col)}
+                      className="text-red-500 ml-2"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row, rowIndex) => (
+              <tr key={rowIndex}>
+                {columns.map((col) => (
+                  <td key={col} className="border px-3 py-1">
+                    <input
+                      type="text"
+                      value={row[col] || ""}
+                      onChange={(e) =>
+                        updateCell(rowIndex, col, e.target.value)
+                      }
+                      className="w-full px-1"
+                    />
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <button
+        onClick={addRow}
+        className="mt-4 bg-green-500 text-white px-3 py-1 rounded"
+      >
+        Add Row
+      </button>
+    </div></>
   )
 }

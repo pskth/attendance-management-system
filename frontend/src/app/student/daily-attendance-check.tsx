@@ -9,10 +9,11 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Clock, CheckCircle, XCircle, Calendar } from "lucide-react";
-import mockDailyAttendance from "@/data/mockDailyAttendance.json";
+
+import { studentApi } from "@/lib/api";
 
 interface DailyAttendanceProps {
-  studentId: string;
+  userId: string;
   selectedDate?: string | null;
   selectedDateData?: {
     present: number;
@@ -34,8 +35,9 @@ interface AttendanceRecord {
   status: "present" | "absent" | "not_marked";
   hours: number;
 }
+
 export function DailyAttendanceCheck({
-  studentId,
+  userId,
   selectedDate,
   selectedDateData,
   showDetailsCard = true,
@@ -43,34 +45,56 @@ export function DailyAttendanceCheck({
   const [attendanceData, setAttendanceData] = useState<AttendanceRecord[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // Determine what data to display - selected date or today
   const isShowingSelectedDate = selectedDate && selectedDateData;
-  const displayData = isShowingSelectedDate
-    ? selectedDateData.classes.map((classInfo) => ({
-        course_name: classInfo.course_name,
-        course_code: classInfo.course_code,
-        teacher_name: "", // Selected date data doesn't have teacher names
-        status: classInfo.status as "present" | "absent" | "not_marked",
-        hours: 3, // Default hours since not available in calendar data
-      }))
-    : attendanceData;
 
-  // Mock function to load today's attendance - replace with actual API call
+  const displayData = isShowingSelectedDate
+    ? Array.isArray(selectedDateData?.classes)
+      ? selectedDateData!.classes.map((classInfo) => ({
+          course_name: classInfo.course_name,
+          course_code: classInfo.course_code,
+          teacher_name: "",
+          status: classInfo.status as "present" | "absent" | "not_marked",
+          hours: 3,
+        }))
+      : []
+    : Array.isArray(attendanceData)
+    ? attendanceData
+    : [];
+
   const loadTodayAttendance = async () => {
     setLoading(true);
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      setAttendanceData(mockDailyAttendance as AttendanceRecord[]);
+      if (selectedDate && userId) {
+        console.log("Fetching attendance for:", userId, selectedDate);
+        const [year, month] = selectedDate.split("-");
+        const res = await studentApi.getMonthlyAttendance(
+          userId,
+          parseInt(year),
+          parseInt(month)
+        );
+
+        // Ensure res is always an array
+        if (Array.isArray(res)) {
+          setAttendanceData(res);
+        } else if (Array.isArray(res?.records)) {
+          setAttendanceData(res.records);
+        } else {
+          setAttendanceData([]);
+        }
+      }
     } catch (error) {
       console.error("Error loading attendance:", error);
+      setAttendanceData([]);
     } finally {
       setLoading(false);
     }
   };
+
   useEffect(() => {
-    loadTodayAttendance();
-  }, [studentId]);
+    if (userId) {
+      loadTodayAttendance();
+    }
+  }, [userId, selectedDate]);
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -93,6 +117,7 @@ export function DailyAttendanceCheck({
         return "Not Marked";
     }
   };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case "present":
@@ -106,13 +131,10 @@ export function DailyAttendanceCheck({
 
   return (
     <div className="space-y-3 sm:space-y-4">
-      {/* Detailed Attendance Card */}
       {showDetailsCard && (
         <Card className="h-full flex flex-col">
           <CardHeader className="pb-2 sm:pb-3">
-            <CardTitle className="text-sm sm:text-base">
-              Class Details
-            </CardTitle>
+            <CardTitle className="text-sm sm:text-base">Class Details</CardTitle>
             <CardDescription className="text-xs sm:text-sm">
               Individual class attendance for{" "}
               {isShowingSelectedDate ? "selected date" : "today"}
@@ -128,7 +150,7 @@ export function DailyAttendanceCheck({
               </div>
             ) : (
               <div className="space-y-3">
-                {displayData.length === 0 ? (
+                {!Array.isArray(displayData) || displayData.length === 0 ? (
                   <div className="text-center py-6 text-gray-500">
                     <Calendar className="w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-2 text-gray-300" />
                     <p className="text-xs sm:text-sm">No classes scheduled</p>
@@ -136,9 +158,7 @@ export function DailyAttendanceCheck({
                 ) : (
                   <div className="overflow-x-auto -mx-3 sm:mx-0">
                     <div className="inline-block min-w-full align-middle">
-                      {" "}
                       <table className="min-w-full text-xs sm:text-sm">
-                        {" "}
                         <thead>
                           <tr className="border-b border-gray-200">
                             <th className="text-left py-2 sm:py-3 px-2 font-medium text-gray-700 lg:hidden">
@@ -162,13 +182,11 @@ export function DailyAttendanceCheck({
                           </tr>
                         </thead>
                         <tbody>
-                          {" "}
                           {displayData.map((record, index) => (
                             <tr
                               key={index}
                               className="border-b border-gray-100 hover:bg-gray-50"
                             >
-                              {/* Combined course info for mobile/tablet */}
                               <td className="py-2 sm:py-3 px-2 lg:hidden">
                                 <div className="min-w-[100px] sm:min-w-[120px]">
                                   <div className="font-medium text-gray-900 text-xs sm:text-sm">
@@ -179,13 +197,11 @@ export function DailyAttendanceCheck({
                                   </div>
                                 </div>
                               </td>
-                              {/* Separate course code for desktop */}
                               <td className="hidden lg:table-cell py-2 sm:py-3 px-2">
                                 <div className="font-medium text-gray-900 text-xs sm:text-sm">
                                   {record.course_code}
                                 </div>
                               </td>
-                              {/* Separate course name for desktop */}
                               <td className="hidden lg:table-cell py-2 sm:py-3 px-2">
                                 <div className="font-medium text-gray-900 text-xs sm:text-sm min-w-[160px]">
                                   {record.course_name}
@@ -198,9 +214,7 @@ export function DailyAttendanceCheck({
                               </td>
                               <td className="text-center py-2 sm:py-3 px-2">
                                 <span className="font-medium text-xs sm:text-sm">
-                                  {record.status === "present"
-                                    ? record.hours
-                                    : 0}
+                                  {record.status === "present" ? record.hours : 0}
                                 </span>
                               </td>
                               <td className="text-center py-2 sm:py-3 px-2">

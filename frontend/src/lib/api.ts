@@ -1,13 +1,11 @@
 // API functions for student attendance system
-import { StudentInfo } from '@/types/student';
-import { Student, 
+import { StudentInfo ,StudentMarksResponse, AttendanceReport } from '@/types/student';
+import { 
   DailyAttendance, 
   CourseAttendanceStats, 
-  OverallAttendanceStats, 
+
   MonthlyAttendanceData 
 } from './types'
-import {Studentinfo } from './types/student';
-
 
 import { 
   CourseEnrollmentData, 
@@ -78,15 +76,16 @@ async function apiRequest<T>(endpoint: string, options?: RequestInit): Promise<T
 // Student API functions
 export const studentApi = {
   // Get student profile information
-  async getStudentProfile(studentId: string): Promise<StudentInfo> {
-    return apiRequest<StudentInfo>(`/api/student/students/${studentId}`)
+  async getStudentProfile(UserId: string): Promise<StudentInfo> {
+    console.log(`/api/student/students/${UserId}`  )
+    return apiRequest<StudentInfo>(`/api/student/students/${UserId}`)
   },
 
 
   // Get today's attendance for a student
-  async getTodayAttendance(studentId: string): Promise<DailyAttendance[]> {
+  async getTodayAttendance(userId: string): Promise<DailyAttendance[]> {
     const today = new Date().toISOString().split('T')[0]
-    return apiRequest<DailyAttendance[]>(`/api/students/${studentId}/attendance/daily?date=${today}`)
+    return apiRequest<DailyAttendance[]>(`/api/students/${userId}/attendance/daily?date=${today}`)
   },
 
   // Get attendance for a specific date
@@ -96,46 +95,57 @@ export const studentApi = {
 
   // Get monthly attendance data for calendar
   async getMonthlyAttendance(
-    studentId: string, 
+    userId: string, 
     year: number, 
     month: number
   ): Promise<MonthlyAttendanceData> {
     return apiRequest<MonthlyAttendanceData>(
-      `/api/students/${studentId}/attendance/monthly?year=${year}&month=${month}`
+      `/api/student/${userId}/attendance/monthly?year=${year}&month=${month}`
     )
   },
 
-  // Get overall attendance statistics
-  async getOverallStats(studentId: string, academicYear?: string): Promise<OverallAttendanceStats> {
-    const params = academicYear ? `?academic_year=${academicYear}` : ''
-    return apiRequest<OverallAttendanceStats>(`/api/students/${studentId}/attendance/stats${params}`)
+  // // Get overall attendance statistics
+  // async getOverallStats(studentId: string, academicYear?: string): Promise<OverallAttendanceStats> {
+  //   const params = academicYear ? `?academic_year=${academicYear}` : ''
+  //   return apiRequest<OverallAttendanceStats>(`/api/students/${studentId}/attendance/stats${params}`)
+  // },
+
+  // Get student marks
+async getStudentMarks(userId: string): Promise<StudentMarksResponse> {
+  return apiRequest<StudentMarksResponse>(`/api/student/${userId}/marks`);
+},
+
+  // Get all stats at once
+  async getAllStats(userId: string): Promise<AttendanceReport> {
+    
+    return apiRequest<AttendanceReport>(`/api/student/${userId}/stats`)
   },
 
-  // Get course-wise attendance statistics
-  async getCourseWiseStats(studentId: string, academicYear?: string): Promise<CourseAttendanceStats[]> {
-    const params = academicYear ? `?academic_year=${academicYear}` : ''
-    return apiRequest<CourseAttendanceStats[]>(`/api/students/${studentId}/attendance/courses${params}`)
-  },
+  // async getCourseWiseStats(studentId: string, academicYear?: string): Promise<CourseAttendanceStats[]> {
+  //   const params = academicYear ? `?academic_year=${academicYear}` : ''
+  //   return apiRequest<CourseAttendanceStats[]>(`/api/students/${studentId}/attendance/courses${params}`)
+  // },
 
   // Get attendance trend data
-  async getAttendanceTrend(
-    studentId: string, 
-    period: 'weekly' | 'monthly' | 'semester',
-    academicYear?: string
-  ): Promise<Array<{ period: string; percentage: number }>> {
-    const params = new URLSearchParams()
-    params.append('period', period)
-    if (academicYear) params.append('academic_year', academicYear)
+  // async getAttendanceTrend(
+  //   studentId: string, 
+  //   period: 'weekly' | 'monthly' | 'semester',
+  //   academicYear?: string
+  // ): Promise<Array<{ period: string; percentage: number }>> {
+  //   const params = new URLSearchParams()
+  //   params.append('period', period)
+  //   if (academicYear) params.append('academic_year', academicYear)
     
-    return apiRequest<Array<{ period: string; percentage: number }>>(
-      `/api/students/${studentId}/attendance/trend?${params.toString()}`
-    )
-  },  // Get student's enrolled courses
-  async getEnrolledCourses(studentId: string, academicYear?: string): Promise<any[]> {
-    const params = academicYear ? `?academic_year=${academicYear}` : ''
-    return apiRequest<any[]>(`/api/students/${studentId}/courses${params}`)
-  }
-}
+  //   return apiRequest<Array<{ period: string; percentage: number }>>(
+  //     `/api/students/${studentId}/attendance/trend?${params.toString()}`
+  //   )
+//   },  // Get student's enrolled courses
+//   async getEnrolledCourses(studentId: string, academicYear?: string): Promise<any[]> {
+//     const params = academicYear ? `?academic_year=${academicYear}` : ''
+//     return apiRequest<any[]>(`/api/students/${studentId}/courses${params}`)
+//   }
+// }
+};
 
 // Admin API functions
 export const adminApi = {
