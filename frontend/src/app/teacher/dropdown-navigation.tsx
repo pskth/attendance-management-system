@@ -3,10 +3,10 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { 
-  ChevronDown, 
-  GraduationCap, 
-  Building2, 
+import {
+  ChevronDown,
+  GraduationCap,
+  Building2,
   BookOpen,
   Users
 } from 'lucide-react'
@@ -43,6 +43,7 @@ export interface Course {
   is_open_elective?: boolean
   has_theory_component?: boolean
   has_lab_component?: boolean
+  offering_id?: string
 }
 
 export interface Section {
@@ -63,6 +64,7 @@ interface DropdownNavigationProps {
   onDepartmentSelect: (department: string) => void
   onCourseSelect: (course: Course) => void
   onSectionSelect: (section: Section) => void
+  courses?: any[] // Teacher courses from API
 }
 
 export function DropdownNavigation({
@@ -73,13 +75,14 @@ export function DropdownNavigation({
   onYearSelect,
   onDepartmentSelect,
   onCourseSelect,
-  onSectionSelect
+  onSectionSelect,
+  courses: teacherCourses = []
 }: DropdownNavigationProps) {
   const [yearDropdownOpen, setYearDropdownOpen] = useState(false)
   const [deptDropdownOpen, setDeptDropdownOpen] = useState(false)
   const [courseDropdownOpen, setCourseDropdownOpen] = useState(false)
   const [sectionDropdownOpen, setSectionDropdownOpen] = useState(false)
-  
+
   const [years, setYears] = useState<Year[]>([])
   const [departments, setDepartments] = useState<Department[]>([])
   const [courses, setCourses] = useState<Course[]>([])
@@ -144,119 +147,171 @@ export function DropdownNavigation({
   const loadDepartments = async () => {
     setLoading(prev => ({ ...prev, departments: true }))
     try {
-      const departmentData = await adminApi.getAllDepartments()
+      const response = await adminApi.getAllDepartments()
+      // Handle the wrapped API response format
+      const departmentData = response.status === 'success' ? response.data : []
+
+      // Ensure departmentData is an array
+      if (!Array.isArray(departmentData)) {
+        console.warn('Department data is not an array:', departmentData)
+        setDepartments([])
+        return
+      }
+
       // Transform department data to match expected format
       const transformedDepts = departmentData.map((dept: any) => ({
         department_id: dept.code,
         department_name: dept.name,
         short_name: dept.code,
-        total_students: dept.total_students || 0,
-        total_courses: dept.total_courses || 0,
-        active_classes_today: dept.active_classes_today || 0
+        total_students: dept.students?.length || 0,
+        total_courses: dept.courses?.length || 0,
+        active_classes_today: 0 // This would need to be calculated
       }))
       setDepartments(transformedDepts)
     } catch (error) {
       console.error('Error loading departments:', error)
+      setDepartments([]) // Set empty array as fallback
     } finally {
       setLoading(prev => ({ ...prev, departments: false }))
     }
   }
 
   const loadCourses = useCallback(async () => {
-    if (!selectedDepartment) return
-    
+    if (!selectedDepartment && !teacherCourses.length) return
+
     setLoading(prev => ({ ...prev, courses: true }))
     try {
-      const allCoursesData = await adminApi.getAllCourses()
-      
-      // Filter courses by department
-      const departmentCourses = allCoursesData.filter((course: any) => 
-        course.department.code === selectedDepartment
-      )
-      
-      // Transform course data to match expected format
-      const transformedCourses = departmentCourses.map((course: any) => ({
-        course_id: course.id,
-        course_code: course.code,
-        course_name: course.name,
-        department_id: course.department.code,
-        total_students: course.courseOfferings?.[0]?.total_students || 0,
-        classes_completed: course.courseOfferings?.[0]?.classes_completed || 0,
-        total_classes: course.courseOfferings?.[0]?.total_classes || 0,
-        attendance_percentage: course.courseOfferings?.[0]?.attendance_percentage || 0,
-        course_type: course.type,
-        is_open_elective: course.type === 'open_elective',
-        has_theory_component: course.has_theory_component,
-        has_lab_component: course.has_lab_component
-      }))
-      
-      setCourses(transformedCourses)
+      // Use teacher's courses if available
+      if (teacherCourses.length > 0) {
+        const transformedCourses = teacherCourses.map((courseOffering: any) => ({
+          course_id: courseOffering.course.id,
+          course_code: courseOffering.course.code,
+          course_name: courseOffering.course.name,
+          department_id: courseOffering.course.department,
+          total_students: courseOffering.enrolledStudents,
+          classes_completed: 25, // Mock - TODO: Get from attendance history
+          total_classes: 40, // Mock - TODO: Get from academic calendar
+          attendance_percentage: 85.0, // Mock - TODO: Calculate from actual data
+          course_type: courseOffering.course.type,
+          is_open_elective: courseOffering.course.type === 'open_elective',
+          has_theory_component: courseOffering.course.hasTheoryComponent,
+          has_lab_component: courseOffering.course.hasLabComponent,
+          offering_id: courseOffering.offeringId,
+          academic_year: courseOffering.academicYear
+        }))
+
+        // Filter by department if one is selected
+        if (selectedDepartment) {
+          setCourses(transformedCourses.filter((course: Course) =>
+            course.department_id === selectedDepartment
+          ))
+        } else {
+          setCourses(transformedCourses)
+        }
+      } else {
+        // Fallback to admin API if no teacher courses available
+        const allCoursesData = await adminApi.getAllCourses()
+
+        // Filter courses by department
+        const departmentCourses = allCoursesData.filter((course: any) =>
+          course.department.code === selectedDepartment
+        )
+
+        // Transform course data to match expected format
+        const transformedCourses = departmentCourses.map((course: any) => ({
+          course_id: course.id,
+          course_code: course.code,
+          course_name: course.name,
+          department_id: course.department.code,
+          total_students: course.courseOfferings?.[0]?.total_students || 0,
+          classes_completed: course.courseOfferings?.[0]?.classes_completed || 0,
+          total_classes: course.courseOfferings?.[0]?.total_classes || 0,
+          attendance_percentage: course.courseOfferings?.[0]?.attendance_percentage || 0,
+          course_type: course.type,
+          is_open_elective: course.type === 'open_elective',
+          has_theory_component: course.has_theory_component,
+          has_lab_component: course.has_lab_component
+        }))
+
+        setCourses(transformedCourses)
+      }
     } catch (error) {
       console.error('Error loading courses:', error)
     } finally {
       setLoading(prev => ({ ...prev, courses: false }))
     }
-  }, [selectedDepartment])
+  }, [selectedDepartment, teacherCourses])
 
   const loadSections = useCallback(async () => {
-    if (!selectedDepartment) return
-    
+    if (!selectedCourse) return
+
     setLoading(prev => ({ ...prev, sections: true }))
     try {
-      // Mock sections for now - backend doesn't have sections endpoint yet
-      const mockSections = [
-        {
-          section_id: 'A',
-          section_name: 'Section A',
-          department_id: selectedDepartment,
-          total_students: 60,
-          present_today: 52,
-          attendance_percentage: 86.7
-        },
-        {
-          section_id: 'B', 
-          section_name: 'Section B',
-          department_id: selectedDepartment,
-          total_students: 58,
-          present_today: 50,
-          attendance_percentage: 86.2
+      // For teacher portal, sections are typically derived from the course offering
+      if (selectedCourse.is_open_elective) {
+        // For open electives, create a mixed section
+        setSections([{
+          section_id: 'MIXED',
+          section_name: 'Mixed',
+          department_id: 'OPEN_ELECTIVE',
+          total_students: selectedCourse.total_students,
+          present_today: Math.floor(selectedCourse.total_students * selectedCourse.attendance_percentage / 100),
+          attendance_percentage: selectedCourse.attendance_percentage
+        }])
+      } else {
+        // For regular courses, find the course offering in teacher's courses
+        const courseOffering = teacherCourses.find((offering: any) =>
+          offering.course.id === selectedCourse.course_id
+        )
+
+        if (courseOffering?.section) {
+          setSections([{
+            section_id: courseOffering.section.id,
+            section_name: courseOffering.section.name,
+            department_id: selectedCourse.department_id,
+            total_students: selectedCourse.total_students,
+            present_today: Math.floor(selectedCourse.total_students * selectedCourse.attendance_percentage / 100),
+            attendance_percentage: selectedCourse.attendance_percentage
+          }])
+        } else {
+          // Fallback to mock sections
+          const mockSections = [
+            {
+              section_id: 'A',
+              section_name: 'A',
+              department_id: selectedCourse.department_id,
+              total_students: selectedCourse.total_students,
+              present_today: Math.floor(selectedCourse.total_students * 0.85),
+              attendance_percentage: 85.0
+            }
+          ]
+          setSections(mockSections)
         }
-      ]
-      setSections(mockSections)
+      }
     } catch (error) {
       console.error('Error loading sections:', error)
     } finally {
       setLoading(prev => ({ ...prev, sections: false }))
     }
-  }, [selectedDepartment])
+  }, [selectedCourse, teacherCourses])
 
-  // Load courses when department changes or when year is selected (for open electives)
+  // Load courses when department changes or when we have teacher courses
   useEffect(() => {
-    if (selectedDepartment) {
+    if (selectedDepartment || teacherCourses.length > 0) {
       loadCourses()
     } else {
       setCourses([])
     }
-  }, [selectedDepartment, selectedYear, loadCourses])
+  }, [selectedDepartment, selectedYear, teacherCourses.length, loadCourses])
 
-  // Load sections when department OR year changes (sections depend on department, but unlock with year)
+  // Load sections when course changes
   useEffect(() => {
-    if (selectedDepartment) {
+    if (selectedCourse) {
       loadSections()
-    } else if (selectedYear && selectedCourse?.is_open_elective) {
-      // For open electives, create a mixed section
-      setSections([{
-        section_id: 'MIXED',
-        section_name: 'Mixed',
-        department_id: 'OPEN_ELECTIVE',
-        total_students: selectedCourse.total_students,
-        present_today: Math.floor(selectedCourse.total_students * selectedCourse.attendance_percentage / 100),
-        attendance_percentage: selectedCourse.attendance_percentage
-      }])
     } else {
       setSections([])
     }
-  }, [selectedDepartment, selectedYear, selectedCourse, loadSections])
+  }, [selectedCourse, loadSections])
 
   const handleYearSelect = (year: string) => {
     onYearSelect(year)
@@ -282,26 +337,145 @@ export function DropdownNavigation({
     <Card className="w-full relative z-50">
       <CardContent className="p-3 sm:p-6">
         <div className="flex flex-col lg:flex-row gap-3 lg:gap-4">
-          {/* Year Dropdown */}
+          {/* Course Dropdown - First for teachers */}
+          <div ref={courseRef} className="relative flex-1">
+            <Button
+              variant={selectedCourse ? "default" : "outline"}
+              className={`w-full justify-between h-auto p-3 sm:p-4 ${selectedCourse ? 'bg-emerald-600 hover:bg-emerald-700' : ''
+                }`}
+              onClick={() => setCourseDropdownOpen(!courseDropdownOpen)}
+            >
+              <div className="flex items-center space-x-2 sm:space-x-3">
+                <BookOpen className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
+                <div className="text-left min-w-0">
+                  <div className="font-medium text-sm sm:text-base truncate">
+                    {selectedCourse ? `${selectedCourse.course_code}: ${selectedCourse.course_name}` : 'Select Course'}
+                  </div>
+                </div>
+              </div>
+              <ChevronDown className={`w-4 h-4 transition-transform flex-shrink-0 ${courseDropdownOpen ? 'rotate-180' : ''
+                }`} />
+            </Button>
+
+            {courseDropdownOpen && (
+              <div className="absolute top-full mt-2 w-full bg-white border border-gray-200 rounded-lg shadow-lg z-[60]">
+                <div className="p-2 max-h-60 overflow-y-auto">
+                  {courses.length > 0 ? (
+                    <>
+                      {/* Regular Department Courses */}
+                      {courses.filter(course => !course.is_open_elective).length > 0 && (
+                        <>
+                          {courses.filter(course => !course.is_open_elective).map((course) => (
+                            <button
+                              key={course.course_id}
+                              className="w-full text-left p-2 sm:p-3 rounded-md hover:bg-gray-50 transition-colors"
+                              onClick={() => handleCourseSelect(course)}
+                            >
+                              <div className="font-medium text-gray-900 text-sm sm:text-base truncate">{course.course_code}: {course.course_name}</div>
+                              <div className="text-xs text-gray-500">{course.academic_year} • {course.total_students} students</div>
+                            </button>
+                          ))}
+                          {courses.filter(course => course.is_open_elective).length > 0 && (
+                            <div className="border-t border-gray-200 my-2"></div>
+                          )}
+                        </>
+                      )}
+
+                      {/* Open Electives */}
+                      {courses.filter(course => course.is_open_elective).length > 0 && (
+                        <>
+                          <div className="px-2 sm:px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                            Open Electives
+                          </div>
+                          {courses.filter(course => course.is_open_elective).map((course) => (
+                            <button
+                              key={course.course_id}
+                              className="w-full text-left p-2 sm:p-3 rounded-md hover:bg-gray-50 transition-colors"
+                              onClick={() => handleCourseSelect(course)}
+                            >
+                              <div className="font-medium text-gray-900 text-sm sm:text-base truncate">{course.course_code}: {course.course_name}</div>
+                              <div className="text-xs text-gray-500">{course.academic_year} • {course.total_students} students</div>
+                            </button>
+                          ))}
+                        </>
+                      )}
+                    </>
+                  ) : (
+                    <div className="p-2 sm:p-3 text-center text-gray-500 text-xs sm:text-sm">
+                      No courses assigned
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Section Dropdown - Second for teachers */}
+          <div ref={sectionRef} className="relative flex-1">
+            <Button
+              variant={selectedSection ? "default" : "outline"}
+              className={`w-full justify-between h-auto p-3 sm:p-4 ${selectedSection ? 'bg-emerald-600 hover:bg-emerald-700' : ''
+                } ${!selectedCourse ? 'opacity-50 cursor-not-allowed' : ''}`}
+              onClick={() => selectedCourse && setSectionDropdownOpen(!sectionDropdownOpen)}
+              disabled={!selectedCourse}
+            >
+              <div className="flex items-center space-x-2 sm:space-x-3">
+                <Users className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
+                <div className="text-left min-w-0">
+                  <div className="font-medium text-sm sm:text-base truncate">
+                    {selectedSection ? `Section ${selectedSection.section_name}` : 'Select Section'}
+                  </div>
+                </div>
+              </div>
+              <ChevronDown className={`w-4 h-4 transition-transform flex-shrink-0 ${sectionDropdownOpen ? 'rotate-180' : ''
+                }`} />
+            </Button>
+
+            {sectionDropdownOpen && selectedCourse && (
+              <div className="absolute top-full mt-2 w-full bg-white border border-gray-200 rounded-lg shadow-lg z-[60]">
+                <div className="p-2 max-h-60 overflow-y-auto">
+                  {sections.length > 0 ? sections.map((section) => (
+                    <button
+                      key={section.section_id}
+                      className="w-full text-left p-2 sm:p-3 rounded-md hover:bg-gray-50 transition-colors"
+                      onClick={() => handleSectionSelect(section)}
+                    >
+                      <div className="font-medium text-gray-900 text-sm sm:text-base">Section {section.section_name}</div>
+                      <div className="text-xs text-gray-500">
+                        {section.total_students} students • {section.attendance_percentage.toFixed(1)}% attendance
+                      </div>
+                      {section.section_id === 'MIXED' && (
+                        <div className="text-xs sm:text-sm text-emerald-600">Open Elective Section</div>
+                      )}
+                    </button>
+                  )) : (
+                    <div className="p-2 sm:p-3 text-center text-gray-500 text-xs sm:text-sm">
+                      No sections available
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Year Dropdown - Optional/Info for teachers */}
           <div ref={yearRef} className="relative flex-1">
             <Button
               variant={selectedYear ? "default" : "outline"}
-              className={`w-full justify-between h-auto p-3 sm:p-4 ${
-                selectedYear ? 'bg-emerald-600 hover:bg-emerald-700' : ''
-              }`}
+              className={`w-full justify-between h-auto p-3 sm:p-4 ${selectedYear ? 'bg-emerald-600 hover:bg-emerald-700' : ''
+                }`}
               onClick={() => setYearDropdownOpen(!yearDropdownOpen)}
             >
               <div className="flex items-center space-x-2 sm:space-x-3">
                 <GraduationCap className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
                 <div className="text-left min-w-0">
                   <div className="font-medium text-sm sm:text-base truncate">
-                    {selectedYear || 'Select Year'}
+                    {selectedYear || selectedCourse?.academic_year || 'Academic Year'}
                   </div>
                 </div>
               </div>
-              <ChevronDown className={`w-4 h-4 transition-transform flex-shrink-0 ${
-                yearDropdownOpen ? 'rotate-180' : ''
-              }`} />
+              <ChevronDown className={`w-4 h-4 transition-transform flex-shrink-0 ${yearDropdownOpen ? 'rotate-180' : ''
+                }`} />
             </Button>
 
             {yearDropdownOpen && (
@@ -321,33 +495,30 @@ export function DropdownNavigation({
             )}
           </div>
 
-          {/* Department Dropdown */}
+          {/* Department Dropdown - Optional/Info for teachers */}
           <div ref={deptRef} className="relative flex-1">
             <Button
               variant={selectedDepartment ? "default" : "outline"}
-              className={`w-full justify-between h-auto p-3 sm:p-4 ${
-                selectedDepartment ? 'bg-emerald-600 hover:bg-emerald-700' : ''
-              } ${!selectedYear ? 'opacity-50 cursor-not-allowed' : ''}`}
-              onClick={() => selectedYear && setDeptDropdownOpen(!deptDropdownOpen)}
-              disabled={!selectedYear}
+              className={`w-full justify-between h-auto p-3 sm:p-4 ${selectedDepartment ? 'bg-emerald-600 hover:bg-emerald-700' : ''
+                }`}
+              onClick={() => setDeptDropdownOpen(!deptDropdownOpen)}
             >
               <div className="flex items-center space-x-2 sm:space-x-3">
                 <Building2 className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
                 <div className="text-left min-w-0">
                   <div className="font-medium text-sm sm:text-base truncate">
-                    {selectedDepartment ? 
-                      `${departments.find(d => d.department_id === selectedDepartment)?.short_name}: ${departments.find(d => d.department_id === selectedDepartment)?.department_name}` || selectedDepartment
-                      : 'Select Department'
+                    {selectedDepartment ?
+                      `${departments.find(d => d.department_id === selectedDepartment)?.short_name || selectedDepartment}`
+                      : selectedCourse?.department_id || 'Department'
                     }
                   </div>
                 </div>
               </div>
-              <ChevronDown className={`w-4 h-4 transition-transform flex-shrink-0 ${
-                deptDropdownOpen ? 'rotate-180' : ''
-              }`} />
+              <ChevronDown className={`w-4 h-4 transition-transform flex-shrink-0 ${deptDropdownOpen ? 'rotate-180' : ''
+                }`} />
             </Button>
 
-            {deptDropdownOpen && selectedYear && (
+            {deptDropdownOpen && (
               <div className="absolute top-full mt-2 w-full bg-white border border-gray-200 rounded-lg shadow-lg z-[60]">
                 <div className="p-2">
                   {departments.map((dept) => (
@@ -359,127 +530,6 @@ export function DropdownNavigation({
                       <div className="font-medium text-gray-900">{dept.short_name}: {dept.department_name}</div>
                     </button>
                   ))}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Section Dropdown */}
-          <div ref={sectionRef} className="relative flex-1">
-            <Button
-              variant={selectedSection ? "default" : "outline"}
-              className={`w-full justify-between h-auto p-3 sm:p-4 ${
-                selectedSection ? 'bg-emerald-600 hover:bg-emerald-700' : ''
-              } ${!selectedYear ? 'opacity-50 cursor-not-allowed' : ''}`}
-              onClick={() => selectedYear && setSectionDropdownOpen(!sectionDropdownOpen)}
-              disabled={!selectedYear}
-            >
-              <div className="flex items-center space-x-2 sm:space-x-3">
-                <Users className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
-                <div className="text-left min-w-0">
-                  <div className="font-medium text-sm sm:text-base truncate">
-                    {selectedSection ? `Section ${selectedSection.section_name}` : 'Select Section'}
-                  </div>
-                </div>
-              </div>
-              <ChevronDown className={`w-4 h-4 transition-transform flex-shrink-0 ${
-                sectionDropdownOpen ? 'rotate-180' : ''
-              }`} />
-            </Button>
-
-            {sectionDropdownOpen && selectedYear && (
-              <div className="absolute top-full mt-2 w-full bg-white border border-gray-200 rounded-lg shadow-lg z-[60]">
-                <div className="p-2 max-h-60 overflow-y-auto">
-                  {sections.length > 0 ? sections.map((section) => (
-                    <button
-                      key={section.section_id}
-                      className="w-full text-left p-2 sm:p-3 rounded-md hover:bg-gray-50 transition-colors"
-                      onClick={() => handleSectionSelect(section)}
-                    >
-                      <div className="font-medium text-gray-900 text-sm sm:text-base">Section {section.section_name}</div>
-                      {section.section_id === 'MIXED' && (
-                        <div className="text-xs sm:text-sm text-emerald-600">Open Elective Section</div>
-                      )}
-                    </button>
-                  )) : (
-                    <div className="p-2 sm:p-3 text-center text-gray-500 text-xs sm:text-sm">
-                      {selectedCourse ? 'Select a course first' : 'No sections available'}
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Course Dropdown */}
-          <div ref={courseRef} className="relative flex-1">
-            <Button
-              variant={selectedCourse ? "default" : "outline"}
-              className={`w-full justify-between h-auto p-3 sm:p-4 ${
-                selectedCourse ? 'bg-emerald-600 hover:bg-emerald-700' : ''
-              } ${!selectedYear ? 'opacity-50 cursor-not-allowed' : ''}`}
-              onClick={() => selectedYear && setCourseDropdownOpen(!courseDropdownOpen)}
-              disabled={!selectedYear}
-            >
-              <div className="flex items-center space-x-2 sm:space-x-3">
-                <BookOpen className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
-                <div className="text-left min-w-0">
-                  <div className="font-medium text-sm sm:text-base truncate">
-                    {selectedCourse ? `${selectedCourse.course_code}: ${selectedCourse.course_name}` : 'Select Course'}
-                  </div>
-                </div>
-              </div>
-              <ChevronDown className={`w-4 h-4 transition-transform flex-shrink-0 ${
-                courseDropdownOpen ? 'rotate-180' : ''
-              }`} />
-            </Button>
-
-            {courseDropdownOpen && selectedYear && (
-              <div className="absolute top-full mt-2 w-full bg-white border border-gray-200 rounded-lg shadow-lg z-[60]">
-                <div className="p-2 max-h-60 overflow-y-auto">
-                  {courses.length > 0 ? (
-                    <>
-                      {/* Regular Department Courses */}
-                      {courses.filter(course => !course.is_open_elective).length > 0 && (
-                        <>
-                          {courses.filter(course => !course.is_open_elective).map((course) => (
-                            <button
-                              key={course.course_id}
-                              className="w-full text-left p-2 sm:p-3 rounded-md hover:bg-gray-50 transition-colors"
-                              onClick={() => handleCourseSelect(course)}
-                            >
-                              <div className="font-medium text-gray-900 text-sm sm:text-base truncate">{course.course_code}: {course.course_name}</div>
-                            </button>
-                          ))}
-                          {courses.filter(course => course.is_open_elective).length > 0 && (
-                            <div className="border-t border-gray-200 my-2"></div>
-                          )}
-                        </>
-                      )}
-                      
-                      {/* Open Electives */}
-                      {courses.filter(course => course.is_open_elective).length > 0 && (
-                        <>
-                          <div className="px-2 sm:px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                            Open Electives
-                          </div>
-                          {courses.filter(course => course.is_open_elective).map((course) => (
-                            <button
-                              key={course.course_id}
-                              className="w-full text-left p-2 sm:p-3 rounded-md hover:bg-gray-50 transition-colors"
-                              onClick={() => handleCourseSelect(course)}
-                            >
-                              <div className="font-medium text-gray-900 text-sm sm:text-base truncate">{course.course_code}: {course.course_name}</div>
-                            </button>
-                          ))}
-                        </>
-                      )}
-                    </>
-                  ) : (
-                    <div className="p-2 sm:p-3 text-center text-gray-500 text-xs sm:text-sm">
-                      No courses available
-                    </div>
-                  )}
                 </div>
               </div>
             )}

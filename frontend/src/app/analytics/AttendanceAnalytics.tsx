@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ChevronDown, ChevronRight } from "lucide-react";
+import { ChevronDown, ChevronRight, Loader2, AlertTriangle } from "lucide-react";
+import analyticsService, { AttendanceAnalyticsData, DepartmentStats } from '@/lib/analytics-service';
 
 interface AttendanceAnalyticsProps {
   academicYear: string;
@@ -10,218 +11,220 @@ interface AttendanceAnalyticsProps {
 
 export default function AttendanceAnalytics({ academicYear }: AttendanceAnalyticsProps) {
   const [expandedDepts, setExpandedDepts] = useState<string[]>([]);
-  
-  // Mock data for department-wise attendance with section details
-  const departmentWiseData = [
-    { 
-      name: 'Computer Science Engineering', 
-      code: 'CSE', 
-      attendance: 89.2, 
-      students: 120,
-      sections: [
-        { section: 'CSE-A', attendance: 91.2, students: 30, courses: 6, 
-          courseStats: [
-            { name: 'Data Structures', code: 'CSE301', attendance: 93.5 },
-            { name: 'DBMS', code: 'CSE302', attendance: 89.1 },
-            { name: 'Networks', code: 'CSE303', attendance: 91.8 }
-          ]
-        },
-        { section: 'CSE-B', attendance: 87.2, students: 30, courses: 6,
-          courseStats: [
-            { name: 'Data Structures', code: 'CSE301', attendance: 88.9 },
-            { name: 'DBMS', code: 'CSE302', attendance: 85.3 },
-            { name: 'Networks', code: 'CSE303', attendance: 87.4 }
-          ]
-        },
-        { section: 'CSE-C', attendance: 89.0, students: 30, courses: 6,
-          courseStats: [
-            { name: 'Data Structures', code: 'CSE301', attendance: 90.2 },
-            { name: 'DBMS', code: 'CSE302', attendance: 87.8 },
-            { name: 'Networks', code: 'CSE303', attendance: 89.0 }
-          ]
-        }
-      ]
-    },
-    { 
-      name: 'AI & Data Science', 
-      code: 'AIDS', 
-      attendance: 85.7, 
-      students: 80,
-      sections: [
-        { section: 'AIDS-A', attendance: 87.1, students: 40, courses: 5,
-          courseStats: [
-            { name: 'Machine Learning', code: 'AIDS301', attendance: 89.5 },
-            { name: 'Data Mining', code: 'AIDS302', attendance: 84.7 }
-          ]
-        },
-        { section: 'AIDS-B', attendance: 84.3, students: 40, courses: 5,
-          courseStats: [
-            { name: 'Machine Learning', code: 'AIDS301', attendance: 86.2 },
-            { name: 'Data Mining', code: 'AIDS302', attendance: 82.4 }
-          ]
-        }
-      ]
-    },
-    { 
-      name: 'Information Science Engineering', 
-      code: 'ISE', 
-      attendance: 87.4, 
-      students: 100,
-      sections: [
-        { section: 'ISE-A', attendance: 89.1, students: 35, courses: 6,
-          courseStats: [
-            { name: 'Software Engineering', code: 'ISE301', attendance: 91.2 },
-            { name: 'Web Technology', code: 'ISE302', attendance: 87.0 }
-          ]
-        },
-        { section: 'ISE-B', attendance: 85.7, students: 35, courses: 6,
-          courseStats: [
-            { name: 'Software Engineering', code: 'ISE301', attendance: 87.8 },
-            { name: 'Web Technology', code: 'ISE302', attendance: 83.6 }
-          ]
-        }
-      ]
-    },
-    { 
-      name: 'Electronics & Communication', 
-      code: 'ECE', 
-      attendance: 91.3, 
-      students: 90,
-      sections: [
-        { section: 'ECE-A', attendance: 93.5, students: 30, courses: 7,
-          courseStats: [
-            { name: 'Digital Circuits', code: 'ECE301', attendance: 95.1 },
-            { name: 'Microprocessors', code: 'ECE302', attendance: 91.9 }
-          ]
-        },
-        { section: 'ECE-B', attendance: 89.1, students: 30, courses: 7,
-          courseStats: [
-            { name: 'Digital Circuits', code: 'ECE301', attendance: 91.3 },
-            { name: 'Microprocessors', code: 'ECE302', attendance: 86.9 }
-          ]
-        }
-      ]
-    }
-  ];
+  const [expandedCourses, setExpandedCourses] = useState<string[]>([]);
+  const [data, setData] = useState<AttendanceAnalyticsData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const toggleDepartment = (deptCode: string) => {
-    setExpandedDepts(prev => 
-      prev.includes(deptCode) 
-        ? prev.filter(code => code !== deptCode)
-        : [...prev, deptCode]
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const analyticsData = await analyticsService.getAttendanceAnalytics(academicYear);
+        setData(analyticsData);
+      } catch (err) {
+        console.error('Failed to fetch attendance analytics:', err);
+        setError(err instanceof Error ? err.message : 'Failed to fetch attendance analytics');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [academicYear]);
+
+  if (loading) {
+    return (
+      <Card className="p-6">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 mx-auto animate-spin text-blue-600 mb-2" />
+          <p className="text-gray-600">Loading attendance analytics...</p>
+        </div>
+      </Card>
+    );
+  }
+
+  if (error) {
+    const isAuthError = error.includes('Authentication failed') || error.includes('No authentication token');
+
+    return (
+      <Card className="p-6">
+        <div className="text-center text-red-600">
+          <AlertTriangle className="h-8 w-8 mx-auto mb-2" />
+          <p className="font-medium">Failed to load attendance analytics</p>
+          <p className="text-sm text-gray-500 mt-1">{error}</p>
+          {isAuthError && (
+            <button
+              onClick={() => window.location.href = '/login/admin'}
+              className="mt-3 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors text-sm"
+            >
+              Go to Login
+            </button>
+          )}
+        </div>
+      </Card>
+    );
+  }
+
+  if (!data || !data.departments.length) {
+    return (
+      <Card className="p-6">
+        <div className="text-center text-gray-600">
+          <p className="font-medium">No attendance data available</p>
+          <p className="text-sm text-gray-500 mt-1">For academic year {academicYear}</p>
+        </div>
+      </Card>
+    );
+  }
+
+  const departmentWiseData = data.departments;
+
+  const toggleDepartment = (deptKey: string) => {
+    setExpandedDepts(prev =>
+      prev.includes(deptKey)
+        ? prev.filter(key => key !== deptKey)
+        : [...prev, deptKey]
     );
   };
 
-  const getAttendanceColor = (percentage: number) => {
-    if (percentage >= 90) return 'text-green-600';
-    if (percentage >= 80) return 'text-yellow-600';
-    if (percentage >= 70) return 'text-orange-600';
-    return 'text-red-600';
+  const toggleCourse = (courseKey: string) => {
+    setExpandedCourses(prev =>
+      prev.includes(courseKey)
+        ? prev.filter(key => key !== courseKey)
+        : [...prev, courseKey]
+    );
+  };
+
+  const getAttendanceColor = (attendance: number) => {
+    if (attendance >= 90) return 'text-green-600 bg-green-50';
+    if (attendance >= 80) return 'text-yellow-600 bg-yellow-50';
+    if (attendance >= 70) return 'text-orange-600 bg-orange-50';
+    return 'text-red-600 bg-red-50';
   };
 
   return (
-    <div className="space-y-4 sm:space-y-6">
-      <Card>
-        <CardHeader className="pb-4 sm:pb-6">
-          <CardTitle className="text-base sm:text-lg">Department-wise Attendance Performance</CardTitle>
-          <CardDescription className="text-sm">
-            Click on departments to view section-wise and course-wise attendance details for {academicYear}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            {departmentWiseData.map((dept, index) => (
-              <div key={index} className="border rounded-lg overflow-hidden">
-                {/* Department Header - Clickable */}
-                <div 
-                  className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 hover:bg-gray-50 cursor-pointer transition-colors space-y-3 sm:space-y-0"
-                  onClick={() => toggleDepartment(dept.code)}
-                >
-                  <div className="flex items-center space-x-3 sm:space-x-4">
-                    <div className="flex items-center space-x-2">
-                      {expandedDepts.includes(dept.code) ? (
-                        <ChevronDown className="h-4 w-4 text-gray-500" />
-                      ) : (
-                        <ChevronRight className="h-4 w-4 text-gray-500" />
-                      )}
-                      <div className={`w-3 h-3 sm:w-4 sm:h-4 rounded-full ${dept.code === 'CSE' ? 'bg-blue-500' : dept.code === 'AIDS' ? 'bg-green-500' : dept.code === 'ISE' ? 'bg-yellow-500' : 'bg-red-500'}`}></div>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-medium text-sm sm:text-base text-gray-900 truncate">{dept.name}</h3>
-                      <p className="text-xs sm:text-sm text-gray-500">{dept.code} • {dept.students} students • {dept.sections.length} sections</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between sm:justify-end sm:text-right">
-                    <div className="sm:hidden text-xs text-gray-500">Attendance:</div>
-                    <div>
-                      <div className={`text-lg sm:text-xl font-semibold ${getAttendanceColor(dept.attendance)}`}>
-                        {dept.attendance}%
-                      </div>
-                      <div className="hidden sm:block text-xs text-gray-500">Attendance</div>
-                    </div>
-                  </div>
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+        {departmentWiseData.map((dept, index) => (
+          <Card key={`${dept.code}-${index}`} className="overflow-hidden">
+            <CardHeader
+              className="cursor-pointer hover:bg-gray-50 transition-colors pb-4"
+              onClick={() => toggleDepartment(`${dept.code}-${index}`)}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex-1 min-w-0">
+                  <CardTitle className="text-lg truncate">{dept.name}</CardTitle>
+                  <CardDescription className="flex items-center space-x-4 mt-1">
+                    <span>Code: {dept.code}</span>
+                    <span>Students: {dept.students}</span>
+                  </CardDescription>
                 </div>
-
-                {/* Expanded Section Details */}
-                {expandedDepts.includes(dept.code) && (
-                  <div className="border-t bg-gray-50">
-                    {/* Section-wise Performance */}
-                    <div className="p-4">
-                      <h4 className="font-medium text-sm sm:text-base text-gray-900 mb-3">Section-wise Attendance</h4>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                        {dept.sections.map((section, sectionIndex) => (
-                          <div key={sectionIndex} className="flex items-center justify-between p-3 bg-white rounded-lg border">
-                            <div className="flex-1 min-w-0">
-                              <div className="font-medium text-sm truncate">{section.section}</div>
-                              <div className="text-xs text-gray-500">{section.students} students</div>
-                            </div>
-                            <div className="text-right ml-2">
-                              <div className={`text-sm font-semibold ${getAttendanceColor(section.attendance)}`}>
-                                {section.attendance}%
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Course-wise Performance per Section */}
-                    <div className="p-4 border-t">
-                      <h4 className="font-medium text-sm sm:text-base text-gray-900 mb-3">Course-wise Attendance by Section</h4>
-                      <div className="space-y-3">
-                        {dept.sections.map((section, sectionIndex) => (
-                          <div key={sectionIndex} className="bg-white rounded-lg border overflow-hidden">
-                            <div className="p-3 border-b bg-gray-50">
-                              <h5 className="font-medium text-sm text-gray-800">{section.section}</h5>
-                            </div>
-                            <div className="p-3">
-                              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-                                {section.courseStats.map((course, courseIndex) => (
-                                  <div key={courseIndex} className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-2 space-y-1 sm:space-y-0">
-                                    <div className="flex-1 min-w-0">
-                                      <div className="text-sm font-medium truncate">{course.code}</div>
-                                      <div className="text-xs text-gray-500 truncate">{course.name}</div>
-                                    </div>
-                                    <div className="text-left sm:text-right">
-                                      <div className={`text-sm font-semibold ${getAttendanceColor(course.attendance)}`}>
-                                        {course.attendance}%
-                                      </div>
-                                    </div>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
+                <div className="flex items-center space-x-3">
+                  <div className={`px-3 py-1 rounded-full text-sm font-semibold ${getAttendanceColor(dept.attendance || 0)}`}>
+                    {dept.attendance?.toFixed(1)}%
                   </div>
-                )}
+                  {expandedDepts.includes(`${dept.code}-${index}`) ?
+                    <ChevronDown className="h-5 w-5" /> :
+                    <ChevronRight className="h-5 w-5" />
+                  }
+                </div>
               </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+            </CardHeader>
+
+            {expandedDepts.includes(`${dept.code}-${index}`) && (
+              <CardContent className="pt-0">
+                <div className="space-y-4">
+                  {dept.sections.map((section) => (
+                    <div key={section.section} className="border-l-4 border-blue-200 pl-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <h4 className="font-semibold text-gray-800">{section.section}</h4>
+                        <div className="flex items-center space-x-2 text-sm">
+                          <span className={`px-2 py-1 rounded ${getAttendanceColor(section.attendance || 0)}`}>
+                            {section.attendance?.toFixed(1)}%
+                          </span>
+                          <span className="text-gray-500">({section.students} students)</span>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 gap-2">
+                        {section.courseStats.map((course) => {
+                          const courseKey = `${dept.code}-${section.section}-${course.code}`;
+                          const isExpanded = expandedCourses.includes(courseKey);
+
+                          return (
+                            <div key={course.code} className="bg-gray-50 p-3 rounded">
+                              <div
+                                className="flex items-center justify-between text-sm cursor-pointer hover:bg-gray-100 p-1 rounded"
+                                onClick={() => toggleCourse(courseKey)}
+                              >
+                                <div className="flex-1 min-w-0">
+                                  <span className="font-medium truncate block">{course.name}</span>
+                                  <span className="text-gray-500 text-xs">{course.code}</span>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                  <span className={`px-2 py-1 rounded text-xs ${getAttendanceColor(course.attendance || 0)}`}>
+                                    {course.attendance?.toFixed(1)}%
+                                  </span>
+                                  {isExpanded ?
+                                    <ChevronDown className="h-4 w-4" /> :
+                                    <ChevronRight className="h-4 w-4" />
+                                  }
+                                </div>
+                              </div>
+
+                              {isExpanded && course.students && course.students.length > 0 && (
+                                <div className="mt-2 pl-2 border-l-2 border-blue-200">
+                                  <p className="text-xs font-medium text-gray-600 mb-1">
+                                    Enrolled Students ({course.students.length}):
+                                  </p>
+                                  <div className="grid grid-cols-1 gap-1">
+                                    {course.students.map((student, studentIndex) => (
+                                      <div key={student.id || studentIndex} className="text-xs bg-white p-2 rounded border">
+                                        <div className="flex justify-between items-start">
+                                          <div className="flex-1">
+                                            <div className="font-medium">{student.name || 'Unknown Student'}</div>
+                                            <div className="text-gray-500">
+                                              USN: {student.usn || 'N/A'} • Sem: {student.semester || 'N/A'}
+                                            </div>
+                                          </div>
+                                          <div className="flex-shrink-0 ml-2">
+                                            <span className={`px-2 py-1 rounded text-xs font-medium ${(student.attendancePercent || 0) >= 90
+                                                ? 'bg-green-100 text-green-700'
+                                                : (student.attendancePercent || 0) >= 75
+                                                  ? 'bg-yellow-100 text-yellow-700'
+                                                  : 'bg-red-100 text-red-700'
+                                              }`}>
+                                              {student.attendancePercent !== undefined
+                                                ? `${student.attendancePercent}%`
+                                                : 'N/A'
+                                              }
+                                            </span>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+
+                              {isExpanded && (!course.students || course.students.length === 0) && (
+                                <div className="mt-2 pl-2 border-l-2 border-gray-200">
+                                  <p className="text-xs text-gray-500">No students enrolled in this course</p>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            )}
+          </Card>
+        ))}
+      </div>
     </div>
   );
 }
