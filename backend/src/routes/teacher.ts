@@ -82,7 +82,15 @@ router.get('/dashboard', authenticateToken, async (req: AuthenticatedRequest, re
             ).filter(Boolean)
         ).size;
 
-        // Get recent attendance sessions
+        // Get total sessions count for statistics (all sessions ever taken by this teacher)
+        const totalSessionsCount = await prisma.attendance.count({
+            where: {
+                teacherId: teacher.id,
+                status: 'held' // Only count sessions that were actually held
+            }
+        });
+
+        // Get recent attendance sessions for display (separate from total count)
         const recentAttendanceSessions = await prisma.attendance.findMany({
             where: {
                 teacherId: teacher.id
@@ -99,8 +107,28 @@ router.get('/dashboard', authenticateToken, async (req: AuthenticatedRequest, re
             orderBy: {
                 classDate: 'desc'
             },
-            take: 5
+            take: 5 // Only get 5 recent sessions for display
         });
+
+        // Calculate average attendance across all sessions
+        const allAttendanceSessions = await prisma.attendance.findMany({
+            where: {
+                teacherId: teacher.id,
+                status: 'held'
+            },
+            include: {
+                attendanceRecords: true
+            }
+        });
+
+        let averageAttendance = 0;
+        if (allAttendanceSessions.length > 0) {
+            const totalAttendanceRecords = allAttendanceSessions.reduce((sum, session) => sum + session.attendanceRecords.length, 0);
+            const totalPresentRecords = allAttendanceSessions.reduce((sum, session) =>
+                sum + session.attendanceRecords.filter(record => record.status === 'present').length, 0);
+
+            averageAttendance = totalAttendanceRecords > 0 ? (totalPresentRecords / totalAttendanceRecords) * 100 : 0;
+        }
 
         // Calculate today's schedule (mock for now)
         const todaySchedule = teacher.courseOfferings.map(offering => ({
@@ -128,8 +156,8 @@ router.get('/dashboard', authenticateToken, async (req: AuthenticatedRequest, re
             statistics: {
                 totalCourses,
                 totalStudents,
-                totalSessions: recentAttendanceSessions.length,
-                averageAttendance: 85.5 // Mock - calculate from actual data
+                totalSessions: totalSessionsCount, // Use correct total count instead of recentAttendanceSessions.length
+                averageAttendance: Math.round(averageAttendance * 10) / 10 // Use calculated average attendance with 1 decimal place
             },
             recentSessions: recentAttendanceSessions.map(session => ({
                 id: session.id,

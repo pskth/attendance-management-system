@@ -357,6 +357,7 @@ export default function TeacherDashboard() {
             ref={masterSearchRef}
             onNavigate={handleSearchNavigation}
             placeholder="Search courses, students..."
+            hidden={showCoursesModal || showStudentsModal}
           />
         </div>
 
