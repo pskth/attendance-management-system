@@ -76,6 +76,7 @@ export default function TeacherMarksAttendanceManagement({
     const [selectedCourse, setSelectedCourse] = useState<string>(selectedCourseId || 'all')
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
+    const [searchTerm, setSearchTerm] = useState<string>('')
 
     // Load data from database
     useEffect(() => {
@@ -412,12 +413,34 @@ export default function TeacherMarksAttendanceManagement({
         window.URL.revokeObjectURL(url)
     }
 
-    // Calculate attendance summary for selected date
+    // Filter data based on search term
+    const filteredMarks = marks.filter(mark => {
+        if (!searchTerm.trim()) return true
+        const search = searchTerm.toLowerCase()
+        return (
+            mark.usn.toLowerCase().includes(search) ||
+            mark.student_name.toLowerCase().includes(search) ||
+            mark.course_code.toLowerCase().includes(search) ||
+            mark.course_name.toLowerCase().includes(search)
+        )
+    })
+
+    const filteredAttendanceRecords = attendanceRecords.filter(record => {
+        if (!searchTerm.trim()) return true
+        const search = searchTerm.toLowerCase()
+        return (
+            record.usn.toLowerCase().includes(search) ||
+            record.student_name.toLowerCase().includes(search) ||
+            (record.courseName && record.courseName.toLowerCase().includes(search))
+        )
+    })
+
+    // Calculate attendance summary for selected date (using filtered data)
     const attendanceSummary = {
-        present: attendanceRecords.filter(r => r.status === 'present').length,
-        absent: attendanceRecords.filter(r => r.status === 'absent').length,
-        unmarked: attendanceRecords.filter(r => r.status === 'unmarked').length,
-        total: attendanceRecords.length
+        present: filteredAttendanceRecords.filter(r => r.status === 'present').length,
+        absent: filteredAttendanceRecords.filter(r => r.status === 'absent').length,
+        unmarked: filteredAttendanceRecords.filter(r => r.status === 'unmarked').length,
+        total: filteredAttendanceRecords.length
     }
 
     // Generate calendar for current month
@@ -523,24 +546,39 @@ export default function TeacherMarksAttendanceManagement({
             {/* Course Filter */}
             <Card>
                 <CardContent className="pt-6">
-                    <div className="flex gap-4 items-center">
-                        <label htmlFor="course-select" className="text-sm font-medium">
-                            Select Course:
-                        </label>
-                        <select
-                            id="course-select"
-                            value={selectedCourse}
-                            onChange={(e) => setSelectedCourse(e.target.value)}
-                            className="rounded-md border border-gray-300 px-3 py-2 text-sm min-w-[300px]"
-                        >
-                            <option value="all">All My Courses</option>
-                            {courses.map((course) => (
-                                <option key={course.offeringId} value={course.offeringId}>
-                                    {course.course.code} - {course.course.name}
-                                    {course.section && ` (Section ${course.section.name})`}
-                                </option>
-                            ))}
-                        </select>
+                    <div className="flex gap-4 items-center flex-wrap">
+                        <div className="flex gap-4 items-center">
+                            <label htmlFor="course-select" className="text-sm font-medium">
+                                Select Course:
+                            </label>
+                            <select
+                                id="course-select"
+                                value={selectedCourse}
+                                onChange={(e) => setSelectedCourse(e.target.value)}
+                                className="rounded-md border border-gray-300 px-3 py-2 text-sm min-w-[300px]"
+                            >
+                                <option value="all">All My Courses</option>
+                                {courses.map((course) => (
+                                    <option key={course.offeringId} value={course.offeringId}>
+                                        {course.course.code} - {course.course.name}
+                                        {course.section && ` (Section ${course.section.name})`}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                        <div className="flex gap-4 items-center">
+                            <label htmlFor="student-search" className="text-sm font-medium">
+                                Search Student:
+                            </label>
+                            <Input
+                                id="student-search"
+                                type="text"
+                                placeholder="Search by USN, name, or course..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="min-w-[250px]"
+                            />
+                        </div>
                         {activeTab === 'marks' && (
                             <Button onClick={exportMarks} variant="outline" size="sm">
                                 <Download className="w-4 h-4 mr-2" />
@@ -608,30 +646,92 @@ export default function TeacherMarksAttendanceManagement({
                                     </tr>
                                 </thead>
                                 <tbody className="bg-white">
-                                    {marks.map((mark) => (
-                                        <tr key={mark.enrollmentId} className="hover:bg-gray-50">
-                                            <td className="border border-gray-300 px-3 py-2">
-                                                <div className="font-mono text-sm font-bold">{mark.usn}</div>
-                                                <div className="text-sm text-gray-600">{mark.student_name}</div>
+                                    {filteredMarks.length === 0 ? (
+                                        <tr>
+                                            <td colSpan={12} className="border border-gray-300 px-6 py-8 text-center">
+                                                <div className="text-gray-500">
+                                                    {searchTerm.trim() ? (
+                                                        <div>
+                                                            <BookOpen className="w-8 h-8 mx-auto mb-2 text-gray-400" />
+                                                            <p className="font-medium">No students found</p>
+                                                            <p className="text-sm">No students match "{searchTerm}". Try a different search term.</p>
+                                                        </div>
+                                                    ) : (
+                                                        <div>
+                                                            <BookOpen className="w-8 h-8 mx-auto mb-2 text-gray-400" />
+                                                            <p className="font-medium">No marks data available</p>
+                                                            <p className="text-sm">Select a course to view and edit student marks</p>
+                                                        </div>
+                                                    )}
+                                                </div>
                                             </td>
-                                            <td className="border border-gray-300 px-3 py-2">
-                                                <div className="font-mono text-sm font-bold">{mark.course_code}</div>
-                                                <div className="text-sm text-gray-600">{mark.course_name}</div>
-                                            </td>
-                                            {/* Theory Marks */}
-                                            {['mse1_marks', 'mse2_marks', 'mse3_marks', 'task1_marks', 'task2_marks', 'task3_marks'].map((field) => {
-                                                const isMse3 = field === 'mse3_marks';
-                                                const mse1 = mark.mse1_marks || 0;
-                                                const mse2 = mark.mse2_marks || 0;
-                                                const isMse3Ineligible = isMse3 && (mse1 + mse2) >= 20;
+                                        </tr>
+                                    ) : (
+                                        filteredMarks.map((mark) => (
+                                            <tr key={mark.enrollmentId} className="hover:bg-gray-50">
+                                                <td className="border border-gray-300 px-3 py-2">
+                                                    <div className="font-mono text-sm font-bold">{mark.usn}</div>
+                                                    <div className="text-sm text-gray-600">{mark.student_name}</div>
+                                                </td>
+                                                <td className="border border-gray-300 px-3 py-2">
+                                                    <div className="font-mono text-sm font-bold">{mark.course_code}</div>
+                                                    <div className="text-sm text-gray-600">{mark.course_name}</div>
+                                                </td>
+                                                {/* Theory Marks */}
+                                                {['mse1_marks', 'mse2_marks', 'mse3_marks', 'task1_marks', 'task2_marks', 'task3_marks'].map((field) => {
+                                                    const isMse3 = field === 'mse3_marks';
+                                                    const mse1 = mark.mse1_marks || 0;
+                                                    const mse2 = mark.mse2_marks || 0;
+                                                    const isMse3Ineligible = isMse3 && (mse1 + mse2) >= 20;
 
-                                                return (
+                                                    return (
+                                                        <td key={field} className="border border-gray-300 px-3 py-2">
+                                                            {editingMarkId === mark.enrollmentId && editingMarkField === field && !isMse3Ineligible ? (
+                                                                <Input
+                                                                    type="number"
+                                                                    min="0"
+                                                                    max="20"
+                                                                    defaultValue={mark[field as keyof StudentMark] as string || ''}
+                                                                    className="w-16 h-8 text-sm"
+                                                                    onBlur={(e) => handleMarkEdit(mark.enrollmentId, field, e.target.value)}
+                                                                    onKeyDown={(e) => {
+                                                                        if (e.key === 'Enter') {
+                                                                            handleMarkEdit(mark.enrollmentId, field, (e.target as HTMLInputElement).value)
+                                                                        }
+                                                                    }}
+                                                                    autoFocus
+                                                                />
+                                                            ) : (
+                                                                <button
+                                                                    onClick={() => {
+                                                                        if (!isMse3Ineligible) {
+                                                                            setEditingMarkId(mark.enrollmentId)
+                                                                            setEditingMarkField(field)
+                                                                        }
+                                                                    }}
+                                                                    className={`w-full text-left p-1 rounded ${isMse3Ineligible
+                                                                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                                                        : 'hover:bg-emerald-50'
+                                                                        }`}
+                                                                    disabled={isMse3Ineligible}
+                                                                    title={isMse3Ineligible ? 'MSE3 not allowed when MSE1 + MSE2 ≥ 20' : ''}
+                                                                >
+                                                                    {isMse3Ineligible ? '-' : (mark[field as keyof StudentMark] as string || '-')}
+                                                                </button>
+                                                            )}
+                                                        </td>
+                                                    );
+                                                })}
+                                                <td className="border border-gray-300 px-3 py-2 font-bold text-emerald-600">{mark.theory_total}</td>
+
+                                                {/* Lab Marks */}
+                                                {['record_marks', 'continuous_evaluation_marks', 'lab_mse_marks'].map((field) => (
                                                     <td key={field} className="border border-gray-300 px-3 py-2">
-                                                        {editingMarkId === mark.enrollmentId && editingMarkField === field && !isMse3Ineligible ? (
+                                                        {editingMarkId === mark.enrollmentId && editingMarkField === field ? (
                                                             <Input
                                                                 type="number"
                                                                 min="0"
-                                                                max="20"
+                                                                max={field === 'record_marks' ? '10' : '20'}
                                                                 defaultValue={mark[field as keyof StudentMark] as string || ''}
                                                                 className="w-16 h-8 text-sm"
                                                                 onBlur={(e) => handleMarkEdit(mark.enrollmentId, field, e.target.value)}
@@ -645,64 +745,24 @@ export default function TeacherMarksAttendanceManagement({
                                                         ) : (
                                                             <button
                                                                 onClick={() => {
-                                                                    if (!isMse3Ineligible) {
-                                                                        setEditingMarkId(mark.enrollmentId)
-                                                                        setEditingMarkField(field)
-                                                                    }
+                                                                    setEditingMarkId(mark.enrollmentId)
+                                                                    setEditingMarkField(field)
                                                                 }}
-                                                                className={`w-full text-left p-1 rounded ${isMse3Ineligible
-                                                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                                                    : 'hover:bg-emerald-50'
-                                                                    }`}
-                                                                disabled={isMse3Ineligible}
-                                                                title={isMse3Ineligible ? 'MSE3 not allowed when MSE1 + MSE2 ≥ 20' : ''}
+                                                                className="w-full text-left hover:bg-emerald-50 p-1 rounded"
                                                             >
-                                                                {isMse3Ineligible ? '-' : (mark[field as keyof StudentMark] as string || '-')}
+                                                                {mark[field as keyof StudentMark] as string || '-'}
                                                             </button>
                                                         )}
                                                     </td>
-                                                );
-                                            })}
-                                            <td className="border border-gray-300 px-3 py-2 font-bold text-emerald-600">{mark.theory_total}</td>
+                                                ))}
+                                                <td className="border border-gray-300 px-3 py-2 font-bold text-green-600">{mark.lab_total}</td>
 
-                                            {/* Lab Marks */}
-                                            {['record_marks', 'continuous_evaluation_marks', 'lab_mse_marks'].map((field) => (
-                                                <td key={field} className="border border-gray-300 px-3 py-2">
-                                                    {editingMarkId === mark.enrollmentId && editingMarkField === field ? (
-                                                        <Input
-                                                            type="number"
-                                                            min="0"
-                                                            max={field === 'record_marks' ? '10' : '20'}
-                                                            defaultValue={mark[field as keyof StudentMark] as string || ''}
-                                                            className="w-16 h-8 text-sm"
-                                                            onBlur={(e) => handleMarkEdit(mark.enrollmentId, field, e.target.value)}
-                                                            onKeyDown={(e) => {
-                                                                if (e.key === 'Enter') {
-                                                                    handleMarkEdit(mark.enrollmentId, field, (e.target as HTMLInputElement).value)
-                                                                }
-                                                            }}
-                                                            autoFocus
-                                                        />
-                                                    ) : (
-                                                        <button
-                                                            onClick={() => {
-                                                                setEditingMarkId(mark.enrollmentId)
-                                                                setEditingMarkField(field)
-                                                            }}
-                                                            className="w-full text-left hover:bg-emerald-50 p-1 rounded"
-                                                        >
-                                                            {mark[field as keyof StudentMark] as string || '-'}
-                                                        </button>
-                                                    )}
+                                                <td className="border border-gray-300 px-3 py-2 text-xs text-gray-500">
+                                                    {new Date(mark.last_updated_at).toLocaleDateString()}
                                                 </td>
-                                            ))}
-                                            <td className="border border-gray-300 px-3 py-2 font-bold text-green-600">{mark.lab_total}</td>
-
-                                            <td className="border border-gray-300 px-3 py-2 text-xs text-gray-500">
-                                                {new Date(mark.last_updated_at).toLocaleDateString()}
-                                            </td>
-                                        </tr>
-                                    ))}
+                                            </tr>
+                                        ))
+                                    )}
                                 </tbody>
                             </table>
                         </div>
@@ -800,11 +860,17 @@ export default function TeacherMarksAttendanceManagement({
                                         </tr>
                                     </thead>
                                     <tbody className="bg-white">
-                                        {attendanceRecords.length === 0 ? (
+                                        {filteredAttendanceRecords.length === 0 ? (
                                             <tr>
                                                 <td colSpan={4} className="border border-gray-300 px-6 py-8 text-center">
                                                     <div className="text-gray-500">
-                                                        {selectedCourse === 'all' ? (
+                                                        {searchTerm.trim() ? (
+                                                            <div>
+                                                                <Users className="w-8 h-8 mx-auto mb-2 text-gray-400" />
+                                                                <p className="font-medium">No students found</p>
+                                                                <p className="text-sm">No students match "{searchTerm}". Try a different search term.</p>
+                                                            </div>
+                                                        ) : selectedCourse === 'all' ? (
                                                             <div>
                                                                 <Users className="w-8 h-8 mx-auto mb-2 text-gray-400" />
                                                                 <p className="font-medium">Select a specific course to mark attendance</p>
@@ -821,7 +887,7 @@ export default function TeacherMarksAttendanceManagement({
                                                 </td>
                                             </tr>
                                         ) : (
-                                            attendanceRecords.map((record) => (
+                                            filteredAttendanceRecords.map((record) => (
                                                 <tr key={record.id} className="hover:bg-gray-50">
                                                     <td className="border border-gray-300 px-3 py-2 font-mono text-sm">{record.usn}</td>
                                                     <td className="border border-gray-300 px-3 py-2 font-medium">{record.student_name}</td>
