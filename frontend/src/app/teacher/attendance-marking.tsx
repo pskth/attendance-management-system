@@ -3,9 +3,9 @@
 
 import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { 
-  Users, 
-  UserCheck, 
+import {
+  Users,
+  UserCheck,
   UserX,
   Save
 } from 'lucide-react'
@@ -38,11 +38,10 @@ export function AttendanceMarking({
   selectedYear,
   selectedDepartment,
   selectedSection
-}: AttendanceMarkingProps) {  const [students, setStudents] = useState<Student[]>(mockAttendanceStudents)
+}: AttendanceMarkingProps) {
+  const [students, setStudents] = useState<Student[]>(mockAttendanceStudents)
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
-  const [topicCovered, setTopicCovered] = useState('')
-  const [hoursTaken, setHoursTaken] = useState('')
 
   // Load student data when course offering changes
   const loadStudentData = async () => {
@@ -51,7 +50,7 @@ export function AttendanceMarking({
       // Replace with actual API call
       // const data = await fetchCourseStudents(courseOffering.offering_id, teacherId)
       // setStudents(data)
-      
+
       // For open electives, load students from multiple departments
       if (courseOffering.course_code.startsWith('OE')) {
         // Mock data for open elective students from mixed departments
@@ -60,7 +59,7 @@ export function AttendanceMarking({
         // Regular departmental course students
         setStudents(mockAttendanceStudents)
       }
-      
+
       // Simulate API delay
       await new Promise(resolve => setTimeout(resolve, 500))
     } catch (error) {
@@ -76,8 +75,8 @@ export function AttendanceMarking({
   }, [courseOffering.course_id, courseOffering.course_code])
 
   const markAttendance = (studentId: string, status: 'present' | 'absent') => {
-    setStudents(prev => prev.map(student => 
-      student.student_id === studentId 
+    setStudents(prev => prev.map(student =>
+      student.student_id === studentId
         ? { ...student, attendance_status: status }
         : student
     ))
@@ -90,17 +89,6 @@ export function AttendanceMarking({
   }
 
   const saveAttendance = async () => {
-    // Validate required fields
-    if (!topicCovered.trim()) {
-      alert('Please enter the topic covered for this class.')
-      return
-    }
-    
-    if (!hoursTaken.trim() || parseFloat(hoursTaken) < 1) {
-      alert('Please enter valid hours taken for this class (minimum 1 hour).')
-      return
-    }
-
     setSaving(true)
     try {
       // Replace with actual API call
@@ -110,11 +98,11 @@ export function AttendanceMarking({
       //   teacher_id: teacherId,
       //   class_date: currentDate.toISOString().split('T')[0],
       //   period_number: 1, // Get from actual period selection
-      //   syllabus_covered: topicCovered,
-      //   hours_taken: parseFloat(hoursTaken),
+      //   syllabus_covered: 'Class attendance recorded',
+      //   hours_taken: 1,
       //   status: 'held'
       // })
-      
+
       // Then create attendance records for each student
       // await Promise.all(students.map(student => 
       //   createAttendanceRecord({
@@ -123,17 +111,15 @@ export function AttendanceMarking({
       //     status: student.attendance_status === 'not_marked' ? 'absent' : student.attendance_status
       //   })
       // ))
-      
+
       console.log('Saving attendance with:', {
-        topic: topicCovered,
-        hours: hoursTaken,
         students: students.map(s => ({ id: s.student_id, name: s.name, status: s.attendance_status }))
       })
-      
+
       // Simulate API delay
       await new Promise(resolve => setTimeout(resolve, 1000))
-      
-      alert(`Attendance saved successfully!\nTopic: ${topicCovered}\nHours: ${hoursTaken}`)
+
+      alert('Attendance saved successfully!')
     } catch (error) {
       console.error('Error saving attendance:', error)
       alert('Error saving attendance. Please try again.')
@@ -214,60 +200,18 @@ export function AttendanceMarking({
               <span>Class Attendance</span>
               <span>{attendancePercentage.toFixed(1)}%</span>
             </div>            <div className="w-full bg-gray-200 rounded-full h-1 overflow-hidden">
-              <div 
-                className={`h-1 rounded-full bg-emerald-500 transition-all duration-300 ${
-                  attendancePercentage >= 90 ? 'w-full' :
-                  attendancePercentage >= 80 ? 'w-4/5' :
-                  attendancePercentage >= 70 ? 'w-3/4' :
-                  attendancePercentage >= 60 ? 'w-3/5' :
-                  attendancePercentage >= 50 ? 'w-1/2' :
-                  attendancePercentage >= 40 ? 'w-2/5' :
-                  attendancePercentage >= 30 ? 'w-1/3' :
-                  attendancePercentage >= 20 ? 'w-1/5' :
-                  attendancePercentage >= 10 ? 'w-1/12' : 'w-0'
-                }`}
+              <div
+                className={`h-1 rounded-full bg-emerald-500 transition-all duration-300 ${attendancePercentage >= 90 ? 'w-full' :
+                    attendancePercentage >= 80 ? 'w-4/5' :
+                      attendancePercentage >= 70 ? 'w-3/4' :
+                        attendancePercentage >= 60 ? 'w-3/5' :
+                          attendancePercentage >= 50 ? 'w-1/2' :
+                            attendancePercentage >= 40 ? 'w-2/5' :
+                              attendancePercentage >= 30 ? 'w-1/3' :
+                                attendancePercentage >= 20 ? 'w-1/5' :
+                                  attendancePercentage >= 10 ? 'w-1/12' : 'w-0'
+                  }`}
               />            </div>          </div>
-        </CardContent>
-      </Card>
-
-      {/* Topic and Hours Input */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg sm:text-xl">Class Details</CardTitle>
-          <CardDescription className="text-sm sm:text-base">Enter the topic covered and hours taken for this class</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-            <div className="lg:col-span-2">
-              <label htmlFor="topicCovered" className="block text-sm sm:text-base font-medium text-gray-700 mb-1">
-                Topic Covered
-              </label>
-              <textarea
-                id="topicCovered"
-                value={topicCovered}
-                onChange={(e) => setTopicCovered(e.target.value)}
-                placeholder="Enter the topic(s) covered in this class..."
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-                rows={3}
-              />
-            </div>
-            <div>
-              <label htmlFor="hoursTaken" className="block text-sm sm:text-base font-medium text-gray-700 mb-1">
-                Hours Taken
-              </label>
-              <input
-                id="hoursTaken"
-                type="number"
-                value={hoursTaken}
-                onChange={(e) => setHoursTaken(e.target.value)}
-                placeholder="Enter hours"
-                min="1"
-                max="8"
-                step="1"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-              />
-            </div>
-          </div>
         </CardContent>
       </Card>
 
@@ -289,7 +233,7 @@ export function AttendanceMarking({
               </thead>
               <tbody>
                 {students.map((student) => (
-                  <tr 
+                  <tr
                     key={student.student_id}
                     className="border-b border-gray-100 hover:bg-gray-50"
                   >
@@ -298,11 +242,10 @@ export function AttendanceMarking({
                     <td className="py-3 px-2 sm:px-4 text-center">
                       <button
                         onClick={() => markAttendance(student.student_id, student.attendance_status === 'present' ? 'absent' : 'present')}
-                        className={`px-3 sm:px-4 py-2 rounded text-sm sm:text-base font-medium transition-colors whitespace-nowrap ${
-                          student.attendance_status === 'present'
+                        className={`px-3 sm:px-4 py-2 rounded text-sm sm:text-base font-medium transition-colors whitespace-nowrap ${student.attendance_status === 'present'
                             ? 'bg-green-600 text-white hover:bg-green-700'
                             : 'bg-red-600 text-white hover:bg-red-700'
-                        }`}
+                          }`}
                       >
                         {student.attendance_status === 'present' ? 'Present' : 'Absent'}
                       </button>
@@ -320,7 +263,7 @@ export function AttendanceMarking({
         <CardContent className="py-4">
           <button
             onClick={saveAttendance}
-            disabled={saving || !topicCovered.trim() || !hoursTaken.trim()}
+            disabled={saving}
             className="w-full py-3 px-4 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors flex items-center justify-center space-x-2"
           >
             <Save className="w-5 h-5" />
