@@ -48,7 +48,7 @@ interface AttendanceRecord {
     studentId: string
     usn: string
     student_name: string
-    status: 'present' | 'absent' | 'not_marked'
+    status: 'present' | 'absent' | 'unmarked'
     courseId?: string
     courseName?: string
 }
@@ -253,34 +253,30 @@ export default function TeacherMarksAttendanceManagement({
     }
 
     const loadAttendanceData = async () => {
+        if (selectedCourse === 'all') {
+            setAttendanceRecords([])
+            return
+        }
+
         setLoading(true)
         setError(null)
         try {
-            // Load attendance for the selected date
-            const response = await TeacherAPI.getAttendanceByDate(
-                selectedDate,
-                selectedCourse !== 'all' ? selectedCourse : undefined
-            )
+            // Load student attendance for the selected date and course
+            const response = await TeacherAPI.getStudentAttendance(selectedCourse, selectedDate)
 
             if (response.status === 'success') {
                 const transformedAttendance: AttendanceRecord[] = response.data.map((item: any) => ({
-                    id: item.id,
-                    date: item.date,
+                    id: item.attendanceRecordId || `temp-${item.studentId}`, // Use temp ID if no record exists yet
+                    date: selectedDate,
                     studentId: item.studentId,
                     usn: item.usn || '',
                     student_name: item.student_name || '',
-                    status: item.status,
+                    status: item.status as 'present' | 'absent' | 'unmarked',
                     courseId: item.courseId,
                     courseName: item.courseName
                 }))
 
-                // Filter to only show records for courses assigned to this teacher
-                const teacherCourseIds = courses.map(c => c.course.id)
-                const filteredAttendance = transformedAttendance.filter(record =>
-                    !record.courseId || teacherCourseIds.includes(record.courseId)
-                )
-
-                setAttendanceRecords(filteredAttendance)
+                setAttendanceRecords(transformedAttendance)
             }
         } catch (err) {
             setError('Failed to load attendance data')
@@ -350,35 +346,33 @@ export default function TeacherMarksAttendanceManagement({
         const record = attendanceRecords.find(r => r.id === recordId)
         if (!record) return
 
+        if (selectedCourse === 'all') {
+            setError('Please select a specific course to mark attendance')
+            return
+        }
+
         try {
-            if (recordId.startsWith('pending-') || record.status === 'not_marked') {
-                // Create new attendance record
-                const response = await TeacherAPI.createAttendanceRecord({
-                    studentId: record.studentId,
-                    date: record.date,
-                    status: 'present',
-                    courseId: record.courseId
-                })
-
-                if (response.status === 'success') {
-                    setAttendanceRecords(prev => prev.map(r =>
-                        r.id === recordId ? {
-                            ...r,
-                            status: 'present',
-                            id: response.data.id
-                        } : r
-                    ))
-                }
+            // Cycle through the three states: unmarked -> present -> absent -> unmarked
+            let newStatus: 'present' | 'absent' | 'unmarked'
+            if (record.status === 'unmarked') {
+                newStatus = 'present'
+            } else if (record.status === 'present') {
+                newStatus = 'absent'
             } else {
-                // Toggle existing attendance record
-                const newStatus = record.status === 'present' ? 'absent' : 'present'
-                const response = await TeacherAPI.updateAttendance(recordId, newStatus)
+                newStatus = 'unmarked'
+            }
 
-                if (response.status === 'success') {
-                    setAttendanceRecords(prev => prev.map(r =>
-                        r.id === recordId ? { ...r, status: newStatus } : r
-                    ))
-                }
+            const response = await TeacherAPI.updateStudentAttendance({
+                studentId: record.studentId,
+                courseId: selectedCourse,
+                date: selectedDate,
+                status: newStatus
+            })
+
+            if (response.status === 'success') {
+                setAttendanceRecords(prev => prev.map(r =>
+                    r.id === recordId ? { ...r, status: newStatus } : r
+                ))
             }
         } catch (err) {
             console.error('Error updating attendance:', err)
@@ -387,47 +381,6 @@ export default function TeacherMarksAttendanceManagement({
     }
 
     // Create attendance session for selected date and course
-    const createAttendanceSession = async () => {
-        if (selectedCourse === 'all') {
-            setError('Please select a specific course to create attendance session')
-            return
-        }
-
-        setLoading(true)
-        setError(null)
-
-        try {
-            const response = await TeacherAPI.createAttendanceSession({
-                courseId: selectedCourse,
-                date: selectedDate,
-                periodNumber: 1,
-                syllabusCovered: ''
-            })
-
-            if (response.status === 'success') {
-                // Convert the new session data to our AttendanceRecord format
-                const newRecords: AttendanceRecord[] = response.data.records.map((record: any) => ({
-                    id: record.id,
-                    date: selectedDate,
-                    studentId: record.studentId,
-                    usn: record.usn,
-                    student_name: record.student_name,
-                    status: record.status as 'present' | 'absent',
-                    courseId: selectedCourse,
-                    courseName: response.data.course?.name || 'Unknown Course'
-                }))
-
-                setAttendanceRecords(newRecords)
-                console.log(`✅ ${response.message}`)
-            }
-        } catch (err) {
-            console.error('Error creating attendance session:', err)
-            setError('Failed to create attendance session')
-        } finally {
-            setLoading(false)
-        }
-    }
-
     // Export marks functionality
     const exportMarks = () => {
         const csvContent = [
@@ -463,6 +416,7 @@ export default function TeacherMarksAttendanceManagement({
     const attendanceSummary = {
         present: attendanceRecords.filter(r => r.status === 'present').length,
         absent: attendanceRecords.filter(r => r.status === 'absent').length,
+        unmarked: attendanceRecords.filter(r => r.status === 'unmarked').length,
         total: attendanceRecords.length
     }
 
@@ -820,30 +774,17 @@ export default function TeacherMarksAttendanceManagement({
                                         Attendance for {new Date(selectedDate).toLocaleDateString()}
                                     </CardTitle>
                                     <CardDescription>
-                                        {attendanceRecords.length > 0 ?
-                                            `${attendanceSummary.present} present, ${attendanceSummary.absent} absent` :
-                                            'No attendance data for this date'
-                                        }
+                                        {attendanceRecords.length > 0 ? (
+                                            <>
+                                                {attendanceSummary.present} present, {attendanceSummary.absent} absent
+                                                {attendanceSummary.unmarked > 0 && `, ${attendanceSummary.unmarked} unmarked`}
+                                            </>
+                                        ) : selectedCourse === 'all' ? (
+                                            'Select a specific course to view attendance'
+                                        ) : (
+                                            'All students are unmarked for this date - click to mark attendance'
+                                        )}
                                     </CardDescription>
-                                </div>
-                                <div className="flex gap-2">
-                                    {attendanceRecords.length === 0 && selectedCourse !== 'all' && (
-                                        <Button
-                                            onClick={createAttendanceSession}
-                                            size="sm"
-                                            className="bg-blue-600 hover:bg-blue-700"
-                                            disabled={loading}
-                                        >
-                                            <Users className="w-4 h-4 mr-2" />
-                                            Create Attendance Session
-                                        </Button>
-                                    )}
-                                    {attendanceRecords.length > 0 && (
-                                        <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700">
-                                            <Save className="w-4 h-4 mr-2" />
-                                            Save Changes
-                                        </Button>
-                                    )}
                                 </div>
                             </div>
                         </CardHeader>
@@ -867,13 +808,13 @@ export default function TeacherMarksAttendanceManagement({
                                                             <div>
                                                                 <Users className="w-8 h-8 mx-auto mb-2 text-gray-400" />
                                                                 <p className="font-medium">Select a specific course to mark attendance</p>
-                                                                <p className="text-sm">Choose a course from the dropdown above to create an attendance session</p>
+                                                                <p className="text-sm">Choose a course from the dropdown above to view and mark student attendance</p>
                                                             </div>
                                                         ) : (
                                                             <div>
                                                                 <Calendar className="w-8 h-8 mx-auto mb-2 text-gray-400" />
-                                                                <p className="font-medium">No attendance session for this date</p>
-                                                                <p className="text-sm">Click "Create Attendance Session" to start marking attendance</p>
+                                                                <p className="font-medium">Loading attendance data...</p>
+                                                                <p className="text-sm">Attendance data will appear automatically when loaded</p>
                                                             </div>
                                                         )}
                                                     </div>
@@ -899,11 +840,11 @@ export default function TeacherMarksAttendanceManagement({
                                                                     : 'bg-gray-100 text-gray-800 hover:bg-gray-200 cursor-pointer'
                                                                 } hover:scale-105`}
                                                             title={
-                                                                record.status === 'not_marked'
+                                                                record.status === 'unmarked'
                                                                     ? 'Click to mark as Present'
                                                                     : record.status === 'present'
                                                                         ? 'Click to mark as Absent'
-                                                                        : 'Click to mark as Present'
+                                                                        : 'Click to mark as Unmarked'
                                                             }
                                                         >
                                                             {record.status === 'present' ? (
@@ -913,7 +854,7 @@ export default function TeacherMarksAttendanceManagement({
                                                             ) : (
                                                                 <Clock className="w-3 h-3 mr-1" />
                                                             )}
-                                                            {record.status === 'not_marked' ? 'Not Marked' : record.status === 'present' ? 'Present' : 'Absent'}
+                                                            {record.status === 'unmarked' ? 'Unmarked' : record.status === 'present' ? 'Present' : 'Absent'}
                                                         </button>
                                                     </td>
                                                 </tr>

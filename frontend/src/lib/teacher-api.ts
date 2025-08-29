@@ -527,4 +527,42 @@ export class TeacherAPI {
 
         return await response.json();
     }
+
+    static async getStudentAttendance(courseId: string, date: string): Promise<{ status: string; data: any[] }> {
+        const params = new URLSearchParams();
+        params.append('courseId', courseId);
+        params.append('date', date);
+
+        const response = await fetch(`${API_BASE_URL}/teacher/attendance/students?${params.toString()}`, {
+            method: 'GET',
+            headers: getAuthHeaders()
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+        }
+
+        return await response.json();
+    }
+
+    static async updateStudentAttendance(data: {
+        studentId: string;
+        courseId: string;
+        date: string;
+        status: 'present' | 'absent' | 'unmarked';
+    }): Promise<{ status: string; data: any }> {
+        const response = await fetch(`${API_BASE_URL}/teacher/attendance/student`, {
+            method: 'PUT',
+            headers: getAuthHeaders(),
+            body: JSON.stringify(data)
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+        }
+
+        return await response.json();
+    }
 }

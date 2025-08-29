@@ -946,6 +946,149 @@ router.get('/marks', authenticateToken, async (req: AuthenticatedRequest, res) =
     }
 });
 
+// Get student attendance for a specific date and course (simplified - no sessions needed)
+router.get('/attendance/students', authenticateToken, async (req: AuthenticatedRequest, res) => {
+    try {
+        const prisma = DatabaseService.getInstance();
+        const userId = req.user?.id;
+        const { date, courseId } = req.query;
+
+        if (!userId) {
+            return res.status(401).json({ status: 'error', message: 'User authentication required' });
+        }
+
+        if (!date || !courseId) {
+            return res.status(400).json({ status: 'error', message: 'Date and courseId parameters are required' });
+        }
+
+        // Get teacher's information
+        const teacher = await prisma.teacher.findFirst({
+            where: { userId: userId }
+        });
+
+        if (!teacher) {
+            return res.status(403).json({ status: 'error', message: 'Teacher access required' });
+        }
+
+        // Find the course offering (handle both offering ID and course ID)
+        let courseOffering = await prisma.courseOffering.findFirst({
+            where: {
+                id: courseId as string,
+                teacherId: teacher.id
+            }
+        });
+
+        if (!courseOffering) {
+            courseOffering = await prisma.courseOffering.findFirst({
+                where: {
+                    courseId: courseId as string,
+                    teacherId: teacher.id
+                }
+            });
+        }
+
+        if (!courseOffering) {
+            return res.status(403).json({ status: 'error', message: 'Access denied to this course' });
+        }
+
+        const classDate = new Date(date as string);
+
+        // Get all enrolled students for this course
+        const enrollments = await prisma.studentEnrollment.findMany({
+            where: {
+                offeringId: courseOffering.id
+            },
+            include: {
+                student: {
+                    include: {
+                        user: {
+                            select: {
+                                id: true,
+                                name: true,
+                                email: true
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Get existing attendance records for this date and course
+        const validStudentIds = enrollments
+            .map(e => e.studentId)
+            .filter((id): id is string => id !== null);
+
+        const existingAttendance = await prisma.attendanceRecord.findMany({
+            where: {
+                studentId: { in: validStudentIds },
+                attendance: {
+                    classDate: classDate,
+                    offeringId: courseOffering.id
+                }
+            },
+            include: {
+                student: {
+                    include: {
+                        user: {
+                            select: {
+                                id: true,
+                                name: true,
+                                email: true
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Create a map of existing attendance records
+        const attendanceMap = new Map();
+        existingAttendance.forEach(record => {
+            attendanceMap.set(record.studentId, record);
+        });
+
+        // Build the response with all students and their attendance status
+        const studentsWithAttendance = enrollments
+            .filter(enrollment => enrollment.student && enrollment.studentId)
+            .map(enrollment => {
+                const existingRecord = attendanceMap.get(enrollment.studentId);
+                return {
+                    studentId: enrollment.studentId!,
+                    usn: enrollment.student!.usn || enrollment.student!.user?.email || 'N/A',
+                    student_name: enrollment.student!.user?.name || 'Unknown',
+                    status: existingRecord ? existingRecord.status : 'unmarked', // Default to unmarked
+                    attendanceRecordId: existingRecord ? existingRecord.id : null,
+                    courseId: courseOffering.courseId,
+                    courseName: 'Course Name' // Will be populated later if needed
+                };
+            });
+
+        // Get course details
+        const course = await prisma.course.findUnique({
+            where: { id: courseOffering.courseId },
+            select: { name: true, code: true }
+        });
+
+        // Update course name in response
+        studentsWithAttendance.forEach(student => {
+            student.courseName = course ? `${course.code} - ${course.name}` : 'Unknown Course';
+        });
+
+        res.json({
+            status: 'success',
+            data: studentsWithAttendance
+        });
+
+    } catch (error) {
+        console.error('Error fetching student attendance:', error);
+        res.status(500).json({
+            status: 'error',
+            message: 'Failed to fetch student attendance',
+            error: error instanceof Error ? error.message : 'Unknown error'
+        });
+    }
+});
+
 // Get attendance by date for teacher's courses
 router.get('/attendance', authenticateToken, async (req: AuthenticatedRequest, res) => {
     try {
@@ -1076,6 +1219,147 @@ router.get('/attendance', authenticateToken, async (req: AuthenticatedRequest, r
         res.status(500).json({
             status: 'error',
             message: 'Failed to fetch attendance data',
+            error: error instanceof Error ? error.message : 'Unknown error'
+        });
+    }
+});
+
+// Update individual student attendance (creates records automatically if they don't exist)
+router.put('/attendance/student', authenticateToken, async (req: AuthenticatedRequest, res) => {
+    try {
+        const prisma = DatabaseService.getInstance();
+        const userId = req.user?.id;
+        const { studentId, courseId, date, status } = req.body;
+
+        if (!userId) {
+            return res.status(401).json({ status: 'error', message: 'User authentication required' });
+        }
+
+        if (!studentId || !courseId || !date || !status) {
+            return res.status(400).json({
+                status: 'error',
+                message: 'studentId, courseId, date, and status are required'
+            });
+        }
+
+        // Validate status
+        if (!['present', 'absent', 'unmarked'].includes(status)) {
+            return res.status(400).json({
+                status: 'error',
+                message: 'Status must be present, absent, or unmarked'
+            });
+        }
+
+        // Get teacher's information
+        const teacher = await prisma.teacher.findFirst({
+            where: { userId: userId }
+        });
+
+        if (!teacher) {
+            return res.status(403).json({ status: 'error', message: 'Teacher access required' });
+        }
+
+        // Find the course offering (handle both offering ID and course ID)
+        let courseOffering = await prisma.courseOffering.findFirst({
+            where: {
+                id: courseId,
+                teacherId: teacher.id
+            }
+        });
+
+        if (!courseOffering) {
+            courseOffering = await prisma.courseOffering.findFirst({
+                where: {
+                    courseId: courseId,
+                    teacherId: teacher.id
+                }
+            });
+        }
+
+        if (!courseOffering) {
+            return res.status(403).json({ status: 'error', message: 'Access denied to this course' });
+        }
+
+        // Verify student is enrolled in this course
+        const enrollment = await prisma.studentEnrollment.findFirst({
+            where: {
+                studentId: studentId,
+                offeringId: courseOffering.id
+            }
+        });
+
+        if (!enrollment) {
+            return res.status(400).json({
+                status: 'error',
+                message: 'Student is not enrolled in this course'
+            });
+        }
+
+        const classDate = new Date(date);
+
+        // Find or create attendance session for this date and course
+        let attendanceSession = await prisma.attendance.findFirst({
+            where: {
+                offeringId: courseOffering.id,
+                classDate: classDate,
+                teacherId: teacher.id
+            }
+        });
+
+        if (!attendanceSession) {
+            // Create attendance session automatically
+            attendanceSession = await prisma.attendance.create({
+                data: {
+                    offeringId: courseOffering.id,
+                    teacherId: teacher.id,
+                    classDate: classDate,
+                    periodNumber: 1,
+                    syllabusCovered: '',
+                    status: 'confirmed'
+                }
+            });
+        }
+
+        // Find or create attendance record for this student
+        let attendanceRecord = await prisma.attendanceRecord.findFirst({
+            where: {
+                attendanceId: attendanceSession.id,
+                studentId: studentId
+            }
+        });
+
+        if (attendanceRecord) {
+            // Update existing record
+            attendanceRecord = await prisma.attendanceRecord.update({
+                where: { id: attendanceRecord.id },
+                data: { status: status as any }
+            });
+        } else {
+            // Create new record
+            attendanceRecord = await prisma.attendanceRecord.create({
+                data: {
+                    attendanceId: attendanceSession.id,
+                    studentId: studentId,
+                    status: status as any
+                }
+            });
+        }
+
+        res.json({
+            status: 'success',
+            data: {
+                recordId: attendanceRecord.id,
+                studentId: attendanceRecord.studentId,
+                status: attendanceRecord.status,
+                date: classDate
+            }
+        });
+
+    } catch (error) {
+        console.error('Error updating student attendance:', error);
+        res.status(500).json({
+            status: 'error',
+            message: 'Failed to update student attendance',
             error: error instanceof Error ? error.message : 'Unknown error'
         });
     }
