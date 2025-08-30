@@ -225,8 +225,8 @@ export default function MarksAnalytics({ academicYear }: MarksAnalyticsProps) {
                                                 <div className="text-xs">
                                                   <span className="text-gray-500">Theory: </span>
                                                   <span className={`font-medium ${(student.theoryMarks || 0) >= 30
-                                                      ? 'text-green-600'
-                                                      : 'text-red-600'
+                                                    ? 'text-green-600'
+                                                    : 'text-red-600'
                                                     }`}>
                                                     {student.theoryMarks}
                                                   </span>
@@ -236,8 +236,8 @@ export default function MarksAnalytics({ academicYear }: MarksAnalyticsProps) {
                                                 <div className="text-xs">
                                                   <span className="text-gray-500">Lab: </span>
                                                   <span className={`font-medium ${(student.labMarks || 0) >= 30
-                                                      ? 'text-green-600'
-                                                      : 'text-red-600'
+                                                    ? 'text-green-600'
+                                                    : 'text-red-600'
                                                     }`}>
                                                     {student.labMarks}
                                                   </span>
@@ -246,10 +246,10 @@ export default function MarksAnalytics({ academicYear }: MarksAnalyticsProps) {
                                               {student.totalMarks !== undefined && (
                                                 <div className="text-xs">
                                                   <span className={`px-2 py-1 rounded font-medium ${(student.totalMarks || 0) >= 60
-                                                      ? 'bg-green-100 text-green-700'
-                                                      : (student.totalMarks || 0) >= 30
-                                                        ? 'bg-yellow-100 text-yellow-700'
-                                                        : 'bg-red-100 text-red-700'
+                                                    ? 'bg-green-100 text-green-700'
+                                                    : (student.totalMarks || 0) >= 30
+                                                      ? 'bg-yellow-100 text-yellow-700'
+                                                      : 'bg-red-100 text-red-700'
                                                     }`}>
                                                     Total: {student.totalMarks}
                                                   </span>

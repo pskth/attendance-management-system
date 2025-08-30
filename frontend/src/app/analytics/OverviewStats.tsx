@@ -53,7 +53,7 @@ export default function OverviewStats({ academicYear }: OverviewStatsProps) {
 
   if (error) {
     const isAuthError = error.includes('Authentication failed') || error.includes('No authentication token');
-    
+
     return (
       <Card className="p-6">
         <div className="text-center text-red-600">
@@ -61,7 +61,7 @@ export default function OverviewStats({ academicYear }: OverviewStatsProps) {
           <p className="font-medium">Failed to load overview statistics</p>
           <p className="text-sm text-gray-500 mt-1">{error}</p>
           {isAuthError && (
-            <button 
+            <button
               onClick={() => window.location.href = '/login/admin'}
               className="mt-3 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors text-sm"
             >
@@ -111,7 +111,7 @@ export default function OverviewStats({ academicYear }: OverviewStatsProps) {
       title: "Total Courses",
       value: stats.totalCourses.toString(),
       icon: BookOpen,
-      color: "bg-green-500", 
+      color: "bg-green-500",
       description: `Active courses in ${academicYear}`
     },
     {
