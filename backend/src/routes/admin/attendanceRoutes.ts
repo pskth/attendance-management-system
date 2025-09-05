@@ -1,16 +1,132 @@
 // src/routes/admin/attendanceRoutes.ts
 import { Router } from 'express';
 import DatabaseService from '../../lib/database';
+import { AuthenticatedRequest } from '../../middleware/auth';
 
 const router = Router();
 
 console.log('=== ADMIN ATTENDANCE ROUTES LOADED ===');
 
+// Get courses assigned to the current user (for filtering attendance management)
+router.get('/assigned-courses', async (req: AuthenticatedRequest, res) => {
+  try {
+    const prisma = DatabaseService.getInstance();
+    const userId = req.user?.id;
+
+    if (!userId) {
+      return res.status(401).json({
+        status: 'error',
+        error: 'User authentication required'
+      });
+    }
+
+    // Check user roles
+    const userRoles = req.user?.roles || [];
+    
+    // If user is admin, return all courses
+    if (userRoles.includes('admin')) {
+      const allCourses = await prisma.course.findMany({
+        include: {
+          department: true,
+          courseOfferings: {
+            include: {
+              sections: true,
+              academic_years: true
+            }
+          }
+        },
+        orderBy: {
+          name: 'asc'
+        }
+      });
+
+      const formattedCourses = allCourses.map(course => ({
+        id: course.id,
+        code: course.code,
+        name: course.name,
+        type: course.type,
+        department: course.department?.name,
+        hasTheoryComponent: course.hasTheoryComponent,
+        hasLabComponent: course.hasLabComponent
+      }));
+
+      return res.json({
+        status: 'success',
+        data: formattedCourses
+      });
+    }
+
+    // If user is teacher, return only courses they're assigned to
+    if (userRoles.includes('teacher')) {
+      const teacher = await prisma.teacher.findUnique({
+        where: { userId: userId },
+        include: {
+          courseOfferings: {
+            include: {
+              course: {
+                include: {
+                  department: true
+                }
+              },
+              sections: true,
+              academic_years: true
+            }
+          }
+        }
+      });
+
+      if (!teacher) {
+        return res.json({
+          status: 'success',
+          data: []
+        });
+      }
+
+      // Get unique courses from course offerings
+      const assignedCourses = teacher.courseOfferings.reduce((acc, offering) => {
+        const course = offering.course;
+        if (!acc.find(c => c.id === course.id)) {
+          acc.push({
+            id: course.id,
+            code: course.code,
+            name: course.name,
+            type: course.type,
+            department: course.department?.name,
+            hasTheoryComponent: course.hasTheoryComponent,
+            hasLabComponent: course.hasLabComponent
+          });
+        }
+        return acc;
+      }, [] as any[]);
+
+      return res.json({
+        status: 'success',
+        data: assignedCourses
+      });
+    }
+
+    // For other roles, return empty list
+    return res.json({
+      status: 'success',
+      data: []
+    });
+
+  } catch (error) {
+    console.error('Error fetching assigned courses:', error);
+    res.status(500).json({
+      status: 'error',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
 // Get attendance for a specific date
-router.get('/attendance', async (req, res) => {
+router.get('/attendance', async (req: AuthenticatedRequest, res) => {
   try {
     console.log('=== ATTENDANCE ENDPOINT HIT ===');
     const { date, courseId, departmentId } = req.query;
+    const userId = req.user?.id;
+    const userRoles = req.user?.roles || [];
 
     if (!date || typeof date !== 'string') {
       res.status(400).json({
@@ -20,13 +136,78 @@ router.get('/attendance', async (req, res) => {
       return;
     }
 
+    if (!userId) {
+      return res.status(401).json({
+        status: 'error',
+        error: 'User authentication required'
+      });
+    }
+
     const prisma = DatabaseService.getInstance();
     const targetDate = new Date(date);
 
     console.log('Query date:', date);
+    console.log('User roles:', userRoles);
+
+    // Get courses that the user is allowed to view
+    let allowedCourseIds: string[] = [];
+    
+    if (userRoles.includes('admin')) {
+      // Admin can see all courses
+      const allCourses = await prisma.course.findMany({
+        select: { id: true }
+      });
+      allowedCourseIds = allCourses.map(c => c.id);
+    } else if (userRoles.includes('teacher')) {
+      // Teacher can only see courses they're assigned to
+      const teacher = await prisma.teacher.findUnique({
+        where: { userId: userId },
+        include: {
+          courseOfferings: {
+            include: {
+              course: true
+            }
+          }
+        }
+      });
+      
+      if (teacher) {
+        allowedCourseIds = [...new Set(teacher.courseOfferings.map(offering => offering.course.id))];
+      }
+    }
+
+    console.log('Allowed course IDs:', allowedCourseIds);
+
+    // Apply course filter if specified and user is allowed to view it
+    let courseFilter: any = {};
+    if (courseId && typeof courseId === 'string') {
+      if (allowedCourseIds.includes(courseId)) {
+        courseFilter = { id: courseId };
+      } else {
+        // User is not allowed to view this course
+        return res.json({
+          status: 'success',
+          data: [],
+          count: 0,
+          message: 'Access denied to this course'
+        });
+      }
+    } else {
+      // Filter to only allowed courses
+      if (allowedCourseIds.length > 0) {
+        courseFilter = { id: { in: allowedCourseIds } };
+      } else {
+        // User has no course access
+        return res.json({
+          status: 'success',
+          data: [],
+          count: 0
+        });
+      }
+    }
 
     // First, get all students who should have attendance for this date
-    // We'll get all students from active courses/offerings
+    // We'll get all students from active courses/offerings that the user can access
     const students = await prisma.student.findMany({
       include: {
         user: true,
@@ -39,6 +220,20 @@ router.get('/attendance', async (req, res) => {
                 course: true
               }
             }
+          },
+          where: {
+            offering: {
+              course: courseFilter
+            }
+          }
+        }
+      },
+      where: {
+        enrollments: {
+          some: {
+            offering: {
+              course: courseFilter
+            }
           }
         }
       },
@@ -49,11 +244,14 @@ router.get('/attendance', async (req, res) => {
 
     console.log(`Found ${students.length} total students`);
 
-    // Get existing attendance records for this date
+    // Get existing attendance records for this date (filtered by allowed courses)
     const existingAttendance = await prisma.attendanceRecord.findMany({
       where: {
         attendance: {
-          classDate: targetDate
+          classDate: targetDate,
+          offering: {
+            course: courseFilter
+          }
         }
       },
       include: {

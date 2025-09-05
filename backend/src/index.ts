@@ -11,6 +11,16 @@ import usersRoutes from './routes/users';
 import coursesRoutes from './routes/courses';
 import departmentsRoutes from './routes/departments';
 import collegesRoutes from './routes/colleges';
+import analyticsRoutes from './routes/analytics';
+
+console.log('=== About to import export routes ===');
+let exportRoutes;
+try {
+  exportRoutes = require('./routes/export').default;
+  console.log('=== Export routes imported successfully ===');
+} catch (error) {
+  console.error('=== Error importing export routes ===', error);
+}
 
 console.log('=== About to import admin routes ===');
 let adminRoutes;
@@ -27,6 +37,17 @@ try {
 } catch (error) {
   console.error('=== Error importing student routes ===', error);
 }
+console.log('=== About to import teacher routes ===');
+let teacherRoutes;
+try {
+  teacherRoutes = require('./routes/teacher').default;
+  console.log('=== Teacher routes imported successfully ===');
+  console.log('=== Teacher routes type:', typeof teacherRoutes);
+  console.log('=== Teacher routes is function:', typeof teacherRoutes === 'function');
+} catch (error) {
+  console.error('=== Error importing teacher routes ===', error);
+}
+
 dotenv.config();
 
 const app = express();
@@ -41,6 +62,19 @@ app.use(cors({
 }));
 app.use(express.json());
 
+// Add request logging to debug API calls
+app.use((req, res, next) => {
+  if (req.path.includes('/teacher/courses/') && req.path.includes('/statistics')) {
+    console.log('=== STATISTICS ENDPOINT REQUEST ===');
+    console.log('Method:', req.method);
+    console.log('Path:', req.path);
+    console.log('URL:', req.url);
+    console.log('Headers:', req.headers.authorization ? 'Authorization header present' : 'No auth header');
+    console.log('=== END STATISTICS REQUEST LOG ===');
+  }
+  next();
+});
+
 const PORT = process.env.PORT || 4000;
 
 // Initialize database connection
@@ -50,7 +84,7 @@ DatabaseService.connect().catch((error) => {
 });
 
 app.get('/', (req, res) => {
-  res.json({ 
+  res.json({
     message: 'College ERP backend is running',
     database: 'Connected to PostgreSQL via Prisma',
     version: '1.0.0',
@@ -69,7 +103,11 @@ app.get('/', (req, res) => {
       departments: '/api/departments',
       departmentById: '/api/departments/:id',
       departmentsByCollege: '/api/departments/college/:collegeId',
-      departmentStats: '/api/departments/:id/stats'
+      departmentStats: '/api/departments/:id/stats',
+      analytics: '/api/analytics',
+      analyticsOverview: '/api/analytics/overview/:academicYear?',
+      analyticsAttendance: '/api/analytics/attendance/:academicYear?',
+      analyticsMarks: '/api/analytics/marks/:academicYear?'
       
     }
   });
@@ -83,6 +121,11 @@ app.use('/api/courses', coursesRoutes);
 app.use('/api/departments', departmentsRoutes);
 app.use('/api/colleges', collegesRoutes);
 
+app.use('/api/analytics', analyticsRoutes);
+if (exportRoutes) {
+  app.use('/api/export', exportRoutes);
+  console.log('=== Export routes registered ===');
+}
 if (adminRoutes) {
   app.use('/api/admin', adminRoutes);
   console.log('=== Admin routes registered ===');
@@ -90,6 +133,10 @@ if (adminRoutes) {
 if (studentRoutes){
   app.use('/api/student', studentRoutes);
   console.log('=== Student routes registered ===');
+}
+if (teacherRoutes) {
+  app.use('/api/teacher', teacherRoutes);
+  console.log('=== Teacher routes registered ===');
 }
 
 // Health check endpoint (legacy - also available at /api/db/health)
@@ -111,18 +158,18 @@ app.get('/health', async (req, res) => {
 app.get('/api/health', async (req, res) => {
   try {
     const isHealthy = await DatabaseService.healthCheck();
-    res.json({ 
-      status: 'ok', 
+    res.json({
+      status: 'ok',
       timestamp: new Date().toISOString(),
       database: isHealthy ? 'connected' : 'disconnected'
     });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    res.status(500).json({ 
-      status: 'error', 
+    res.status(500).json({
+      status: 'error',
       timestamp: new Date().toISOString(),
-      database: 'disconnected', 
-      error: errorMessage 
+      database: 'disconnected',
+      error: errorMessage
     });
   }
 });

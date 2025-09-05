@@ -5,11 +5,13 @@ import { AttendanceMarking } from './attendance-marking'
 import { AttendanceAnalytics } from './attendance-analytics'
 import { TheoryMarksManagement } from './theory-marks'
 import { LabMarksManagement } from './lab-marks'
-import { 
-  Users, 
+import TeacherMarksAttendanceManagement from './marks-attendance-management'
+import {
+  Users,
   BarChart3,
   Calculator,
-  FlaskConical
+  FlaskConical,
+  BookOpenCheck
 } from 'lucide-react'
 
 import { Course, Section } from './dropdown-navigation'
@@ -19,43 +21,48 @@ interface CourseManagementProps {
   selectedYear: string
   selectedDepartment: string
   selectedSection: Section
+  courses?: any[] // Add courses prop to pass to marks-attendance management
 }
 
 export function CourseManagement({
   courseOffering,
   selectedYear,
   selectedDepartment,
-  selectedSection
+  selectedSection,
+  courses = []
 }: CourseManagementProps) {
   // Use course component flags from the data, with fallbacks
   const hasTheoryComponent = courseOffering.has_theory_component !== false // Default to true if undefined
   const hasLabComponent = courseOffering.has_lab_component === true
-  
+
   // Set default tab based on what's available
   const getDefaultTab = () => {
-    if (hasTheoryComponent) return "attendance" // Attendance is primary for theory courses
+    // Start with analytics if it's a theory course, otherwise lab-marks or manage-all
+    if (hasTheoryComponent) return "analytics"
     if (hasLabComponent) return "lab-marks"
-    return "attendance" // fallback
+    return "manage-all" // fallback to view/edit all
   }
-  
+
   return (
     <div className="space-y-4 sm:space-y-6">
       <Tabs defaultValue={getDefaultTab()}>
-        <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4 gap-1 h-auto">
+        <TabsList className="grid w-full grid-cols-2 lg:grid-cols-3 gap-1 h-auto">
           {hasTheoryComponent && (
             <>
-              <TabsTrigger value="attendance" className="flex items-center justify-center px-2 py-2 min-h-[40px]">
+              {/* Mark Attendance tab hidden - functionality available in View/Edit All */}
+              {/* <TabsTrigger value="attendance" className="flex items-center justify-center px-2 py-2 min-h-[40px]">
                 <Users className="w-4 h-4 mr-1 sm:mr-2 flex-shrink-0" />
                 <span className="text-xs sm:text-base truncate">Mark Attendance</span>
-              </TabsTrigger>
+              </TabsTrigger> */}
               <TabsTrigger value="analytics" className="flex items-center justify-center px-2 py-2 min-h-[40px]">
                 <BarChart3 className="w-4 h-4 mr-1 sm:mr-2 flex-shrink-0" />
                 <span className="text-xs sm:text-base truncate">Analytics</span>
               </TabsTrigger>
-              <TabsTrigger value="theory-marks" className="flex items-center justify-center px-2 py-2 min-h-[40px]">
+              {/* Theory Marks tab hidden - functionality available in View/Edit All */}
+              {/* <TabsTrigger value="theory-marks" className="flex items-center justify-center px-2 py-2 min-h-[40px]">
                 <Calculator className="w-4 h-4 mr-1 sm:mr-2 flex-shrink-0" />
                 <span className="text-xs sm:text-base truncate">Theory Marks</span>
-              </TabsTrigger>
+              </TabsTrigger> */}
             </>
           )}
           {hasLabComponent && (
@@ -64,18 +71,23 @@ export function CourseManagement({
               <span className="text-xs sm:text-base truncate">Lab Marks</span>
             </TabsTrigger>
           )}
+          <TabsTrigger value="manage-all" className="flex items-center justify-center px-2 py-2 min-h-[40px]">
+            <BookOpenCheck className="w-4 h-4 mr-1 sm:mr-2 flex-shrink-0" />
+            <span className="text-xs sm:text-base truncate">View/Edit All</span>
+          </TabsTrigger>
         </TabsList>
 
         {hasTheoryComponent && (
           <>
-            <TabsContent value="attendance">
+            {/* Mark Attendance content hidden - functionality available in View/Edit All */}
+            {/* <TabsContent value="attendance">
               <AttendanceMarking
                 courseOffering={courseOffering}
                 selectedYear={selectedYear}
                 selectedDepartment={selectedDepartment}
                 selectedSection={selectedSection}
               />
-            </TabsContent>
+            </TabsContent> */}
 
             <TabsContent value="analytics">
               <AttendanceAnalytics
@@ -86,14 +98,15 @@ export function CourseManagement({
               />
             </TabsContent>
 
-            <TabsContent value="theory-marks">
+            {/* Theory Marks content hidden - functionality available in View/Edit All */}
+            {/* <TabsContent value="theory-marks">
               <TheoryMarksManagement
                 courseOffering={courseOffering}
                 selectedYear={selectedYear}
                 selectedDepartment={selectedDepartment}
                 selectedSection={selectedSection}
               />
-            </TabsContent>
+            </TabsContent> */}
           </>
         )}
 
@@ -106,6 +119,14 @@ export function CourseManagement({
             />
           </TabsContent>
         )}
+
+        <TabsContent value="manage-all">
+          <TeacherMarksAttendanceManagement
+            courses={courses}
+            selectedCourseId={courseOffering.offering_id}
+            initialMode="marks"
+          />
+        </TabsContent>
       </Tabs>
     </div>
   )

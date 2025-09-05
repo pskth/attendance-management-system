@@ -1,6 +1,7 @@
 // src/routes/users.ts
 import { Router } from 'express';
 import Database from '../lib/database';
+import { autoEnrollFirstYearStudent, autoEnrollStudentBySemester, autoEnrollStudentForSemester } from '../services/autoEnrollmentService';
 
 const router = Router();
 
@@ -196,6 +197,9 @@ router.post('/', async (req, res) => {
   try {
     const { name, username, phone, role, password, departmentId, year, section, email, usn, collegeId } = req.body;
     
+    console.log(`🔍 Received request body:`, req.body);
+    console.log(`🔍 Extracted parameters:`, { name, username, phone, role, password, departmentId, year, section, email, usn, collegeId });
+    
     if (!name || !username || !role) {
       return res.status(400).json({
         status: 'error',
@@ -269,15 +273,21 @@ router.post('/', async (req, res) => {
       // Use provided collegeId if present, otherwise fallback to department or first college
       let collegeIdToUse = collegeId || null;
       let departmentIdToUse = null;
+      
       if (departmentId) {
+        console.log(`🔍 Looking up department with ID: ${departmentId}`);
         // Get the department and its college
         const department = await prisma.department.findUnique({
           where: { id: departmentId },
           include: { colleges: true }
         });
+        console.log(`🔍 Department lookup result:`, department);
         if (department) {
           if (!collegeIdToUse) collegeIdToUse = department.college_id;
           departmentIdToUse = departmentId;
+          console.log(`✅ Department found. Using collegeId: ${collegeIdToUse}, departmentId: ${departmentIdToUse}`);
+        } else {
+          console.log(`❌ Department not found for ID: ${departmentId}`);
         }
       }
       // Fallback to first college if not provided
@@ -294,6 +304,13 @@ router.post('/', async (req, res) => {
       }
       // Calculate semester from year (1st year = semesters 1-2, 2nd year = semesters 3-4, etc.)
       const semester = year ? (year * 2 - 1) : 1; // Default to semester 1 if no year provided
+      
+      console.log(`🔍 Final student creation parameters:`, {
+        collegeIdToUse, 
+        departmentIdToUse, 
+        calculatedSemester: semester,
+        providedYear: year
+      });
       // Create section if provided
       let sectionId = null;
       if (section && section.trim()) {
@@ -314,7 +331,7 @@ router.post('/', async (req, res) => {
           sectionId = newSection.section_id;
         }
       }
-      await prisma.student.create({
+      const createdStudent = await prisma.student.create({
         data: {
           userId: user.id,
           college_id: collegeIdToUse,
@@ -325,6 +342,18 @@ router.post('/', async (req, res) => {
           batchYear: new Date().getFullYear()
         }
       });
+
+      // Auto-enroll student in core courses for their department and semester
+      if (departmentIdToUse && semester) {
+        try {
+          // Use the specific semester enrollment function for better course separation
+          const enrollmentResult = await autoEnrollStudentForSemester(createdStudent.id, semester);
+          console.log(`Auto-enrollment for student ${createdStudent.id} (semester ${semester}):`, enrollmentResult);
+        } catch (enrollmentError) {
+          console.warn(`Failed to auto-enroll student ${createdStudent.id}:`, enrollmentError);
+          // Don't fail the user creation if auto-enrollment fails
+        }
+      }
     } else if (role === 'teacher') {
       // Use provided collegeId if present, otherwise fallback to department or first college
       let collegeIdToUse = collegeId || null;

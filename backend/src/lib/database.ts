@@ -42,7 +42,7 @@ class DatabaseService {
       await prisma.$queryRaw`SELECT 1`;
       return true;
     } catch (error) {
-      console.error('❌ Database health check failed:', error);
+      console.error('Database health check failed:', error);
       return false;
     }
   }
@@ -79,7 +79,7 @@ class DatabaseService {
         labMarks: summary[10],
       };
     } catch (error) {
-      console.error('❌ Failed to get data summary:', error);
+      console.error('Failed to get data summary:', error);
       throw error;
     }
   }

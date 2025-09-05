@@ -20,12 +20,12 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
 // Generic API request helper with authentication
 async function apiRequest<T>(endpoint: string, options?: RequestInit): Promise<T> {
   const url = `${API_BASE_URL}${endpoint}`
-  
+
   console.log('Making API request to:', url);
-  
+
   // Get auth token from cookies
   const token = Cookies.get('auth_token')
-  
+
   const response = await fetch(url, {
     headers: {
       'Content-Type': 'application/json',
@@ -63,12 +63,12 @@ async function apiRequest<T>(endpoint: string, options?: RequestInit): Promise<T
     console.error('Status:', response.status);
     console.error('Content-Type:', contentType);
     console.error('Response text (first 500 chars):', text.substring(0, 500));
-    
+
     // If it looks like HTML, it might be a Next.js routing issue
     if (text.trim().startsWith('<!DOCTYPE')) {
       throw new Error('Received HTML instead of JSON - possible routing issue or server error')
     }
-    
+
     throw new Error('Received non-JSON response from server')
   }
 }
@@ -128,14 +128,14 @@ async getStudentMarks(userId: string): Promise<StudentMarksResponse> {
 
   // Get attendance trend data
   // async getAttendanceTrend(
-  //   studentId: string, 
+  //   studentId: string,
   //   period: 'weekly' | 'monthly' | 'semester',
   //   academicYear?: string
   // ): Promise<Array<{ period: string; percentage: number }>> {
   //   const params = new URLSearchParams()
   //   params.append('period', period)
   //   if (academicYear) params.append('academic_year', academicYear)
-    
+
   //   return apiRequest<Array<{ period: string; percentage: number }>>(
   //     `/api/students/${studentId}/attendance/trend?${params.toString()}`
   //   )
@@ -196,11 +196,11 @@ async clearDatabase(): Promise<any> {
     })
   },
 
-  async updateUser(userId: string, data: { 
-    name: string; 
-    email?: string; 
-    username: string; 
-    phone: string; 
+  async updateUser(userId: string, data: {
+    name: string;
+    email?: string;
+    username: string;
+    phone: string;
     role: string;
     // Student-specific fields
     departmentId?: string;
@@ -214,11 +214,11 @@ async clearDatabase(): Promise<any> {
     })
   },
 
-  async createUser(data: { 
-    name: string; 
-    username: string; 
-    phone?: string; 
-    role: string; 
+  async createUser(data: {
+    name: string;
+    username: string;
+    phone?: string;
+    role: string;
     password?: string;
     departmentId?: string;
     year?: number;
@@ -259,13 +259,13 @@ async clearDatabase(): Promise<any> {
     })
   },
 
-  async updateCourse(courseId: string, data: { 
-    code: string; 
-    name: string; 
-    department: string; 
+  async updateCourse(courseId: string, data: {
+    code: string;
+    name: string;
+    department: string;
     year?: string;
-    type: 'core' | 'department_elective' | 'open_elective'; 
-    hasTheoryComponent: boolean; 
+    type: 'core' | 'department_elective' | 'open_elective';
+    hasTheoryComponent: boolean;
     hasLabComponent: boolean;
     restrictedDepartments?: string[];
   }): Promise<any> {
@@ -275,13 +275,13 @@ async clearDatabase(): Promise<any> {
     })
   },
 
-  async createCourse(data: { 
-    code: string; 
-    name: string; 
-    department: string; 
+  async createCourse(data: {
+    code: string;
+    name: string;
+    department: string;
     year: string;
-    type: 'core' | 'department_elective' | 'open_elective'; 
-    hasTheoryComponent: boolean; 
+    type: 'core' | 'department_elective' | 'open_elective';
+    hasTheoryComponent: boolean;
     hasLabComponent: boolean;
     restrictedDepartments?: string[]; // Add restricted departments for open electives
   }): Promise<any> {
@@ -297,9 +297,9 @@ async clearDatabase(): Promise<any> {
   },
 
   // Teacher assignment endpoints
-  async assignTeacher(data: { 
-    offering_id: string; 
-    teacher_id: string 
+  async assignTeacher(data: {
+    offering_id: string;
+    teacher_id: string
   }): Promise<any> {
     return apiRequest<any>('/api/admin/assign-teacher', {
       method: 'POST',
@@ -307,8 +307,8 @@ async clearDatabase(): Promise<any> {
     })
   },
 
-  async unassignTeacher(data: { 
-    offering_id: string 
+  async unassignTeacher(data: {
+    offering_id: string
   }): Promise<any> {
     return apiRequest<any>('/api/admin/unassign-teacher', {
       method: 'POST',
@@ -421,7 +421,7 @@ async clearDatabase(): Promise<any> {
     if (year) params.append('year', year.toString())
     if (studentId) params.append('studentId', studentId)
     if (studentUsn) params.append('studentUsn', studentUsn)
-    
+
     return apiRequest<{ status: string; data: any[] }>(`/api/admin/marks?${params.toString()}`)
   },
 
@@ -442,8 +442,16 @@ async clearDatabase(): Promise<any> {
     params.append('date', date)
     if (courseId) params.append('courseId', courseId)
     if (departmentId) params.append('departmentId', departmentId)
-    
+
     return apiRequest<{ status: string; data: any[] }>(`/api/admin/attendance?${params.toString()}`)
+  },
+
+  async getAssignedCourses(): Promise<{ status: string; data: any[] }> {
+    return apiRequest<{ status: string; data: any[] }>('/api/admin/assigned-courses')
+  },
+
+  async getStudentCourses(studentId: string): Promise<{ status: string; data: any[] }> {
+    return apiRequest<{ status: string; data: any[] }>(`/api/admin/student-courses/${studentId}`)
   },
 
   async updateAttendance(attendanceId: string, status: 'present' | 'absent'): Promise<{ status: string; data: any }> {
@@ -470,7 +478,7 @@ async clearDatabase(): Promise<any> {
     params.append('month', month.toString())
     params.append('year', year.toString())
     if (departmentId) params.append('departmentId', departmentId)
-    
+
     return apiRequest<{ status: string; data: any[] }>(`/api/admin/attendance/calendar?${params.toString()}`)
   },
 
@@ -480,18 +488,18 @@ async clearDatabase(): Promise<any> {
     params.append('courseId',courseId)
     params.append('year', year)
     params.append('semester', semester)
-    
+
     return apiRequest<{ status: string; data: CourseEnrollmentData }>(`/api/admin/courses/${courseId}/eligible-students?${params.toString()}`)
   },
 
   async enrollStudents(courseId: string, studentIds: string[], year: string, semester: string, teacherId?: string): Promise<{ status: string; data: EnrollmentResult }> {
     return apiRequest<{ status: string; data: EnrollmentResult }>(`/api/admin/courses/${courseId}/enroll-students`, {
       method: 'POST',
-      body: JSON.stringify({ 
-        studentIds, 
-        year, 
-        semester, 
-        teacherId 
+      body: JSON.stringify({
+        studentIds,
+        year,
+        semester,
+        teacherId
       })
     })
   },
@@ -500,7 +508,7 @@ async clearDatabase(): Promise<any> {
     const params = new URLSearchParams()
     if (year) params.append('year', year)
     if (semester) params.append('semester', semester)
-    
+
     return apiRequest<{ status: string; data: CourseEnrollment[] }>(`/api/admin/courses/${courseId}/enrollments?${params.toString()}`)
   }
 }
@@ -522,11 +530,11 @@ export const attendanceUtils = {
   // Format date for display
   formatDate(date: string | Date): string {
     const d = new Date(date)
-    return d.toLocaleDateString('en-US', { 
-      weekday: 'long', 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
+    return d.toLocaleDateString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
     })
   },
 
@@ -548,7 +556,7 @@ export const attendanceUtils = {
   calculateDaysToMinimum(present: number, total: number, required: number = 75): number {
     const currentPercentage = this.calculatePercentage(present, total)
     if (currentPercentage >= required) return 0
-    
+
     // Calculate how many more present days needed
     const requiredPresent = Math.ceil((required * total) / 100)
     return Math.max(0, requiredPresent - present)
@@ -574,11 +582,11 @@ export const mockDataGenerators = {
       { name: 'Software Engineering', code: 'CS304' },
       { name: 'Machine Learning', code: 'CS305' }
     ]
-    
+
     const teachers = ['Dr. Smith', 'Prof. Johnson', 'Dr. Williams', 'Prof. Brown', 'Dr. Davis']
     const timeSlots = attendanceUtils.generateTimeSlots()
     const statuses: ('present' | 'absent' | 'not_marked')[] = ['present', 'present', 'absent', 'not_marked', 'not_marked']
-    
+
     return subjects.map((subject, index) => ({
       course_name: subject.name,
       course_code: subject.code,
@@ -596,7 +604,7 @@ export const mockDataGenerators = {
       { name: 'Data Structures and Algorithms', code: 'CS301' },
       { name: 'Database Management Systems', code: 'CS302' },
       { name: 'Computer Networks', code: 'CS303' },
-      { name: 'Software Engineering', code: 'CS304' },      { name: 'Machine Learning', code: 'CS305' }
+      { name: 'Software Engineering', code: 'CS304' }, { name: 'Machine Learning', code: 'CS305' }
     ]
 
     return subjects.map((subject) => {
@@ -604,7 +612,7 @@ export const mockDataGenerators = {
       const absent = Math.floor(Math.random() * 8) + 2    // 2-10
       const total = present + absent
       const percentage = attendanceUtils.calculatePercentage(present, total)
-      
+
       return {
         course_name: subject.name,
         course_code: subject.code,

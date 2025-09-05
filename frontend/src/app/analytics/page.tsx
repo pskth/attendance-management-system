@@ -1,22 +1,41 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar, Users, Award } from "lucide-react";
 import AttendanceAnalytics from './AttendanceAnalytics';
-import MarksAnalytics from '@/app/analytics/MarksAnalytics';
-import ExportReports from '@/app/analytics/ExportReports';
-//import { AttendanceStats } from '@/app/student/attendance-stats'
+import MarksAnalytics from './MarksAnalytics';
+import ExportReports from './ExportReports';
+import OverviewStats from './OverviewStats';
+import analyticsService from '@/lib/analytics-service';
 
 export default function AnalyticsPage() {
   const institutions = ['Nitte Menakshi Institute Of Technology', 'Nitte Mahalinga Adyantheya Memorial Institute Of Technology'];
 
   const [selectedAcademicYear, setSelectedAcademicYear] = useState<string>('2024-25');
-const [selectedInstitution, setSelectedInstitution] = useState('');
+  const [academicYears, setAcademicYears] = useState<string[]>([]);
 
-  const academicYears = ['2024-25', '2023-24', '2022-23', '2021-22'];
+  useEffect(() => {
+    const fetchAcademicYears = async () => {
+      try {
+        const years = await analyticsService.getAcademicYears();
+        if (years.length > 0) {
+          // Remove duplicates and sort years in descending order
+          const uniqueYears = Array.from(new Set(years)).sort((a, b) => b.localeCompare(a));
+          setAcademicYears(uniqueYears);
+        }
+      } catch (error) {
+        console.error('Failed to fetch academic years:', error);
+        // Keep default years if API fails, but ensure they're unique
+        const defaultYears = ['2024-25', '2023-24', '2022-23', '2021-22'];
+        setAcademicYears(Array.from(new Set(defaultYears)));
+      }
+    };
+
+    fetchAcademicYears();
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -93,30 +112,7 @@ const [selectedInstitution, setSelectedInstitution] = useState('');
                 <CardDescription className="text-sm">Key metrics for Academic Year {selectedAcademicYear}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4 sm:space-y-5">
-                <div className="grid grid-cols-3 gap-3 sm:gap-4 text-center">
-                  <div>
-                    <div className="text-lg sm:text-xl lg:text-2xl font-bold text-blue-600">490</div>
-                    <div className="text-xs sm:text-sm text-gray-700">Students</div>
-                  </div>
-                  <div>
-                    <div className="text-lg sm:text-xl lg:text-2xl font-bold text-green-600">42</div>
-                    <div className="text-xs sm:text-sm text-gray-700">Courses</div>
-                  </div>
-                  <div>
-                    <div className="text-lg sm:text-xl lg:text-2xl font-bold text-indigo-600">87.3%</div>
-                    <div className="text-xs sm:text-sm text-gray-700">Attendance</div>
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-3 sm:gap-4 text-center">
-                  <div>
-                    <div className="text-lg sm:text-xl lg:text-2xl font-bold text-purple-600">76.8%</div>
-                    <div className="text-xs sm:text-sm text-gray-700">Avg Marks</div>
-                  </div>
-                  <div>
-                    <div className="text-lg sm:text-xl lg:text-2xl font-bold text-emerald-600">92.1%</div>
-                    <div className="text-xs sm:text-sm text-gray-700">Pass Rate</div>
-                  </div>
-                </div>
+                <OverviewStats academicYear={selectedAcademicYear} />
               </CardContent>
             </Card>
           </div>

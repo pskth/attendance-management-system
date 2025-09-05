@@ -91,13 +91,19 @@ router.post('/login', async (req, res) => {
     // Check if user has the requested role (if specified)
     const userRoles = user.userRoles.map(r => r.role);
     if (role && !userRoles.includes(role)) {
-      return res.status(403).json({
-        status: 'error',
-        error: `Access denied. You don't have ${role} privileges`,
-        code: 'ROLE_ACCESS_DENIED',
-        userRoles,
-        requestedRole: role
-      });
+      // Allow admin users to access analytics
+      // Allow teacher users to access analytics
+      if (role === 'analytics' && (userRoles.includes('admin') || userRoles.includes('teacher'))) {
+        // Admin or teacher can access analytics, continue
+      } else {
+        return res.status(403).json({
+          status: 'error',
+          error: `Access denied. You don't have ${role} privileges`,
+          code: 'ROLE_ACCESS_DENIED',
+          userRoles,
+          requestedRole: role
+        });
+      }
     }
 
     // Generate JWT token

@@ -1,6 +1,7 @@
 // src/services/importService.ts
 import csv from 'csv-parser';
 import { Readable } from 'stream';
+import { autoEnrollStudentBySemester, autoEnrollFirstYearStudent, autoEnrollStudentForSemester } from './autoEnrollmentService';
 
 export interface ImportResult {
   success: boolean;
@@ -281,7 +282,7 @@ export class ImportService {
           continue;
         }
         
-        await prisma.student.create({
+        const createdStudent = await prisma.student.create({
           data: {
             userId: user.id,
             college_id: college.id,
@@ -292,6 +293,16 @@ export class ImportService {
             batchYear: parseInt(record.batch_year)
           }
         });
+
+        // Auto-enroll student in core courses for their department and semester
+        try {
+          const semester = parseInt(record.semester) || 1;
+          const enrollmentResult = await autoEnrollStudentForSemester(createdStudent.id, semester);
+          console.log(`Auto-enrollment for imported student ${createdStudent.id} (semester ${semester}):`, enrollmentResult);
+        } catch (enrollmentError) {
+          console.warn(`Failed to auto-enroll imported student ${createdStudent.id}:`, enrollmentError);
+          // Don't fail the import if auto-enrollment fails
+        }
         
         count++;
       } catch (error) {

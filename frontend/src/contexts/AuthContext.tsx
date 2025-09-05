@@ -115,14 +115,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     logout,
     refreshToken,
     changePassword,
-    isAuthenticated: authService.isAuthenticated(),
-    hasRole: authService.hasRole.bind(authService),
-    hasAnyRole: authService.hasAnyRole.bind(authService),
-    isAdmin: authService.isAdmin.bind(authService),
-    isTeacher: authService.isTeacher.bind(authService),
-    isStudent: authService.isStudent.bind(authService),
-    canAccessAnalytics: authService.canAccessAnalytics.bind(authService),
-    getPrimaryRole: authService.getPrimaryRole.bind(authService),
+    isAuthenticated: !!user && authService.isAuthenticated(),
+    hasRole: (role: string) => authService.hasRole(role),
+    hasAnyRole: (roles: string[]) => authService.hasAnyRole(roles),
+    isAdmin: () => authService.isAdmin(),
+    isTeacher: () => authService.isTeacher(),
+    isStudent: () => authService.isStudent(),
+    canAccessAnalytics: () => authService.canAccessAnalytics(),
+    getPrimaryRole: () => authService.getPrimaryRole(),
   };
 
   return (

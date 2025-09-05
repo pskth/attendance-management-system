@@ -786,7 +786,12 @@ router.post('/:courseId/students/upload', upload.single('file'), async (req, res
       where: { id: courseId },
       include: {
         department: true,
-        colleges: true
+        colleges: true,
+        openElectiveRestrictions: {
+          include: {
+            restrictedDepartment: true
+          }
+        }
       }
     });
 
@@ -895,13 +900,32 @@ router.post('/:courseId/students/upload', upload.single('file'), async (req, res
       try {
         // Find student by USN
         const student = await prisma.student.findUnique({
-          where: { usn: record.usn }
+          where: { usn: record.usn },
+          include: {
+            departments: {
+              select: {
+                id: true,
+                code: true,
+                name: true
+              }
+            }
+          }
         });
 
         if (!student) {
           results.failed++;
           results.errors.push(`Line ${i + 1}: Student with USN ${record.usn} not found`);
           continue;
+        }
+
+        // Validate open elective restrictions
+        if (course.type === 'open_elective') {
+          const restrictedDepartmentIds = course.openElectiveRestrictions?.map((r: any) => r.restrictedDepartmentId) || [];
+          if (restrictedDepartmentIds.length > 0 && student.departments && restrictedDepartmentIds.includes(student.departments.id)) {
+            results.failed++;
+            results.errors.push(`Line ${i + 1}: Student ${record.usn} from ${student.departments.code} department cannot enroll in this open elective course`);
+            continue;
+          }
         }
 
         // Check if enrollment already exists
