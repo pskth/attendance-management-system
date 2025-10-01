@@ -4,18 +4,17 @@
   "main": "index.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
-    "build": "tsc",
-    "start": "node dist/index.js",
+    "start": "ts-node src/index.ts",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio",
-    "db:setup": "ts-node-dev src/db-setup.ts",
-    "import-users": "ts-node-dev src/import-users.ts",
-    "setup-enrollments": "ts-node-dev src/setup-enrollments.ts",
-    "migrate-passwords": "ts-node-dev src/scripts/migrate-passwords.ts",
-    "demo-auth": "node scripts/demo-auth.js",
-    "create-demo-users": "node scripts/create-demo-users.js",
+    "db:setup": "ts-node src/db-setup.ts",
+    "import-users": "ts-node src/import-users.ts",
+    "setup-enrollments": "ts-node src/setup-enrollments.ts",
+    "migrate-passwords": "ts-node src/scripts/migrate-passwords.ts",
+    "demo-auth": "ts-node scripts/demo-auth.ts",
+    "create-demo-users": "ts-node scripts/create-demo-users.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -43,6 +42,7 @@
     "@types/jsonwebtoken": "^9.0.7",
     "@types/node": "^22.15.29",
     "prisma": "^6.16.2",
+    "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.8.3"
   }
