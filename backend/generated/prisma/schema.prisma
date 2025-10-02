@@ -204,12 +204,12 @@ model Attendance {
 }
 
 model AttendanceRecord {
-  id           String             @id @default(dbgenerated("uuid_generate_v4()")) @map("record_id") @db.Uuid
-  attendanceId String?            @map("attendance_id") @db.Uuid
-  studentId    String?            @map("student_id") @db.Uuid
-  status       attendance_status?
-  attendance   Attendance?        @relation(fields: [attendanceId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  student      Student?           @relation(fields: [studentId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  id           String            @id @default(dbgenerated("uuid_generate_v4()")) @map("record_id") @db.Uuid
+  attendanceId String?           @map("attendance_id") @db.Uuid
+  studentId    String?           @map("student_id") @db.Uuid
+  status       attendance_status
+  attendance   Attendance?       @relation(fields: [attendanceId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  student      Student?          @relation(fields: [studentId], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@map("attendance_records")
 }

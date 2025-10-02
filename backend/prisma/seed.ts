@@ -128,12 +128,15 @@ async function seed() {
             });
         }
 
-        function generateTeacherData(deptCode: string, count: number): TeacherTemplate[] {
-            return Array.from({ length: count }, (_, i) => ({
-                name: `${deptCode} Teacher ${i + 1}`,
-                username: `${deptCode.toLowerCase()}_teacher${i + 1}`,
-                email: `${deptCode.toLowerCase()}_teacher${i + 1}@example.com`,
-            }));
+        function generateTeacherData(collegeCode: 'NMAMIT' | 'NMIT', deptCode: string, count: number): TeacherTemplate[] {
+            return Array.from({ length: count }, (_, i) => {
+                const prefix = collegeCode === 'NMAMIT' ? 'nnm' : 'nmi';
+                return {
+                    name: `${deptCode} Teacher ${i + 1}`,
+                    username: `${prefix}_${deptCode.toLowerCase()}_teacher${i + 1}`,
+                    email: `${prefix}_${deptCode.toLowerCase()}_teacher${i + 1}@example.com`,
+                };
+            });
         }
 
         const courseData: Record<string, CourseTemplate[]> = {
@@ -270,7 +273,7 @@ async function seed() {
         const [nmamitTeachers, nmitTeachers] = await Promise.all([
             Promise.all(nmamitDepts.map(async (dept) => {
                 // Generate 3 teachers per department
-                const teacherTemplates = generateTeacherData(dept.code ?? 'UNKNOWN', 3);
+                const teacherTemplates = generateTeacherData('NMAMIT', dept.code ?? 'UNKNOWN', 3);
                 return Promise.all(teacherTemplates.map(async (teacher) => {
                     const passwordHash = await hash('teacher123', 10);
                     return prisma.user.create({
@@ -306,7 +309,7 @@ async function seed() {
             })).then(teachers => teachers.flat()),
             Promise.all(nmitDepts.map(async (dept) => {
                 // Generate 3 teachers per department
-                const teacherTemplates = generateTeacherData(dept.code ?? 'UNKNOWN', 3);
+                const teacherTemplates = generateTeacherData('NMIT', dept.code ?? 'UNKNOWN', 3);
                 return Promise.all(teacherTemplates.map(async (teacher) => {
                     const passwordHash = await hash('teacher123', 10);
                     return prisma.user.create({

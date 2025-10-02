@@ -18298,7 +18298,7 @@ export namespace Prisma {
     id: string
     attendanceId: string | null
     studentId: string | null
-    status: $Enums.attendance_status | null
+    status: $Enums.attendance_status
     _count: AttendanceRecordCountAggregateOutputType | null
     _min: AttendanceRecordMinAggregateOutputType | null
     _max: AttendanceRecordMaxAggregateOutputType | null
@@ -18376,7 +18376,7 @@ export namespace Prisma {
       id: string
       attendanceId: string | null
       studentId: string | null
-      status: $Enums.attendance_status | null
+      status: $Enums.attendance_status
     }, ExtArgs["result"]["attendanceRecord"]>
     composites: {}
   }
@@ -19024,7 +19024,7 @@ export namespace Prisma {
     /**
      * The data needed to create a AttendanceRecord.
      */
-    data?: XOR<AttendanceRecordCreateInput, AttendanceRecordUncheckedCreateInput>
+    data: XOR<AttendanceRecordCreateInput, AttendanceRecordUncheckedCreateInput>
   }
 
   /**
@@ -27028,7 +27028,7 @@ export namespace Prisma {
     id?: UuidFilter<"AttendanceRecord"> | string
     attendanceId?: UuidNullableFilter<"AttendanceRecord"> | string | null
     studentId?: UuidNullableFilter<"AttendanceRecord"> | string | null
-    status?: Enumattendance_statusNullableFilter<"AttendanceRecord"> | $Enums.attendance_status | null
+    status?: Enumattendance_statusFilter<"AttendanceRecord"> | $Enums.attendance_status
     attendance?: XOR<AttendanceNullableScalarRelationFilter, AttendanceWhereInput> | null
     student?: XOR<StudentNullableScalarRelationFilter, StudentWhereInput> | null
   }
@@ -27037,7 +27037,7 @@ export namespace Prisma {
     id?: SortOrder
     attendanceId?: SortOrderInput | SortOrder
     studentId?: SortOrderInput | SortOrder
-    status?: SortOrderInput | SortOrder
+    status?: SortOrder
     attendance?: AttendanceOrderByWithRelationInput
     student?: StudentOrderByWithRelationInput
   }
@@ -27049,7 +27049,7 @@ export namespace Prisma {
     NOT?: AttendanceRecordWhereInput | AttendanceRecordWhereInput[]
     attendanceId?: UuidNullableFilter<"AttendanceRecord"> | string | null
     studentId?: UuidNullableFilter<"AttendanceRecord"> | string | null
-    status?: Enumattendance_statusNullableFilter<"AttendanceRecord"> | $Enums.attendance_status | null
+    status?: Enumattendance_statusFilter<"AttendanceRecord"> | $Enums.attendance_status
     attendance?: XOR<AttendanceNullableScalarRelationFilter, AttendanceWhereInput> | null
     student?: XOR<StudentNullableScalarRelationFilter, StudentWhereInput> | null
   }, "id">
@@ -27058,7 +27058,7 @@ export namespace Prisma {
     id?: SortOrder
     attendanceId?: SortOrderInput | SortOrder
     studentId?: SortOrderInput | SortOrder
-    status?: SortOrderInput | SortOrder
+    status?: SortOrder
     _count?: AttendanceRecordCountOrderByAggregateInput
     _max?: AttendanceRecordMaxOrderByAggregateInput
     _min?: AttendanceRecordMinOrderByAggregateInput
@@ -27071,7 +27071,7 @@ export namespace Prisma {
     id?: UuidWithAggregatesFilter<"AttendanceRecord"> | string
     attendanceId?: UuidNullableWithAggregatesFilter<"AttendanceRecord"> | string | null
     studentId?: UuidNullableWithAggregatesFilter<"AttendanceRecord"> | string | null
-    status?: Enumattendance_statusNullableWithAggregatesFilter<"AttendanceRecord"> | $Enums.attendance_status | null
+    status?: Enumattendance_statusWithAggregatesFilter<"AttendanceRecord"> | $Enums.attendance_status
   }
 
   export type TheoryMarksWhereInput = {
@@ -28241,7 +28241,7 @@ export namespace Prisma {
 
   export type AttendanceRecordCreateInput = {
     id?: string
-    status?: $Enums.attendance_status | null
+    status: $Enums.attendance_status
     attendance?: AttendanceCreateNestedOneWithoutAttendanceRecordsInput
     student?: StudentCreateNestedOneWithoutAttendanceRecordsInput
   }
@@ -28250,12 +28250,12 @@ export namespace Prisma {
     id?: string
     attendanceId?: string | null
     studentId?: string | null
-    status?: $Enums.attendance_status | null
+    status: $Enums.attendance_status
   }
 
   export type AttendanceRecordUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    status?: NullableEnumattendance_statusFieldUpdateOperationsInput | $Enums.attendance_status | null
+    status?: Enumattendance_statusFieldUpdateOperationsInput | $Enums.attendance_status
     attendance?: AttendanceUpdateOneWithoutAttendanceRecordsNestedInput
     student?: StudentUpdateOneWithoutAttendanceRecordsNestedInput
   }
@@ -28264,26 +28264,26 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     attendanceId?: NullableStringFieldUpdateOperationsInput | string | null
     studentId?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: NullableEnumattendance_statusFieldUpdateOperationsInput | $Enums.attendance_status | null
+    status?: Enumattendance_statusFieldUpdateOperationsInput | $Enums.attendance_status
   }
 
   export type AttendanceRecordCreateManyInput = {
     id?: string
     attendanceId?: string | null
     studentId?: string | null
-    status?: $Enums.attendance_status | null
+    status: $Enums.attendance_status
   }
 
   export type AttendanceRecordUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
-    status?: NullableEnumattendance_statusFieldUpdateOperationsInput | $Enums.attendance_status | null
+    status?: Enumattendance_statusFieldUpdateOperationsInput | $Enums.attendance_status
   }
 
   export type AttendanceRecordUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     attendanceId?: NullableStringFieldUpdateOperationsInput | string | null
     studentId?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: NullableEnumattendance_statusFieldUpdateOperationsInput | $Enums.attendance_status | null
+    status?: Enumattendance_statusFieldUpdateOperationsInput | $Enums.attendance_status
   }
 
   export type TheoryMarksCreateInput = {
@@ -29511,11 +29511,11 @@ export namespace Prisma {
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
-  export type Enumattendance_statusNullableFilter<$PrismaModel = never> = {
-    equals?: $Enums.attendance_status | Enumattendance_statusFieldRefInput<$PrismaModel> | null
-    in?: $Enums.attendance_status[] | ListEnumattendance_statusFieldRefInput<$PrismaModel> | null
-    notIn?: $Enums.attendance_status[] | ListEnumattendance_statusFieldRefInput<$PrismaModel> | null
-    not?: NestedEnumattendance_statusNullableFilter<$PrismaModel> | $Enums.attendance_status | null
+  export type Enumattendance_statusFilter<$PrismaModel = never> = {
+    equals?: $Enums.attendance_status | Enumattendance_statusFieldRefInput<$PrismaModel>
+    in?: $Enums.attendance_status[] | ListEnumattendance_statusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.attendance_status[] | ListEnumattendance_statusFieldRefInput<$PrismaModel>
+    not?: NestedEnumattendance_statusFilter<$PrismaModel> | $Enums.attendance_status
   }
 
   export type AttendanceNullableScalarRelationFilter = {
@@ -29544,14 +29544,14 @@ export namespace Prisma {
     status?: SortOrder
   }
 
-  export type Enumattendance_statusNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.attendance_status | Enumattendance_statusFieldRefInput<$PrismaModel> | null
-    in?: $Enums.attendance_status[] | ListEnumattendance_statusFieldRefInput<$PrismaModel> | null
-    notIn?: $Enums.attendance_status[] | ListEnumattendance_statusFieldRefInput<$PrismaModel> | null
-    not?: NestedEnumattendance_statusNullableWithAggregatesFilter<$PrismaModel> | $Enums.attendance_status | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedEnumattendance_statusNullableFilter<$PrismaModel>
-    _max?: NestedEnumattendance_statusNullableFilter<$PrismaModel>
+  export type Enumattendance_statusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.attendance_status | Enumattendance_statusFieldRefInput<$PrismaModel>
+    in?: $Enums.attendance_status[] | ListEnumattendance_statusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.attendance_status[] | ListEnumattendance_statusFieldRefInput<$PrismaModel>
+    not?: NestedEnumattendance_statusWithAggregatesFilter<$PrismaModel> | $Enums.attendance_status
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumattendance_statusFilter<$PrismaModel>
+    _max?: NestedEnumattendance_statusFilter<$PrismaModel>
   }
 
   export type StudentEnrollmentScalarRelationFilter = {
@@ -31338,8 +31338,8 @@ export namespace Prisma {
     connect?: StudentWhereUniqueInput
   }
 
-  export type NullableEnumattendance_statusFieldUpdateOperationsInput = {
-    set?: $Enums.attendance_status | null
+  export type Enumattendance_statusFieldUpdateOperationsInput = {
+    set?: $Enums.attendance_status
   }
 
   export type AttendanceUpdateOneWithoutAttendanceRecordsNestedInput = {
@@ -31903,21 +31903,21 @@ export namespace Prisma {
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
-  export type NestedEnumattendance_statusNullableFilter<$PrismaModel = never> = {
-    equals?: $Enums.attendance_status | Enumattendance_statusFieldRefInput<$PrismaModel> | null
-    in?: $Enums.attendance_status[] | ListEnumattendance_statusFieldRefInput<$PrismaModel> | null
-    notIn?: $Enums.attendance_status[] | ListEnumattendance_statusFieldRefInput<$PrismaModel> | null
-    not?: NestedEnumattendance_statusNullableFilter<$PrismaModel> | $Enums.attendance_status | null
+  export type NestedEnumattendance_statusFilter<$PrismaModel = never> = {
+    equals?: $Enums.attendance_status | Enumattendance_statusFieldRefInput<$PrismaModel>
+    in?: $Enums.attendance_status[] | ListEnumattendance_statusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.attendance_status[] | ListEnumattendance_statusFieldRefInput<$PrismaModel>
+    not?: NestedEnumattendance_statusFilter<$PrismaModel> | $Enums.attendance_status
   }
 
-  export type NestedEnumattendance_statusNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.attendance_status | Enumattendance_statusFieldRefInput<$PrismaModel> | null
-    in?: $Enums.attendance_status[] | ListEnumattendance_statusFieldRefInput<$PrismaModel> | null
-    notIn?: $Enums.attendance_status[] | ListEnumattendance_statusFieldRefInput<$PrismaModel> | null
-    not?: NestedEnumattendance_statusNullableWithAggregatesFilter<$PrismaModel> | $Enums.attendance_status | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedEnumattendance_statusNullableFilter<$PrismaModel>
-    _max?: NestedEnumattendance_statusNullableFilter<$PrismaModel>
+  export type NestedEnumattendance_statusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.attendance_status | Enumattendance_statusFieldRefInput<$PrismaModel>
+    in?: $Enums.attendance_status[] | ListEnumattendance_statusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.attendance_status[] | ListEnumattendance_statusFieldRefInput<$PrismaModel>
+    not?: NestedEnumattendance_statusWithAggregatesFilter<$PrismaModel> | $Enums.attendance_status
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumattendance_statusFilter<$PrismaModel>
+    _max?: NestedEnumattendance_statusFilter<$PrismaModel>
   }
 
   export type NestedBoolNullableFilter<$PrismaModel = never> = {
@@ -32872,14 +32872,14 @@ export namespace Prisma {
 
   export type AttendanceRecordCreateWithoutStudentInput = {
     id?: string
-    status?: $Enums.attendance_status | null
+    status: $Enums.attendance_status
     attendance?: AttendanceCreateNestedOneWithoutAttendanceRecordsInput
   }
 
   export type AttendanceRecordUncheckedCreateWithoutStudentInput = {
     id?: string
     attendanceId?: string | null
-    status?: $Enums.attendance_status | null
+    status: $Enums.attendance_status
   }
 
   export type AttendanceRecordCreateOrConnectWithoutStudentInput = {
@@ -33053,7 +33053,7 @@ export namespace Prisma {
     id?: UuidFilter<"AttendanceRecord"> | string
     attendanceId?: UuidNullableFilter<"AttendanceRecord"> | string | null
     studentId?: UuidNullableFilter<"AttendanceRecord"> | string | null
-    status?: Enumattendance_statusNullableFilter<"AttendanceRecord"> | $Enums.attendance_status | null
+    status?: Enumattendance_statusFilter<"AttendanceRecord"> | $Enums.attendance_status
   }
 
   export type StudentEnrollmentUpsertWithWhereUniqueWithoutStudentInput = {
@@ -34758,14 +34758,14 @@ export namespace Prisma {
 
   export type AttendanceRecordCreateWithoutAttendanceInput = {
     id?: string
-    status?: $Enums.attendance_status | null
+    status: $Enums.attendance_status
     student?: StudentCreateNestedOneWithoutAttendanceRecordsInput
   }
 
   export type AttendanceRecordUncheckedCreateWithoutAttendanceInput = {
     id?: string
     studentId?: string | null
-    status?: $Enums.attendance_status | null
+    status: $Enums.attendance_status
   }
 
   export type AttendanceRecordCreateOrConnectWithoutAttendanceInput = {
@@ -35927,7 +35927,7 @@ export namespace Prisma {
   export type AttendanceRecordCreateManyStudentInput = {
     id?: string
     attendanceId?: string | null
-    status?: $Enums.attendance_status | null
+    status: $Enums.attendance_status
   }
 
   export type StudentEnrollmentCreateManyStudentInput = {
@@ -35939,20 +35939,20 @@ export namespace Prisma {
 
   export type AttendanceRecordUpdateWithoutStudentInput = {
     id?: StringFieldUpdateOperationsInput | string
-    status?: NullableEnumattendance_statusFieldUpdateOperationsInput | $Enums.attendance_status | null
+    status?: Enumattendance_statusFieldUpdateOperationsInput | $Enums.attendance_status
     attendance?: AttendanceUpdateOneWithoutAttendanceRecordsNestedInput
   }
 
   export type AttendanceRecordUncheckedUpdateWithoutStudentInput = {
     id?: StringFieldUpdateOperationsInput | string
     attendanceId?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: NullableEnumattendance_statusFieldUpdateOperationsInput | $Enums.attendance_status | null
+    status?: Enumattendance_statusFieldUpdateOperationsInput | $Enums.attendance_status
   }
 
   export type AttendanceRecordUncheckedUpdateManyWithoutStudentInput = {
     id?: StringFieldUpdateOperationsInput | string
     attendanceId?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: NullableEnumattendance_statusFieldUpdateOperationsInput | $Enums.attendance_status | null
+    status?: Enumattendance_statusFieldUpdateOperationsInput | $Enums.attendance_status
   }
 
   export type StudentEnrollmentUpdateWithoutStudentInput = {
@@ -36215,25 +36215,25 @@ export namespace Prisma {
   export type AttendanceRecordCreateManyAttendanceInput = {
     id?: string
     studentId?: string | null
-    status?: $Enums.attendance_status | null
+    status: $Enums.attendance_status
   }
 
   export type AttendanceRecordUpdateWithoutAttendanceInput = {
     id?: StringFieldUpdateOperationsInput | string
-    status?: NullableEnumattendance_statusFieldUpdateOperationsInput | $Enums.attendance_status | null
+    status?: Enumattendance_statusFieldUpdateOperationsInput | $Enums.attendance_status
     student?: StudentUpdateOneWithoutAttendanceRecordsNestedInput
   }
 
   export type AttendanceRecordUncheckedUpdateWithoutAttendanceInput = {
     id?: StringFieldUpdateOperationsInput | string
     studentId?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: NullableEnumattendance_statusFieldUpdateOperationsInput | $Enums.attendance_status | null
+    status?: Enumattendance_statusFieldUpdateOperationsInput | $Enums.attendance_status
   }
 
   export type AttendanceRecordUncheckedUpdateManyWithoutAttendanceInput = {
     id?: StringFieldUpdateOperationsInput | string
     studentId?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: NullableEnumattendance_statusFieldUpdateOperationsInput | $Enums.attendance_status | null
+    status?: Enumattendance_statusFieldUpdateOperationsInput | $Enums.attendance_status
   }
 
   export type CourseOfferingCreateManyAcademic_yearsInput = {
