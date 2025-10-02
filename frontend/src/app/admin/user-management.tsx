@@ -4,11 +4,11 @@ import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { 
-  Download, 
-  Plus, 
-  Search, 
-  Edit, 
+import {
+  Download,
+  Plus,
+  Search,
+  Edit,
   Trash2,
   Users,
   GraduationCap,
@@ -65,7 +65,7 @@ export default function UserManagement({ initialFilters }: UserManagementProps) 
   const [selectedSection, setSelectedSection] = useState<string>(initialFilters?.section || 'all')
   const [selectedCourse, setSelectedCourse] = useState<string>(initialFilters?.course || 'all')
   const [selectedCollege, setSelectedCollege] = useState<string>('all')
-  
+
   // Edit functionality state
   const [editingUser, setEditingUser] = useState<User | null>(null)
   const [showEditForm, setShowEditForm] = useState(false)
@@ -101,10 +101,10 @@ export default function UserManagement({ initialFilters }: UserManagementProps) 
   })
 
   // Fetch departments and colleges for form dropdowns
-  const [departments, setDepartments] = useState<{id: string, name: string, code: string, college: {name: string, code: string}}[]>([])
-  const [colleges, setColleges] = useState<{id: string, name: string, code: string}[]>([])
-  const [sections, setSections] = useState<{id: string, section_name: string}[]>([])
-  
+  const [departments, setDepartments] = useState<{ id: string, name: string, code: string, college: { name: string, code: string } }[]>([])
+  const [colleges, setColleges] = useState<{ id: string, name: string, code: string }[]>([])
+  const [sections, setSections] = useState<{ id: string, section_name: string }[]>([])
+
   // Marks and attendance management state
   const [showMarksAttendance, setShowMarksAttendance] = useState(false)
   const [marksAttendanceUser, setMarksAttendanceUser] = useState<User | null>(null)
@@ -227,9 +227,9 @@ export default function UserManagement({ initialFilters }: UserManagementProps) 
       console.log('SEARCHING FOR:', searchTerm);
       console.log('SAMPLE USER FOR SEARCH DEBUG:', user.name, user.email, user.usn, user.employeeId);
       const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           (user.email && user.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
-                           (user.usn && user.usn.toLowerCase().includes(searchTerm.toLowerCase())) ||
-                           (user.employeeId && user.employeeId.toLowerCase().includes(searchTerm.toLowerCase()))
+        (user.email && user.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (user.usn && user.usn.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (user.employeeId && user.employeeId.toLowerCase().includes(searchTerm.toLowerCase()))
       console.log('SEARCH MATCHES:', matchesSearch, 'for user:', user.name);
       if (!matchesSearch) return false
     }
@@ -287,15 +287,15 @@ export default function UserManagement({ initialFilters }: UserManagementProps) 
   const allDepartments = Array.from(new Set(
     users.map(user => user.department).filter(Boolean)
   )).sort()
-  
+
   const allYears = Array.from(new Set(
     users.map(user => user.year).filter(Boolean)
   )).sort()
-  
+
   const allSections = Array.from(new Set(
     users.map(user => user.section).filter(Boolean)
   )).sort()
-  
+
   const allCourses = Array.from(new Set(
     users.flatMap(user => user.courses || [])
   )).sort()
@@ -345,7 +345,7 @@ export default function UserManagement({ initialFilters }: UserManagementProps) 
               .filter(([, count]) => (count as number) > 0)
               .map(([type, count]) => `${count} ${type}`)
               .join(', ')
-            
+
             // Offer force delete option
             const forceDelete = confirm(
               `Cannot delete user: ${errorMsg}\n\nDependencies found: ${depDetails}\n\n` +
@@ -354,7 +354,7 @@ export default function UserManagement({ initialFilters }: UserManagementProps) 
               `⚠️ THIS WILL PERMANENTLY DELETE ALL RELATED RECORDS ⚠️\n\n` +
               `Click Cancel to abort the deletion.`
             )
-            
+
             if (forceDelete) {
               await forceDeleteUser(userId)
             }
@@ -388,20 +388,44 @@ export default function UserManagement({ initialFilters }: UserManagementProps) 
   // Add user functionality
   const handleAddUser = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     if (!addFormData.name || !addFormData.username || !addFormData.role) {
       alert('Please fill in all required fields')
       return
     }
 
+    // Validate required fields for students
+    if (addFormData.role === 'student') {
+      if (!addFormData.email) {
+        alert('Email is required for students')
+        return
+      }
+      if (!addFormData.collegeId) {
+        alert('College is required for students')
+        return
+      }
+      if (!addFormData.departmentId) {
+        alert('Department is required for students')
+        return
+      }
+      if (!addFormData.section) {
+        alert('Section is required for students')
+        return
+      }
+      if (!addFormData.usn) {
+        alert('USN is required for students')
+        return
+      }
+    }
+
     try {
       const response = await adminApi.createUser(addFormData)
-      
+
       if (response.status === 'success') {
         // Transform the new user data to match our interface
         const roles = (response.data.userRoles || []).map((ur: UserRole) => ur.role)
         const primaryRole = roles[0] || 'student'
-        
+
         const transformedUser: User = {
           id: response.data.id,
           name: response.data.name,
@@ -434,16 +458,16 @@ export default function UserManagement({ initialFilters }: UserManagementProps) 
 
         setUsers(prev => [transformedUser, ...prev])
         setShowAddForm(false)
-        setAddFormData({ 
-          name: '', 
+        setAddFormData({
+          name: '',
           email: '',
-          username: '', 
-          phone: '', 
-          role: 'student', 
-          password: '', 
-          departmentId: '', 
+          username: '',
+          phone: '',
+          role: 'student',
+          password: '',
+          departmentId: '',
           collegeId: '',
-          year: 1, 
+          year: 1,
           section: '',
           usn: ''
         })
@@ -459,16 +483,16 @@ export default function UserManagement({ initialFilters }: UserManagementProps) 
 
   const cancelAdd = () => {
     setShowAddForm(false)
-    setAddFormData({ 
-      name: '', 
+    setAddFormData({
+      name: '',
       email: '',
-      username: '', 
-      phone: '', 
-      role: 'student', 
-      password: '', 
-      departmentId: '', 
+      username: '',
+      phone: '',
+      role: 'student',
+      password: '',
+      departmentId: '',
       collegeId: '',
-      year: 1, 
+      year: 1,
       section: '',
       usn: ''
     })
@@ -621,9 +645,8 @@ export default function UserManagement({ initialFilters }: UserManagementProps) 
             <select
               value={selectedSection}
               onChange={(e) => setSelectedSection(e.target.value)}
-              className={`rounded-md border border-gray-300 px-3 py-2 text-sm ${
-                selectedRole !== 'student' ? 'opacity-50 cursor-not-allowed' : ''
-              }`}
+              className={`rounded-md border border-gray-300 px-3 py-2 text-sm ${selectedRole !== 'student' ? 'opacity-50 cursor-not-allowed' : ''
+                }`}
               aria-label="Filter by section"
               disabled={selectedRole !== 'student'}
             >
@@ -687,9 +710,9 @@ export default function UserManagement({ initialFilters }: UserManagementProps) 
                       </div>
                     </td>
                     <td className="border border-gray-300 px-3 py-2 text-sm text-gray-900">
-                      {user.role === 'student' ? (user.usn || user.username) : 
-                       user.role === 'teacher' ? user.username : 
-                       (user.employeeId || user.username)}
+                      {user.role === 'student' ? (user.usn || user.username) :
+                        user.role === 'teacher' ? user.username :
+                          (user.employeeId || user.username)}
                     </td>
                     <td className="border border-gray-300 px-3 py-2 text-center">
                       <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${getRoleBadgeStyle(user.role)}`}>
@@ -728,9 +751,9 @@ export default function UserManagement({ initialFilters }: UserManagementProps) 
                               phone: user.phone || '',
                               role: user.role as 'student' | 'teacher' | 'admin',
                               // Populate departmentId for both students and teachers
-                              departmentId: (user.role === 'student' || user.role === 'teacher') && user.department ? 
+                              departmentId: (user.role === 'student' || user.role === 'teacher') && user.department ?
                                 departments.find(d => d.name === user.department)?.id || '' : '',
-                              collegeId: (user.role === 'student' || user.role === 'teacher') && user.college ? 
+                              collegeId: (user.role === 'student' || user.role === 'teacher') && user.college ?
                                 colleges.find(c => c.name === user.college)?.id || '' : '',
                               year: user.year ? parseInt(user.year.replace(/\D/g, '')) || 1 : 1,
                               section: user.section || '',
@@ -742,7 +765,7 @@ export default function UserManagement({ initialFilters }: UserManagementProps) 
                         >
                           <Edit className="w-4 h-4" />
                         </Button>
-                        
+
                         {/* Student-specific buttons */}
                         {user.role === 'student' && (
                           <>
@@ -774,7 +797,7 @@ export default function UserManagement({ initialFilters }: UserManagementProps) 
                             </Button>
                           </>
                         )}
-                        
+
                         {/* Delete Button */}
                         <Button
                           variant="outline"
@@ -791,13 +814,13 @@ export default function UserManagement({ initialFilters }: UserManagementProps) 
               </tbody>
             </table>
           </div>
-          
+
           {/* Pagination Controls */}
           {totalPages > 1 && (
             <div className="flex justify-center items-center space-x-2 py-4">
-              <Button 
-                variant="outline" 
-                size="sm" 
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                 disabled={currentPage === 1}
               >
@@ -806,9 +829,9 @@ export default function UserManagement({ initialFilters }: UserManagementProps) 
               <span className="text-sm text-gray-600">
                 Page {currentPage} of {totalPages}
               </span>
-              <Button 
-                variant="outline" 
-                size="sm" 
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                 disabled={currentPage === totalPages}
               >
@@ -907,14 +930,24 @@ export default function UserManagement({ initialFilters }: UserManagementProps) 
                         onChange={(e) => setEditFormData({ ...editFormData, departmentId: e.target.value })}
                         className="rounded-md border border-gray-300 px-3 py-2 text-sm w-full text-gray-900"
                         title="Department"
+                        disabled={!editFormData.collegeId}
                       >
                         <option value="">Select Department</option>
-                        {departments.map(dept => (
-                          <option key={dept.id} value={dept.id}>
-                            {dept.name} ({dept.code}) - {dept.college.name}
-                          </option>
-                        ))}
+                        {departments
+                          .filter(dept => {
+                            if (!editFormData.collegeId) return false;
+                            const selectedCollege = colleges.find(c => c.id === editFormData.collegeId);
+                            return selectedCollege && dept.college.code === selectedCollege.code;
+                          })
+                          .map(dept => (
+                            <option key={dept.id} value={dept.id}>
+                              {dept.name} ({dept.code})
+                            </option>
+                          ))}
                       </select>
+                      {!editFormData.collegeId && (
+                        <p className="text-xs text-gray-500 mt-1">Please select a college first</p>
+                      )}
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-900 mb-1">Year</label>
@@ -966,14 +999,24 @@ export default function UserManagement({ initialFilters }: UserManagementProps) 
                         onChange={(e) => setEditFormData({ ...editFormData, departmentId: e.target.value })}
                         className="rounded-md border border-gray-300 px-3 py-2 text-sm w-full text-gray-900"
                         title="Department"
+                        disabled={!editFormData.collegeId}
                       >
                         <option value="">Select Department</option>
-                        {departments.map(dept => (
-                          <option key={dept.id} value={dept.id}>
-                            {dept.name} ({dept.code}) - {dept.college.name}
-                          </option>
-                        ))}
+                        {departments
+                          .filter(dept => {
+                            if (!editFormData.collegeId) return false;
+                            const selectedCollege = colleges.find(c => c.id === editFormData.collegeId);
+                            return selectedCollege && dept.college.code === selectedCollege.code;
+                          })
+                          .map(dept => (
+                            <option key={dept.id} value={dept.id}>
+                              {dept.name} ({dept.code})
+                            </option>
+                          ))}
                       </select>
+                      {!editFormData.collegeId && (
+                        <p className="text-xs text-gray-500 mt-1">Please select a college first</p>
+                      )}
                     </div>
                   </>
                 )}
@@ -1097,12 +1140,15 @@ export default function UserManagement({ initialFilters }: UserManagementProps) 
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-900 mb-1">Email</label>
+                  <label className="block text-sm font-medium text-gray-900 mb-1">
+                    Email <span className="text-red-500">*</span>
+                  </label>
                   <Input
                     type="email"
                     value={addFormData.email}
                     onChange={(e) => setAddFormData({ ...addFormData, email: e.target.value })}
                     className="text-gray-900"
+                    required
                   />
                 </div>
                 <div>
@@ -1137,17 +1183,20 @@ export default function UserManagement({ initialFilters }: UserManagementProps) 
                     placeholder="Leave empty for default password"
                   />
                 </div>
-                
+
                 {/* Student-specific fields */}
                 {addFormData.role === 'student' && (
                   <>
                     <div>
-                      <label className="block text-sm font-medium text-gray-900 mb-1">College</label>
+                      <label className="block text-sm font-medium text-gray-900 mb-1">
+                        College <span className="text-red-500">*</span>
+                      </label>
                       <select
                         value={addFormData.collegeId || ''}
                         onChange={(e) => setAddFormData({ ...addFormData, collegeId: e.target.value })}
                         className="rounded-md border border-gray-300 px-3 py-2 text-sm w-full text-gray-900"
                         title="College"
+                        required
                       >
                         <option value="">Select College</option>
                         {colleges.map(college => (
@@ -1156,28 +1205,44 @@ export default function UserManagement({ initialFilters }: UserManagementProps) 
                       </select>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-900 mb-1">Department</label>
+                      <label className="block text-sm font-medium text-gray-900 mb-1">
+                        Department <span className="text-red-500">*</span>
+                      </label>
                       <select
                         value={addFormData.departmentId}
                         onChange={(e) => setAddFormData({ ...addFormData, departmentId: e.target.value })}
                         className="rounded-md border border-gray-300 px-3 py-2 text-sm w-full text-gray-900"
                         title="Department"
+                        disabled={!addFormData.collegeId}
+                        required
                       >
                         <option value="">Select Department</option>
-                        {departments.map(dept => (
-                          <option key={dept.id} value={dept.id}>
-                            {dept.name} ({dept.code}) - {dept.college.name}
-                          </option>
-                        ))}
+                        {departments
+                          .filter(dept => {
+                            if (!addFormData.collegeId) return false;
+                            const selectedCollege = colleges.find(c => c.id === addFormData.collegeId);
+                            return selectedCollege && dept.college.code === selectedCollege.code;
+                          })
+                          .map(dept => (
+                            <option key={dept.id} value={dept.id}>
+                              {dept.name} ({dept.code})
+                            </option>
+                          ))}
                       </select>
+                      {!addFormData.collegeId && (
+                        <p className="text-xs text-gray-500 mt-1">Please select a college first</p>
+                      )}
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-900 mb-1">Year</label>
+                      <label className="block text-sm font-medium text-gray-900 mb-1">
+                        Year <span className="text-red-500">*</span>
+                      </label>
                       <select
                         value={addFormData.year}
                         onChange={(e) => setAddFormData({ ...addFormData, year: parseInt(e.target.value) })}
                         className="rounded-md border border-gray-300 px-3 py-2 text-sm w-full text-gray-900"
                         title="Academic Year"
+                        required
                       >
                         <option value={1}>1st Year</option>
                         <option value={2}>2nd Year</option>
@@ -1186,21 +1251,27 @@ export default function UserManagement({ initialFilters }: UserManagementProps) 
                       </select>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-900 mb-1">Section</label>
+                      <label className="block text-sm font-medium text-gray-900 mb-1">
+                        Section <span className="text-red-500">*</span>
+                      </label>
                       <Input
                         value={addFormData.section}
                         onChange={(e) => setAddFormData({ ...addFormData, section: e.target.value })}
                         className="text-gray-900"
                         placeholder="e.g., A, B, C"
+                        required
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-900 mb-1">USN</label>
+                      <label className="block text-sm font-medium text-gray-900 mb-1">
+                        USN <span className="text-red-500">*</span>
+                      </label>
                       <Input
                         value={addFormData.usn}
                         onChange={(e) => setAddFormData({ ...addFormData, usn: e.target.value })}
                         className="text-gray-900"
                         placeholder="e.g., 1NH21CS001"
+                        required
                       />
                     </div>
                   </>
@@ -1230,18 +1301,28 @@ export default function UserManagement({ initialFilters }: UserManagementProps) 
                         onChange={(e) => setAddFormData({ ...addFormData, departmentId: e.target.value })}
                         className="rounded-md border border-gray-300 px-3 py-2 text-sm w-full text-gray-900"
                         title="Department"
+                        disabled={!addFormData.collegeId}
                       >
                         <option value="">Select Department</option>
-                        {departments.map(dept => (
-                          <option key={dept.id} value={dept.id}>
-                            {dept.name} ({dept.code}) - {dept.college.name}
-                          </option>
-                        ))}
+                        {departments
+                          .filter(dept => {
+                            if (!addFormData.collegeId) return false;
+                            const selectedCollege = colleges.find(c => c.id === addFormData.collegeId);
+                            return selectedCollege && dept.college.code === selectedCollege.code;
+                          })
+                          .map(dept => (
+                            <option key={dept.id} value={dept.id}>
+                              {dept.name} ({dept.code})
+                            </option>
+                          ))}
                       </select>
+                      {!addFormData.collegeId && (
+                        <p className="text-xs text-gray-500 mt-1">Please select a college first</p>
+                      )}
                     </div>
                   </>
                 )}
-                
+
                 <div className="flex justify-end space-x-2 pt-4">
                   <Button
                     type="button"
@@ -1259,7 +1340,7 @@ export default function UserManagement({ initialFilters }: UserManagementProps) 
           </div>
         </div>
       )}
-      
+
       {/* Marks and Attendance Management Modal */}
       {showMarksAttendance && marksAttendanceUser && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
@@ -1279,7 +1360,7 @@ export default function UserManagement({ initialFilters }: UserManagementProps) 
                   Close
                 </Button>
               </div>
-              
+
               <MarksAttendanceManagement
                 selectedStudentId={marksAttendanceUser.usn || marksAttendanceUser.username}
                 selectedStudentName={marksAttendanceUser.name}

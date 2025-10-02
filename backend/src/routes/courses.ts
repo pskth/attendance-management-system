@@ -10,7 +10,7 @@ const upload = multer.default({ storage: multer.default.memoryStorage() });
 router.get('/', async (req, res) => {
   try {
     const prisma = Database.getInstance();
-    
+
     const courses = await prisma.course.findMany({
       include: {
         department: {
@@ -50,13 +50,13 @@ router.get('/', async (req, res) => {
     // Extract year from each course code and add it to the response
     const coursesWithYear = courses.map(course => {
       let year = 1; // default
-      
+
       // Try to extract year from course code pattern
       const yearMatch = course.code.match(/[A-Z]{2,4}([1-4])[0-9]{2,3}/);
       if (yearMatch) {
         year = parseInt(yearMatch[1]);
       }
-      
+
       return {
         ...course,
         year
@@ -71,8 +71,8 @@ router.get('/', async (req, res) => {
     });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    res.status(500).json({ 
-      status: 'error', 
+    res.status(500).json({
+      status: 'error',
       error: errorMessage,
       timestamp: new Date().toISOString()
     });
@@ -84,7 +84,7 @@ router.get('/:id', async (req, res) => {
   try {
     const prisma = Database.getInstance();
     const { id } = req.params;
-    
+
     const course = await prisma.course.findUnique({
       where: { id: id },
       include: {
@@ -132,8 +132,8 @@ router.get('/:id', async (req, res) => {
     });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    res.status(500).json({ 
-      status: 'error', 
+    res.status(500).json({
+      status: 'error',
       error: errorMessage,
       timestamp: new Date().toISOString()
     });
@@ -145,7 +145,7 @@ router.get('/department/:departmentId', async (req, res) => {
   try {
     const prisma = Database.getInstance();
     const { departmentId } = req.params;
-    
+
     const courses = await prisma.course.findMany({
       where: { departmentId },
       include: {
@@ -179,8 +179,8 @@ router.get('/department/:departmentId', async (req, res) => {
     });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    res.status(500).json({ 
-      status: 'error', 
+    res.status(500).json({
+      status: 'error',
       error: errorMessage,
       timestamp: new Date().toISOString()
     });
@@ -192,7 +192,7 @@ router.get('/type/:courseType', async (req, res) => {
   try {
     const prisma = Database.getInstance();
     const { courseType } = req.params;
-    
+
     // Validate course type
     const validTypes = ['core', 'department_elective', 'open_elective'];
     if (!validTypes.includes(courseType)) {
@@ -236,8 +236,8 @@ router.get('/type/:courseType', async (req, res) => {
     });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    res.status(500).json({ 
-      status: 'error', 
+    res.status(500).json({
+      status: 'error',
       error: errorMessage,
       timestamp: new Date().toISOString()
     });
@@ -248,7 +248,7 @@ router.get('/type/:courseType', async (req, res) => {
 router.post('/', async (req, res) => {
   try {
     const { name, code, department, year, credits, type, restrictedDepartments } = req.body;
-    
+
     if (!name || !code || !department || !year) {
       return res.status(400).json({
         status: 'error',
@@ -310,7 +310,7 @@ router.post('/', async (req, res) => {
     // Create the course - we'll embed the year info in the course code pattern
     // Ensure the course code follows a pattern that includes the year
     let finalCode = code.toUpperCase().trim();
-    
+
     // If the code doesn't already contain the year pattern, prepend it
     if (!finalCode.match(/^[A-Z]{2,4}[1-4][0-9]{2,3}$/)) {
       // Extract department prefix (first 2-4 letters)
@@ -324,9 +324,10 @@ router.post('/', async (req, res) => {
       data: {
         name: name.trim(),
         code: finalCode,
-        college_id: departmentRecord.college_id,
         departmentId: departmentRecord.id,
-        type: type || 'theory'
+        type: type || 'core',
+        hasTheoryComponent: req.body.hasTheoryComponent ?? true,
+        hasLabComponent: req.body.hasLabComponent ?? false
       },
       include: {
         department: {
@@ -408,7 +409,7 @@ router.put('/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const { name, code, department, year, type, restrictedDepartments } = req.body;
-    
+
     if (!name || !code || !department) {
       return res.status(400).json({
         status: 'error',
@@ -472,7 +473,7 @@ router.put('/:id', async (req, res) => {
 
     // Prepare the final code first
     let finalCode = code.toUpperCase().trim();
-    
+
     // If year is provided, ensure the course code embeds the year information
     if (yearNum) {
       // If the code doesn't already contain the year pattern, modify it
@@ -490,7 +491,7 @@ router.put('/:id', async (req, res) => {
 
     // Check if the final course code already exists (excluding current course)
     const codeConflict = await prisma.course.findFirst({
-      where: { 
+      where: {
         code: finalCode,
         id: { not: id }
       }
@@ -510,9 +511,10 @@ router.put('/:id', async (req, res) => {
       data: {
         name: name.trim(),
         code: finalCode,
-        college_id: departmentRecord.college_id,
         departmentId: departmentRecord.id,
-        type: type || 'theory'
+        type: type || 'core',
+        hasTheoryComponent: req.body.hasTheoryComponent ?? true,
+        hasLabComponent: req.body.hasLabComponent ?? false
       },
       include: {
         department: {
@@ -652,8 +654,8 @@ router.delete('/:id', async (req, res) => {
     });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    res.status(500).json({ 
-      status: 'error', 
+    res.status(500).json({
+      status: 'error',
       error: errorMessage,
       timestamp: new Date().toISOString()
     });
@@ -689,7 +691,7 @@ router.delete('/:id/force', async (req, res) => {
     }
 
     // Force delete course with explicit cascading deletes
-    
+
     // Delete all course offerings and their dependencies
     for (const offering of existingCourse.courseOfferings) {
       // Delete attendance records for this offering (through attendance sessions)
@@ -698,35 +700,35 @@ router.delete('/:id/force', async (req, res) => {
           where: { attendanceId: attendance.id }
         })
       }
-      
+
       // Delete attendance sessions for this offering
       await prisma.attendance.deleteMany({
         where: { offeringId: offering.id }
       })
-      
+
       // Delete theory marks for enrollments in this offering
       await prisma.theoryMarks.deleteMany({
-        where: { 
+        where: {
           enrollment: {
             offeringId: offering.id
           }
         }
       })
-      
+
       // Delete lab marks for enrollments in this offering
       await prisma.labMarks.deleteMany({
-        where: { 
+        where: {
           enrollment: {
             offeringId: offering.id
           }
         }
       })
-      
+
       // Delete enrollments for this offering
       await prisma.studentEnrollment.deleteMany({
         where: { offeringId: offering.id }
       })
-      
+
       // Delete the offering
       await prisma.courseOffering.delete({
         where: { id: offering.id }
@@ -750,8 +752,8 @@ router.delete('/:id/force', async (req, res) => {
     });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    res.status(500).json({ 
-      status: 'error', 
+    res.status(500).json({
+      status: 'error',
       error: errorMessage,
       timestamp: new Date().toISOString()
     });
@@ -766,16 +768,16 @@ router.post('/:courseId/students/upload', upload.single('file'), async (req, res
     const file = req.file;
 
     if (!file) {
-      return res.status(400).json({ 
-        status: 'error', 
-        error: 'No CSV file uploaded' 
+      return res.status(400).json({
+        status: 'error',
+        error: 'No CSV file uploaded'
       });
     }
 
     if (!academicYear || !semester) {
-      return res.status(400).json({ 
-        status: 'error', 
-        error: 'Academic year and semester are required' 
+      return res.status(400).json({
+        status: 'error',
+        error: 'Academic year and semester are required'
       });
     }
 
@@ -785,8 +787,11 @@ router.post('/:courseId/students/upload', upload.single('file'), async (req, res
     const course = await prisma.course.findUnique({
       where: { id: courseId },
       include: {
-        department: true,
-        colleges: true,
+        department: {
+          include: {
+            colleges: true
+          }
+        },
         openElectiveRestrictions: {
           include: {
             restrictedDepartment: true
@@ -796,9 +801,9 @@ router.post('/:courseId/students/upload', upload.single('file'), async (req, res
     });
 
     if (!course) {
-      return res.status(404).json({ 
-        status: 'error', 
-        error: 'Course not found' 
+      return res.status(404).json({
+        status: 'error',
+        error: 'Course not found'
       });
     }
 
@@ -821,7 +826,7 @@ router.post('/:courseId/students/upload', upload.single('file'), async (req, res
       let academicYearRecord = await prisma.academic_years.findFirst({
         where: {
           year_name: academicYear,
-          college_id: course.college_id
+          college_id: course.department.college_id
         }
       });
 
@@ -829,7 +834,7 @@ router.post('/:courseId/students/upload', upload.single('file'), async (req, res
         academicYearRecord = await prisma.academic_years.create({
           data: {
             year_name: academicYear,
-            college_id: course.college_id,
+            college_id: course.department.college_id,
             is_active: true
           }
         });
@@ -850,25 +855,25 @@ router.post('/:courseId/students/upload', upload.single('file'), async (req, res
     // Parse CSV data
     const csvData = file.buffer.toString('utf-8');
     const lines = csvData.split('\n').filter(line => line.trim());
-    
+
     if (lines.length < 2) {
-      return res.status(400).json({ 
-        status: 'error', 
-        error: 'CSV file must contain headers and at least one student record' 
+      return res.status(400).json({
+        status: 'error',
+        error: 'CSV file must contain headers and at least one student record'
       });
     }
 
     const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
-    
+
     // Validate required headers
     const requiredHeaders = ['usn'];
     const optionalHeaders = ['name', 'email', 'section'];
-    
+
     for (const required of requiredHeaders) {
       if (!headers.includes(required)) {
-        return res.status(400).json({ 
-          status: 'error', 
-          error: `Missing required column: ${required}` 
+        return res.status(400).json({
+          status: 'error',
+          error: `Missing required column: ${required}`
         });
       }
     }
@@ -883,7 +888,7 @@ router.post('/:courseId/students/upload', upload.single('file'), async (req, res
     // Process each student record
     for (let i = 1; i < lines.length; i++) {
       const values = lines[i].split(',').map(v => v.trim());
-      
+
       if (values.length !== headers.length) {
         results.failed++;
         results.errors.push(`Line ${i + 1}: Column count mismatch`);
@@ -980,8 +985,8 @@ router.post('/:courseId/students/upload', upload.single('file'), async (req, res
   } catch (error) {
     console.error('Upload students error:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    res.status(500).json({ 
-      status: 'error', 
+    res.status(500).json({
+      status: 'error',
       error: errorMessage,
       timestamp: new Date().toISOString()
     });
@@ -1068,8 +1073,8 @@ router.get('/:courseId/students', async (req, res) => {
   } catch (error) {
     console.error('Get enrolled students error:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    res.status(500).json({ 
-      status: 'error', 
+    res.status(500).json({
+      status: 'error',
       error: errorMessage,
       timestamp: new Date().toISOString()
     });
