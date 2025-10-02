@@ -625,24 +625,15 @@ export default function DepartmentManagement({
                     <td className="border border-gray-300 px-3 py-2">
                       <div className="text-sm text-gray-800">
                         {(() => {
-                          // Group sections by year and show breakdown
-                          const sectionsByYear: {[key: string]: number} = { '1': 0, '2': 0, '3': 0, '4': 0 }
-                          dept.sections.forEach((section: { section_name?: string; name?: string }) => {
-                            const sectionName = section.section_name || section.name
-                            if (sectionName) {
-                              const yearMatch = sectionName.match(/(\d)/)
-                              const year = yearMatch ? yearMatch[1] : '1'
-                              if (sectionsByYear[year] !== undefined) {
-                                sectionsByYear[year]++
-                              }
-                            }
-                          })
+                          // Get all section names
+                          const sectionNames = dept.sections
+                            .map((section: { section_name?: string; name?: string }) => 
+                              section.section_name || section.name
+                            )
+                            .filter((name): name is string => !!name)
+                            .sort()
                           
-                          const yearBreakdown = Object.entries(sectionsByYear)
-                            .filter(([, count]) => count > 0)
-                            .map(([year, count]) => `${year}${getOrdinal(year)} year: ${count}`)
-                          
-                          return yearBreakdown.length > 0 ? yearBreakdown.join(', ') : '0 sections'
+                          return sectionNames.length > 0 ? sectionNames.join(', ') : 'No sections'
                         })()}
                       </div>
                     </td>
