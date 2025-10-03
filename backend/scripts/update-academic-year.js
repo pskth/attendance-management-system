@@ -7,21 +7,21 @@
  * 4. Update student batch years (promote them to next year)
  */
 
-const { PrismaClient } = require('../generated/prisma');
+const { PrismaClient } = require("../generated/prisma");
 
 const prisma = new PrismaClient();
 
 async function updateAcademicYear() {
   try {
-    console.log('🚀 Starting academic year update to 2025-26...\n');
+    console.log("🚀 Starting academic year update to 2025-26...\n");
 
     // Get all colleges
     const colleges = await prisma.college.findMany({
       select: {
         id: true,
         name: true,
-        code: true
-      }
+        code: true,
+      },
     });
 
     console.log(`Found ${colleges.length} colleges\n`);
@@ -33,11 +33,11 @@ async function updateAcademicYear() {
       const deactivated = await prisma.academic_years.updateMany({
         where: {
           college_id: college.id,
-          is_active: true
+          is_active: true,
         },
         data: {
-          is_active: false
-        }
+          is_active: false,
+        },
       });
       console.log(`   ✓ Deactivated ${deactivated.count} old academic year(s)`);
 
@@ -46,36 +46,36 @@ async function updateAcademicYear() {
         where: {
           college_id_year_name: {
             college_id: college.id,
-            year_name: '2025-26'
-          }
+            year_name: "2025-26",
+          },
         },
         create: {
           college_id: college.id,
-          year_name: '2025-26',
-          start_date: new Date('2025-07-01'),
-          end_date: new Date('2026-06-30'),
-          is_active: true
+          year_name: "2025-26",
+          start_date: new Date("2025-07-01"),
+          end_date: new Date("2026-06-30"),
+          is_active: true,
         },
         update: {
           is_active: true,
-          start_date: new Date('2025-07-01'),
-          end_date: new Date('2026-06-30')
-        }
+          start_date: new Date("2025-07-01"),
+          end_date: new Date("2026-06-30"),
+        },
       });
       console.log(`   ✓ Created/activated academic year 2025-26`);
 
       // 3. Get all students from this college
       const students = await prisma.student.findMany({
         where: {
-          college_id: college.id
+          college_id: college.id,
         },
         include: {
           user: {
             select: {
-              name: true
-            }
-          }
-        }
+              name: true,
+            },
+          },
+        },
       });
 
       console.log(`   📊 Found ${students.length} students to update`);
@@ -104,8 +104,8 @@ async function updateAcademicYear() {
           await prisma.student.update({
             where: { id: student.id },
             data: {
-              semester: newSemester
-            }
+              semester: newSemester,
+            },
           });
           promoted++;
         } else {
@@ -114,22 +114,23 @@ async function updateAcademicYear() {
       }
 
       console.log(`   ✓ Promoted ${promoted} students to next year`);
-      console.log(`   ℹ  ${graduated} students already in final year/graduated`);
+      console.log(
+        `   ℹ  ${graduated} students already in final year/graduated`
+      );
       if (unchanged > 0) {
         console.log(`   ℹ  ${unchanged} students unchanged`);
       }
     }
 
-    console.log('\n✅ Academic year update completed successfully!\n');
-    console.log('Summary:');
-    console.log('- New academic year: 2025-26');
-    console.log('- Students promoted to next year');
-    console.log('- Batch 2023 → Now in 3rd year');
-    console.log('- Batch 2024 → Now in 2nd year');
-    console.log('- Batch 2025 → Now in 1st year');
-
+    console.log("\n✅ Academic year update completed successfully!\n");
+    console.log("Summary:");
+    console.log("- New academic year: 2025-26");
+    console.log("- Students promoted to next year");
+    console.log("- Batch 2023 → Now in 3rd year");
+    console.log("- Batch 2024 → Now in 2nd year");
+    console.log("- Batch 2025 → Now in 1st year");
   } catch (error) {
-    console.error('❌ Error updating academic year:', error);
+    console.error("❌ Error updating academic year:", error);
     throw error;
   } finally {
     await prisma.$disconnect();
@@ -139,10 +140,10 @@ async function updateAcademicYear() {
 // Run the script
 updateAcademicYear()
   .then(() => {
-    console.log('\n✨ Done!');
+    console.log("\n✨ Done!");
     process.exit(0);
   })
   .catch((error) => {
-    console.error('\n💥 Failed:', error);
+    console.error("\n💥 Failed:", error);
     process.exit(1);
   });
