@@ -55,6 +55,7 @@ export interface CourseStats {
 }
 
 export interface DepartmentStats {
+  id: string;  // Department UUID
   name: string;
   code: string;
   attendance?: number;
@@ -64,6 +65,16 @@ export interface DepartmentStats {
   courses: CourseStats[];
 }
 
+export interface DepartmentMarksStats {
+  id: string;  // Department UUID
+  name: string;
+  code: string;
+  avgMarks?: number;
+  passRate?: number;
+  students: number;
+  sections: any[];  // Section-based structure for marks
+}
+
 export interface AttendanceAnalyticsData {
   studyYear: number;
   departments: DepartmentStats[];
@@ -71,7 +82,7 @@ export interface AttendanceAnalyticsData {
 
 export interface MarksAnalyticsData {
   studyYear: number;
-  departments: DepartmentStats[];
+  departments: DepartmentMarksStats[];
 }
 
 class AnalyticsService {

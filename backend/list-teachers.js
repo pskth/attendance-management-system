@@ -3,39 +3,61 @@ const prisma = new PrismaClient();
 
 async function listTeachers() {
   try {
+    console.log('\nÌ±®‚ÄçÌø´ TEACHERS AND THEIR ASSIGNED COURSES:\n');
+    console.log('='.repeat(80) + '\n');
+
     const teachers = await prisma.teacher.findMany({
       include: {
-        user: { select: { name: true, email: true } },
+        user: true,
+        department: {
+          include: {
+            colleges: true
+          }
+        },
         courseOfferings: {
           include: {
-            course: { select: { name: true, code: true } }
+            course: true,
+            sections: true,
+            enrollments: true
           }
         }
       }
     });
 
-    console.log('=== ALL TEACHERS ===');
     if (teachers.length === 0) {
-      console.log('No teachers found in database');
+      console.log('‚ùå No teachers found in the database!\n');
       return;
     }
 
-    teachers.forEach((teacher, index) => {
-      console.log(`\n${index + 1}. ${teacher.user.name}`);
-      console.log(`   Email: ${teacher.user.email}`);
-      console.log(`   Teacher ID: ${teacher.id}`);
-      console.log(`   User ID: ${teacher.userId}`);
-      console.log(`   Courses: ${teacher.courseOfferings.length}`);
-      
+    for (const teacher of teachers) {
+      console.log(`\nÌ≥ç ${teacher.user.name}`);
+      console.log(`   Employee ID: ${teacher.employeeId}`);
+      console.log(`   Department: ${teacher.department?.name || 'None'} (${teacher.department?.colleges?.name || 'No College'})`);
+      console.log(`   User ID: ${teacher.userId.substring(0, 12)}...`);
+      console.log(`   Teacher ID: ${teacher.id.substring(0, 12)}...`);
+      console.log(`   Assigned Courses: ${teacher.courseOfferings.length}`);
+
       if (teacher.courseOfferings.length > 0) {
-        teacher.courseOfferings.forEach(offering => {
-          console.log(`     - ${offering.course.code} - ${offering.course.name}`);
+        teacher.courseOfferings.forEach((offering, i) => {
+          const students = offering.enrollments.length;
+          console.log(`      ${i + 1}. ${offering.course.code} - ${offering.course.name}`);
+          console.log(`         Section: ${offering.sections?.section_name || 'None'}`);
+          console.log(`         Students: ${students}`);
         });
+      } else {
+        console.log('      ‚ö†Ô∏è  No courses assigned');
       }
-    });
-    
+    }
+
+    console.log('\n' + '='.repeat(80));
+    console.log('\nÌ≥ä SUMMARY:');
+    console.log(`   Total Teachers: ${teachers.length}`);
+    console.log(`   Teachers with courses: ${teachers.filter(t => t.courseOfferings.length > 0).length}`);
+    console.log(`   Teachers without courses: ${teachers.filter(t => t.courseOfferings.length === 0).length}`);
+    console.log('\n' + '='.repeat(80) + '\n');
+
   } catch (error) {
-    console.error('Error:', error.message);
+    console.error('‚ùå Error:', error.message);
   } finally {
     await prisma.$disconnect();
   }

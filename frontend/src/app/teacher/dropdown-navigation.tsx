@@ -23,8 +23,11 @@ interface Year {
 
 interface Department {
   department_id: string
+  department_code?: string
   department_name: string
   short_name: string
+  college_name?: string
+  college_code?: string
   total_students: number
   total_courses: number
   active_classes_today: number
@@ -44,6 +47,7 @@ export interface Course {
   has_theory_component?: boolean
   has_lab_component?: boolean
   offering_id?: string
+  academic_year?: string
 }
 
 export interface Section {
@@ -65,6 +69,7 @@ interface DropdownNavigationProps {
   onCourseSelect: (course: Course) => void
   onSectionSelect: (section: Section) => void
   courses?: any[] // Teacher courses from API
+  teacherCollege?: string // Teacher's college code to filter departments
 }
 
 export function DropdownNavigation({
@@ -76,7 +81,8 @@ export function DropdownNavigation({
   onDepartmentSelect,
   onCourseSelect,
   onSectionSelect,
-  courses: teacherCourses = []
+  courses: teacherCourses = [],
+  teacherCollege
 }: DropdownNavigationProps) {
   const [yearDropdownOpen, setYearDropdownOpen] = useState(false)
   const [deptDropdownOpen, setDeptDropdownOpen] = useState(false)
@@ -124,7 +130,7 @@ export function DropdownNavigation({
   useEffect(() => {
     loadYears()
     loadDepartments()
-  }, [])
+  }, [teacherCollege]) // Reload departments when teacher college changes
 
   const loadYears = async () => {
     setLoading(prev => ({ ...prev, years: true }))
@@ -160,14 +166,23 @@ export function DropdownNavigation({
 
       // Transform department data to match expected format
       const transformedDepts = departmentData.map((dept: any) => ({
-        department_id: dept.code,
+        department_id: dept.id,  // Use unique ID instead of code
+        department_code: dept.code,
         department_name: dept.name,
         short_name: dept.code,
+        college_name: dept.colleges?.name || '',
+        college_code: dept.colleges?.code || '',
         total_students: dept.students?.length || 0,
         total_courses: dept.courses?.length || 0,
         active_classes_today: 0 // This would need to be calculated
       }))
-      setDepartments(transformedDepts)
+
+      // Filter by teacher's college if specified
+      const filteredDepts = teacherCollege
+        ? transformedDepts.filter((dept: any) => dept.college_code === teacherCollege)
+        : transformedDepts
+
+      setDepartments(filteredDepts)
     } catch (error) {
       console.error('Error loading departments:', error)
       setDepartments([]) // Set empty array as fallback
@@ -358,7 +373,7 @@ export function DropdownNavigation({
             </Button>
 
             {courseDropdownOpen && (
-              <div className="absolute top-full mt-2 w-full bg-white border border-gray-200 rounded-lg shadow-lg z-[60]">
+              <div className="absolute top-full mt-2 w-full min-w-[300px] max-w-[500px] bg-white border border-gray-200 rounded-lg shadow-lg z-[60]">
                 <div className="p-2 max-h-60 overflow-y-auto">
                   {courses.length > 0 ? (
                     <>
@@ -432,7 +447,7 @@ export function DropdownNavigation({
             </Button>
 
             {sectionDropdownOpen && selectedCourse && (
-              <div className="absolute top-full mt-2 w-full bg-white border border-gray-200 rounded-lg shadow-lg z-[60]">
+              <div className="absolute top-full mt-2 w-full min-w-[250px] max-w-[400px] bg-white border border-gray-200 rounded-lg shadow-lg z-[60]">
                 <div className="p-2 max-h-60 overflow-y-auto">
                   {sections.length > 0 ? sections.map((section) => (
                     <button
@@ -479,8 +494,8 @@ export function DropdownNavigation({
             </Button>
 
             {yearDropdownOpen && (
-              <div className="absolute top-full mt-2 w-full bg-white border border-gray-200 rounded-lg shadow-lg z-[60]">
-                <div className="p-2">
+              <div className="absolute top-full mt-2 w-full min-w-[200px] max-w-[300px] bg-white border border-gray-200 rounded-lg shadow-lg z-[60]">
+                <div className="p-2 max-h-60 overflow-y-auto">
                   {years.map((year) => (
                     <button
                       key={year.year}
@@ -519,15 +534,18 @@ export function DropdownNavigation({
             </Button>
 
             {deptDropdownOpen && (
-              <div className="absolute top-full mt-2 w-full bg-white border border-gray-200 rounded-lg shadow-lg z-[60]">
-                <div className="p-2">
+              <div className="absolute top-full mt-2 w-full min-w-[300px] max-w-[400px] bg-white border border-gray-200 rounded-lg shadow-lg z-[60]">
+                <div className="p-2 max-h-60 overflow-y-auto">
                   {departments.map((dept) => (
                     <button
                       key={dept.department_id}
-                      className="w-full text-left p-3 rounded-md hover:bg-gray-50 transition-colors"
+                      className="w-full text-left p-3 rounded-md hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-b-0"
                       onClick={() => handleDepartmentSelect(dept.department_id)}
                     >
                       <div className="font-medium text-gray-900">{dept.short_name}: {dept.department_name}</div>
+                      {dept.college_name && (
+                        <div className="text-xs text-gray-500 mt-1">{dept.college_code} - {dept.college_name}</div>
+                      )}
                     </button>
                   ))}
                 </div>

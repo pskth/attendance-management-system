@@ -331,6 +331,7 @@ router.get('/attendance/:studyYear?', authenticateToken, async (req: Authenticat
       const deptAttendance = deptTotalRecords > 0 ? (deptPresentRecords / deptTotalRecords) * 100 : 0;
 
       return {
+        id: dept.id,
         name: dept.name,
         code: dept.code || 'XXX',
         attendance: parseFloat(deptAttendance.toFixed(1)),
@@ -570,6 +571,7 @@ router.get('/marks/:studyYear?', authenticateToken, async (req: AuthenticatedReq
       const deptPassRate = deptMarkCount > 0 ? (deptPassedStudents / deptMarkCount) * 100 : 0;
 
       return {
+        id: dept.id,
         name: dept.name,
         code: dept.code || 'XXX',
         avgMarks: parseFloat(deptAvgMarks.toFixed(1)),

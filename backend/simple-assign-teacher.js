@@ -1,173 +1,159 @@
-// Simple script to assign courses to teacher
-const { PrismaClient } = require('./generated/prisma');
+// Assign CS Teacher 1 (NMAMIT) to CS301 (Data Structures) course offerings
+const { PrismaClient } = require("./generated/prisma");
 
-const prisma = new PrismaClient({
-  log: ['info', 'warn', 'error'],
-});
+const prisma = new PrismaClient();
 
-async function assignTeacherCourses() {
+async function assignCS301ToTeacher1() {
   try {
-    await prisma.$connect();
-    console.log('✅ Connected to database');
+    console.log("\n🔧 ASSIGNING CS301 TO CS TEACHER 1 (NMAMIT)\n");
+    console.log("=".repeat(80) + "\n");
 
-    // Get teacher
-    const teacher = await prisma.user.findUnique({
-      where: { username: 'teacher' },
-      include: { teacher: true }
+    // Get CS Teacher 1 from NMAMIT
+    const teacher = await prisma.teacher.findFirst({
+      where: {
+        user: { name: "CS Teacher 1" },
+        department: {
+          code: "CS",
+          colleges: { code: "NMAMIT" },
+        },
+      },
+      include: {
+        user: true,
+        department: {
+          include: {
+            colleges: true,
+          },
+        },
+      },
     });
 
-    if (!teacher?.teacher) {
-      console.log('❌ Teacher not found');
+    if (!teacher) {
+      console.log("❌ CS Teacher 1 (NMAMIT) not found!");
       return;
     }
 
-    console.log(`Found teacher: ${teacher.name}`);
+    console.log(`✅ Found: ${teacher.user.name}`);
+    console.log(`   Department: ${teacher.department?.name}`);
+    console.log(`   College: ${teacher.department?.colleges.name}`);
+    console.log(`   Teacher ID: ${teacher.id.substring(0, 12)}...\n`);
 
-    // Get first 3 courses that exist
-    const courses = await prisma.course.findMany({
-      take: 3,
-      include: { department: true }
-    });
-
-    console.log(`Found ${courses.length} courses`);
-
-    if (courses.length === 0) {
-      console.log('No courses found in database');
-      return;
-    }
-
-    // Get academic year and section
-    const academicYear = await prisma.academic_years.findFirst();
-    const section = await prisma.sections.findFirst();
-
-    console.log('Academic year:', academicYear?.year_name || 'None');
-    console.log('Section:', section?.section_name || 'None');
-
-    // Assign courses to teacher
-    for (const course of courses) {
-      try {
-        // Check if already assigned
-        const existing = await prisma.courseOffering.findFirst({
-          where: {
-            courseId: course.id,
-            teacherId: teacher.teacher.id
-          }
-        });
-
-        let offering;
-        if (existing) {
-          console.log(`⚠️ Course ${course.code} already assigned to teacher, adding students...`);
-          offering = existing;
-        } else {
-          // Create course offering
-          offering = await prisma.courseOffering.create({
-            data: {
-              courseId: course.id,
-              teacherId: teacher.teacher.id,
-              year_id: academicYear?.id || null,
-              section_id: section?.section_id || null
-            }
-          });
-          console.log(`✅ Assigned ${course.code} - ${course.name} to teacher`);
-        }
-
-        // Add some students to this course if there are any
-        const students = await prisma.student.findMany({
-          take: 20,
-          where: {
-            department_id: course.department_id
-          }
-        });
-
-        console.log(`   Found ${students.length} students in department`);
-
-        // Enroll students in course
-        for (let i = 0; i < Math.min(students.length, 20); i++) {
-          try {
-            await prisma.studentEnrollment.create({
-              data: {
-                studentId: students[i].id,
-                offeringId: offering.id
-              }
-            });
-          } catch (err) {
-            // Student might already be enrolled
-          }
-        }
-
-        console.log(`   Enrolled ${Math.min(students.length, 20)} students`);
-
-        // Create some attendance sessions
-        const today = new Date();
-        for (let session = 1; session <= 8; session++) {
-          try {
-            const classDate = new Date(today);
-            classDate.setDate(today.getDate() - (session * 3));
-
-            const attendance = await prisma.attendance.create({
-              data: {
-                offeringId: offering.id,
-                teacherId: teacher.teacher.id,
-                classDate: classDate,
-                periodNumber: session % 6 + 1,
-                syllabusCovered: `${course.name} - Topic ${session}`,
-                status: 'held'
-              }
-            });
-
-            // Add attendance records for enrolled students
-            const enrolledStudents = await prisma.studentEnrollment.findMany({
-              where: { offeringId: offering.id },
-              include: { student: true }
-            });
-
-            for (const enrollment of enrolledStudents) {
-              const isPresent = Math.random() > 0.2; // 80% attendance rate
-              await prisma.attendanceRecord.create({
-                data: {
-                  attendanceId: attendance.id,
-                  studentId: enrollment.student.id,
-                  status: isPresent ? 'present' : 'absent'
-                }
-              });
-            }
-
-          } catch (err) {
-            console.log(`   ⚠️ Error creating session ${session}:`, err.message);
-          }
-        }
-
-        console.log(`   Created 8 attendance sessions`);
-
-      } catch (error) {
-        console.log(`❌ Error assigning ${course.code}:`, error.message);
-      }
-    }
-
-    // Show final summary
-    console.log('\n📊 Teacher Summary:');
-    const teacherOfferings = await prisma.courseOffering.findMany({
-      where: { teacherId: teacher.teacher.id },
+    // Get unassigned CS301 offerings for NMAMIT
+    const offerings = await prisma.courseOffering.findMany({
+      where: {
+        course: {
+          code: "CS301",
+          department: {
+            code: "CS",
+            college_id: teacher.department?.college_id,
+          },
+        },
+        teacherId: null,
+        semester: 5,
+      },
       include: {
         course: true,
-        enrollments: true,
-        attendances: true
-      }
+        sections: true,
+        enrollments: {
+          include: {
+            student: true,
+          },
+        },
+      },
     });
 
-    for (const offering of teacherOfferings) {
-      console.log(`📚 ${offering.course.code} - ${offering.course.name}`);
-      console.log(`   Students: ${offering.enrollments.length}`);
-      console.log(`   Sessions: ${offering.attendances.length}`);
+    if (offerings.length === 0) {
+      console.log("⚠️  No unassigned CS301 offerings found for NMAMIT");
+      console.log("    All sections may already have teachers assigned.\n");
+
+      // Show current assignments
+      const allOfferings = await prisma.courseOffering.findMany({
+        where: {
+          course: {
+            code: "CS301",
+            department: {
+              code: "CS",
+              college_id: teacher.department?.college_id,
+            },
+          },
+          semester: 5,
+        },
+        include: {
+          course: true,
+          sections: true,
+          teacher: {
+            include: {
+              user: true,
+            },
+          },
+        },
+      });
+
+      console.log("Current CS301 offerings for NMAMIT:");
+      allOfferings.forEach((o) => {
+        console.log(
+          `   Section ${o.sections?.section_name}: ${
+            o.teacher ? o.teacher.user.name : "No teacher"
+          }`
+        );
+      });
+      console.log("");
+      return;
     }
 
-    console.log('\n🎉 Teacher assignment complete!');
+    console.log(`Found ${offerings.length} unassigned CS301 section(s):\n`);
 
+    let assignedCount = 0;
+
+    for (const offering of offerings) {
+      const section = offering.sections?.section_name || "Unknown";
+      console.log(`📚 Section ${section}:`);
+      console.log(`   Students enrolled: ${offering.enrollments.length}`);
+
+      // Assign teacher to this offering
+      await prisma.courseOffering.update({
+        where: { id: offering.id },
+        data: { teacherId: teacher.id },
+      });
+
+      console.log(
+        `   ✅ Assigned ${teacher.user.name} to Section ${section}\n`
+      );
+      assignedCount++;
+    }
+
+    console.log("=".repeat(80));
+    console.log(
+      `\n✅ SUCCESS! Assigned ${assignedCount} section(s) to ${teacher.user.name}\n`
+    );
+
+    // Show final summary
+    const finalOfferings = await prisma.courseOffering.findMany({
+      where: {
+        teacherId: teacher.id,
+      },
+      include: {
+        course: true,
+        sections: true,
+        enrollments: true,
+      },
+    });
+
+    console.log(`📊 ${teacher.user.name}'s Courses:`);
+    finalOfferings.forEach((o, i) => {
+      console.log(
+        `   ${i + 1}. ${o.course.code} - Section ${o.sections?.section_name} (${
+          o.enrollments.length
+        } students)`
+      );
+    });
+
+    console.log("\n" + "=".repeat(80) + "\n");
   } catch (error) {
-    console.error('❌ Error:', error);
+    console.error("\n❌ Error:", error.message);
+    console.error(error);
   } finally {
     await prisma.$disconnect();
   }
 }
 
-assignTeacherCourses();
+assignCS301ToTeacher1();

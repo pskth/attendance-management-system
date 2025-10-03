@@ -108,7 +108,7 @@ export default function AttendanceAnalytics({ studyYear, collegeId }: Attendance
     <div className="space-y-6">
       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
         {departmentWiseData.map((dept, index) => (
-          <Card key={`${dept.code}-${index}`} className="overflow-hidden">
+          <Card key={dept.id || `${dept.code}-${index}`} className="overflow-hidden">
             <CardHeader
               className="cursor-pointer hover:bg-gray-50 transition-colors pb-4"
               onClick={() => toggleDepartment(`${dept.code}-${index}`)}

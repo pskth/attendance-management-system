@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChevronDown, ChevronRight, Loader2, AlertTriangle } from "lucide-react";
-import analyticsService, { MarksAnalyticsData, DepartmentStats } from '@/lib/analytics-service';
+import analyticsService, { MarksAnalyticsData, DepartmentMarksStats } from '@/lib/analytics-service';
 
 interface MarksAnalyticsProps {
   studyYear: number;
@@ -117,7 +117,7 @@ export default function MarksAnalytics({ studyYear, collegeId }: MarksAnalyticsP
     <div className="space-y-6">
       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
         {departmentWiseData.map((dept, index) => (
-          <Card key={`${dept.code}-${index}`} className="overflow-hidden">
+          <Card key={dept.id || `${dept.code}-${index}`} className="overflow-hidden">
             <CardHeader
               className="cursor-pointer hover:bg-gray-50 transition-colors pb-4"
               onClick={() => toggleDepartment(`${dept.code}-${index}`)}

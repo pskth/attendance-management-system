@@ -389,6 +389,7 @@ export default function TeacherDashboard() {
           onCourseSelect={setSelectedCourse}
           onSectionSelect={setSelectedSection}
           courses={courses}
+          teacherCollege={dashboardData?.teacher.collegeCode}
         />
 
         {/* Main Content */}
