@@ -227,7 +227,62 @@ router.get('/csv', authenticateToken, async (req: AuthenticatedRequest, res) => 
     }
 });
 
-// Export as JSON (for Excel processing)
+// Export as JSON
+router.get('/json', authenticateToken, async (req: AuthenticatedRequest, res) => {
+    try {
+        const filters: ExportFilters = {
+            academicYear: req.query.academicYear as string
+        };
+
+        const data = await getAnalyticsDataForExport(filters);
+
+        // Format data for JSON export
+        const jsonData = {
+            summary: {
+                report_title: `Analytics Report - ${data.overview.academicYear}`,
+                generated_at: data.overview.generatedAt,
+                total_students: data.overview.totalStudents,
+                total_courses: data.overview.totalCourses,
+                average_attendance: `${data.overview.averageAttendance.toFixed(1)}%`,
+                average_marks: data.overview.averageMarks.toFixed(1)
+            },
+            student_details: data.detailedStudentData.map(student => ({
+                'Student Name': student.name,
+                'USN': student.usn,
+                'Department': student.department,
+                'Section': student.section,
+                'Semester': student.semester,
+                'Course Name': student.courseName,
+                'Course Code': student.courseCode,
+                'Attendance %': student.attendancePercent,
+                'Theory Marks': student.theoryMarks,
+                'Lab Marks': student.labMarks,
+                'Total Marks': student.totalMarks
+            })),
+            department_summary: data.departments.map(dept => ({
+                'Department': dept.departmentName,
+                'Code': dept.departmentCode,
+                'Total Students': dept.totalStudents,
+                'Average Attendance %': dept.averageAttendance.toFixed(1),
+                'Average Marks': dept.averageMarks.toFixed(1)
+            }))
+        };
+
+        const filename = `analytics_report_${filters.academicYear}_${Date.now()}.json`;
+        setDownloadHeaders(res, filename, 'application/json');
+
+        res.json(jsonData);
+    } catch (error) {
+        console.error('JSON export error:', error);
+        res.status(500).json({
+            status: 'error',
+            message: 'Failed to export JSON data',
+            error: error instanceof Error ? error.message : 'Unknown error'
+        });
+    }
+});
+
+// Export as JSON (legacy Excel endpoint - kept for compatibility)
 router.get('/excel', authenticateToken, async (req: AuthenticatedRequest, res) => {
     try {
         const filters: ExportFilters = {

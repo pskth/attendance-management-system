@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Download, FileText, FileSpreadsheet, Printer, Loader2 } from "lucide-react";
+import Cookies from 'js-cookie';
 
 interface ExportReportsProps {
   filters: {
@@ -35,10 +36,11 @@ export default function ExportReports({ filters }: ExportReportsProps) {
   };
 
   const getAuthToken = () => {
-    return localStorage.getItem('token') || sessionStorage.getItem('token');
+    // Get token from cookie (matches the API client implementation)
+    return Cookies.get('auth_token');
   };
 
-  const handleExport = async (format: 'pdf' | 'excel' | 'csv') => {
+  const handleExport = async (format: 'json' | 'csv') => {
     setIsExporting(true);
     setExportingType(format);
 
@@ -48,13 +50,17 @@ export default function ExportReports({ filters }: ExportReportsProps) {
         throw new Error('No authentication token found. Please log in again.');
       }
 
+      const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
       const collegeParam = filters.collegeId !== 'all' ? `&collegeId=${filters.collegeId}` : '';
-      const response = await fetch(`/api/export/${format}?studyYear=${filters.studyYear}${collegeParam}`, {
+      const url = `${API_BASE_URL}/api/export/${format}?studyYear=${filters.studyYear}${collegeParam}`;
+
+      const response = await fetch(url, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
+        credentials: 'include', // Include cookies
       });
 
       if (!response.ok) {
@@ -72,7 +78,7 @@ export default function ExportReports({ filters }: ExportReportsProps) {
           filename = fileNameMatch[1];
         }
       } else {
-        filename += `.${format === 'excel' ? 'json' : format}`;
+        filename += `.${format}`;
       }
 
       if (format === 'csv') {
@@ -102,33 +108,18 @@ export default function ExportReports({ filters }: ExportReportsProps) {
     <div className="flex flex-col space-y-2">
       <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2">
         <Button
-          onClick={() => handleExport('pdf')}
+          onClick={() => handleExport('json')}
           disabled={isExporting}
           variant="outline"
           size="sm"
           className="flex items-center justify-center space-x-1 text-xs sm:text-sm"
         >
-          {isExporting && exportingType === 'pdf' ? (
-            <Loader2 className="h-3 w-3 sm:h-4 sm:w-4 animate-spin" />
-          ) : (
-            <FileText className="h-3 w-3 sm:h-4 sm:w-4" />
-          )}
-          <span>PDF</span>
-        </Button>
-
-        <Button
-          onClick={() => handleExport('excel')}
-          disabled={isExporting}
-          variant="outline"
-          size="sm"
-          className="flex items-center justify-center space-x-1 text-xs sm:text-sm"
-        >
-          {isExporting && exportingType === 'excel' ? (
+          {isExporting && exportingType === 'json' ? (
             <Loader2 className="h-3 w-3 sm:h-4 sm:w-4 animate-spin" />
           ) : (
             <FileSpreadsheet className="h-3 w-3 sm:h-4 sm:w-4" />
           )}
-          <span>Excel</span>
+          <span>JSON</span>
         </Button>
 
         <Button
