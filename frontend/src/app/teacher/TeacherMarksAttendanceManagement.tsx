@@ -45,6 +45,27 @@ interface StudentMark {
   last_updated_at: string;
 }
 
+interface StudentMarksContainer {
+
+  id: string;
+  maxMarks: number;
+  weightage: number;
+  obtainedMarks: number | null;
+  name: string;
+  
+}
+
+interface StudentMark1 {
+  componentId: string;
+  obtainedMarks?: number | null;
+}
+
+interface Student {
+  studentId: string;
+  studentName: string;
+  marks: StudentMark1[];
+}
+
 interface AttendanceRecord {
   id: string;
   date: string;
@@ -105,455 +126,269 @@ export default function TeacherMarksAttendanceManagement({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>("");
-  const [componentsTest, setComponentsTest] = useState<TestComponent[]>(
-    []
-  ); // to store test components structure
+  const [componentsTest, setComponentsTest] = useState<TestComponent[]>([]); // to store test components structure
   const [componentsR, setComponentsR] = useState<true | false>(false);
+
+
+
   // Load data from database
+// useEffect(() => {
+//   console.log("Fetching compoennts pls be the first time")
+//   const fetchComponents = async () => {
+//     try {
+//       const structureResponse = await TeacherAPI.getCourseTestComponents(
+//         selectedCourseId || "",
+//         teacherId
+//       );
+
+//       const components: TestComponent[] = structureResponse.components || [];
+//       console.log("Fetched components for course (initial load):", selectedCourseId, components);
+//       console.log("structureResponse:", structureResponse.status);
+//       if (structureResponse.status == 'success') { // check response status, not components.status
+//         console.log("True it is")
+//         setComponentsTest(prev => [...prev, ...components]);
+
+//         console.log("componentsTest state after setting:", componentsTest);
+//         setComponentsR(true);
+//         loadMarksData();
+//       }
+//       console.log("After fetching components, componentsTest state:", componentsTest);
+//     } catch (err) {
+//       console.error("Failed to fetch components", err);
+//     }
+//   };
+
+//   fetchComponents();
+// }, [componentsTest]);
+
+//   useEffect(() => {
+//     if (activeTab === "marks") {
+//       loadMarksData();
+//     } else {
+//       loadAttendanceData();
+//     }
+//   }, [ componentsR]);
+
 useEffect(() => {
-  const fetchComponents = async () => {
+  const fetchComponentsAndMarks = async () => {
     try {
       const structureResponse = await TeacherAPI.getCourseTestComponents(
-        selectedCourseId || "",
+        selectedCourseId ,
         teacherId
       );
 
-      const components = structureResponse.components || [];
-      console.log("Fetched components for course (initial load):", selectedCourseId, components);
-      if (structureResponse.status === "success") { // check response status, not components.status
-        setComponentsTest(components);
+      if (structureResponse.status === "success") {
+        const fetchedComponents: TestComponent[] = structureResponse.components || [];
+        console.log("Fetched components:", fetchedComponents);
         setComponentsR(true);
-        loadMarksData();
+        // 1️⃣ Update state
+        setComponentsTest(fetchedComponents);
+
+        // 2️⃣ Fetch marks AFTER components are ready
+        await loadMarksData(fetchedComponents); // pass components directly
       }
     } catch (err) {
-      console.error("Failed to fetch components", err);
+      console.error("Failed to fetch components or marks:", err);
     }
   };
 
-  fetchComponents();
-}, []);
-
-  useEffect(() => {
-    if (activeTab === "marks") {
-      loadMarksData();
-    } else {
-      loadAttendanceData();
-    }
-  }, [activeTab, selectedDate, selectedCourse]);
-
+  fetchComponentsAndMarks();
+}, [selectedCourseId, teacherId]); // run when course or teacher changes
+  
   // const loadMarksData = async () => {
-  //     setLoading(true)
-  //     setError(null)
-  //     try {
-  //         // Get marks for courses assigned to teacher
-  //         if (selectedCourse === 'all') {
-  //             // Load marks for all teacher's courses
-  //             const allMarks: StudentMark[] = []
-
-  //             for (const course of courses) {
-  //                 try {
-  //                     // Get students for this course offering
-  //                     const studentsResponse = await TeacherAPI.getCourseStudents(course.offeringId)
-
-  //                     // For each student, get their marks
-  //                     for (const studentData of studentsResponse) {
-  //                         try {
-  //                             const marksResponse = await TeacherAPI.getCourseStudentMarks(
-  //                                 course.course.id, // courseId
-  //                                 teacherid // studentUsn
-  //                             )
-
-  //                             if (marksResponse.status === 'success' && marksResponse.data.length > 0) {
-  //                                 const item = marksResponse.students   // Should only be one result for specific USN and course
-
-  //                                 const studentMark: StudentMark = {
-  //                                     id: item.id,
-  //                                     enrollmentId: item.enrollmentId,
-  //                                     usn: item.student?.usn || studentData.student.usn,
-  //                                     student_name: item.student?.user?.name || studentData.student.name,
-  //                                     course_code: item.course?.code || course.course.code,
-  //                                     course_name: item.course?.name || course.course.name,
-  //                                     // Theory marks
-  //                                     mse1_marks: item.theoryMarks?.mse1_marks || null,
-  //                                     mse2_marks: item.theoryMarks?.mse2_marks || null,
-  //                                     mse3_marks: item.theoryMarks?.mse3_marks || null,
-  //                                     task1_marks: item.theoryMarks?.task1_marks || null,
-  //                                     task2_marks: item.theoryMarks?.task2_marks || null,
-  //                                     task3_marks: item.theoryMarks?.task3_marks || null,
-  //                                     theory_total: (item.theoryMarks?.mse1_marks || 0) + (item.theoryMarks?.mse2_marks || 0) +
-  //                                         (item.theoryMarks?.mse3_marks || 0) + (item.theoryMarks?.task1_marks || 0) +
-  //                                         (item.theoryMarks?.task2_marks || 0) + (item.theoryMarks?.task3_marks || 0),
-  //                                     // Lab marks
-  //                                     record_marks: item.labMarks?.record_marks || null,
-  //                                     continuous_evaluation_marks: item.labMarks?.continuous_evaluation_marks || null,
-  //                                     lab_mse_marks: item.labMarks?.lab_mse_marks || null,
-  //                                     lab_total: (item.labMarks?.record_marks || 0) + (item.labMarks?.continuous_evaluation_marks || 0) +
-  //                                         (item.labMarks?.lab_mse_marks || 0),
-  //                                     last_updated_at: item.updatedAt || new Date().toISOString()
-  //                                 }
-
-  //                                 allMarks.push(studentMark)
-  //                             }
-  //                         } catch (err) {
-  //                             console.warn(`Could not load marks for student ${studentData.student.usn} in course ${course.course.code}:`, err)
-  //                             // Create empty marks record for students without marks yet
-  //                             const studentMark: StudentMark = {
-  //                                 id: `${studentData.enrollmentId}-empty`,
-  //                                 enrollmentId: studentData.enrollmentId,
-  //                                 usn: studentData.student.usn,
-  //                                 student_name: studentData.student.name,
-  //                                 course_code: course.course.code,
-  //                                 course_name: course.course.name,
-  //                                 mse1_marks: null,
-  //                                 mse2_marks: null,
-  //                                 mse3_marks: null,
-  //                                 task1_marks: null,
-  //                                 task2_marks: null,
-  //                                 task3_marks: null,
-  //                                 theory_total: 0,
-  //                                 record_marks: null,
-  //                                 continuous_evaluation_marks: null,
-  //                                 lab_mse_marks: null,
-  //                                 lab_total: 0,
-  //                                 last_updated_at: new Date().toISOString()
-  //                             }
-  //                             allMarks.push(studentMark)
-  //                         }
-  //                     }
-  //                 } catch (err) {
-  //                     console.error(`Error loading course ${course.course.code}:`, err)
-  //                 }
-  //             }
-
-  //             setMarks(allMarks)
-  //         } else {
-  //             // Load marks for specific course
-  //             const course = courses.find(c => c.offeringId === selectedCourse)
-  //             if (!course) return
-
-  //             const studentsResponse = await TeacherAPI.getCourseStudents(course.offeringId)
-  //             const courseMarks: StudentMark[] = []
-
-  //             for (const studentData of studentsResponse) {
-  //                 try {
-  //                     const marksResponse = await TeacherAPI.getStudentMarks(
-  //                         course.course.id,
-  //                         studentData.student.usn
-  //                     )
-
-  //                     if (marksResponse.status === 'success' && marksResponse.data.length > 0) {
-  //                         const item = marksResponse.data[0]
-
-  //                         const studentMark: StudentMark = {
-  //                             id: item.id,
-  //                             enrollmentId: item.enrollmentId,
-  //                             usn: item.student?.usn || studentData.student.usn,
-  //                             student_name: item.student?.user?.name || studentData.student.name,
-  //                             course_code: item.course?.code || course.course.code,
-  //                             course_name: item.course?.name || course.course.name,
-  //                             mse1_marks: item.theoryMarks?.mse1_marks || null,
-  //                             mse2_marks: item.theoryMarks?.mse2_marks || null,
-  //                             mse3_marks: item.theoryMarks?.mse3_marks || null,
-  //                             task1_marks: item.theoryMarks?.task1_marks || null,
-  //                             task2_marks: item.theoryMarks?.task2_marks || null,
-  //                             task3_marks: item.theoryMarks?.task3_marks || null,
-  //                             theory_total: (item.theoryMarks?.mse1_marks || 0) + (item.theoryMarks?.mse2_marks || 0) +
-  //                                 (item.theoryMarks?.mse3_marks || 0) + (item.theoryMarks?.task1_marks || 0) +
-  //                                 (item.theoryMarks?.task2_marks || 0) + (item.theoryMarks?.task3_marks || 0),
-  //                             record_marks: item.labMarks?.record_marks || null,
-  //                             continuous_evaluation_marks: item.labMarks?.continuous_evaluation_marks || null,
-  //                             lab_mse_marks: item.labMarks?.lab_mse_marks || null,
-  //                             lab_total: (item.labMarks?.record_marks || 0) + (item.labMarks?.continuous_evaluation_marks || 0) +
-  //                                 (item.labMarks?.lab_mse_marks || 0),
-  //                             last_updated_at: item.updatedAt || new Date().toISOString()
-  //                         }
-
-  //                         courseMarks.push(studentMark)
-  //                     }
-  //                 } catch (err) {
-  //                     console.warn(`Could not load marks for student ${studentData.student.usn}:`, err)
-  //                     // Create empty marks record
-  //                     const studentMark: StudentMark = {
-  //                         id: `${studentData.enrollmentId}-empty`,
-  //                         enrollmentId: studentData.enrollmentId,
-  //                         usn: studentData.student.usn,
-  //                         student_name: studentData.student.name,
-  //                         course_code: course.course.code,
-  //                         course_name: course.course.name,
-  //                         mse1_marks: null,
-  //                         mse2_marks: null,
-  //                         mse3_marks: null,
-  //                         task1_marks: null,
-  //                         task2_marks: null,
-  //                         task3_marks: null,
-  //                         theory_total: 0,
-  //                         record_marks: null,
-  //                         continuous_evaluation_marks: null,
-  //                         lab_mse_marks: null,
-  //                         lab_total: 0,
-  //                         last_updated_at: new Date().toISOString()
-  //                     }
-  //                     courseMarks.push(studentMark)
-  //                 }
-  //             }
-
-  //             setMarks(courseMarks)
-  //         }
-  //     } catch (err) {
-  //         setError('Failed to load marks data')
-  //         console.error('Error loading marks:', err)
-  //     } finally {
-  //         setLoading(false)
-  //     }
-  // }
-  //     const loadMarksData = async () => {
-  //   setLoading(true)
-  //   setError(null)
+  //   setLoading(true);
+  //   setError(null);
 
   //   try {
-  //     const allMarks: StudentMark[] = []
-
-  //     // Case 1: All courses
+  //     const allMarks: StudentMark[] = [];
+  //     console.log("load marks data is run:", teacherId);
   //     if (selectedCourse === "all") {
+  //       // Loop through all courses
+  //       console.log("Loading marks for all courses:", courses);
   //       for (const course of courses) {
   //         try {
-  //           // fetch structure for this course offering
-  //           const structureResponse = await TeacherAPI.getCourseTestComponents(course.course.id, teacherid)
-  //           const components = structureResponse.components || []
-  //           setComponentsTest(components);
-  //           // fetch students + their marks
+  //           // 1️⃣ Fetch the table structure (components)
+            
+  //           // 2️⃣ Fetch students + their marks
   //           const marksResponse = await TeacherAPI.getCourseStudentMarks(
   //             course.offeringId,
-  //             teacherid
-  //           )
+  //             teacherId
+  //           );
 
   //           if (marksResponse.status === "success" && marksResponse.students) {
   //             for (const student of marksResponse.students) {
-  //               // initialize student marks with all components
-  //               const studentMarks = components.map((c: ) => ({
-  //                 componentId: c.id,
-  //                 componentName: c.name,
-  //                 type: c.type,
-  //                 maxMarks: c.maxMarks,
-  //                 weightage: c.weightage,
-  //                 obtainedMarks: null
-  //               }))
+  //               // 3️⃣ Initialize student marks with all components
+  //               console.log("Fetched components for course:", course.course.code, marksResponse.students);
+  //               const studentMarks: StudentMarkComponent[] = student.marks.map(
+  //                 (c) => ({
+  //                   componentId: c.componentId,
+  //                   componentName: c.name,  
+  //                   type: c.type,
+  //                   maxMarks: c.maxMarks,
+  //                   weightage: c.weightage,
+  //                   obtainedMarks: null,
+  //                 })
+  //               );
 
-  //               // overlay actual marks from API
+  //               // 4️⃣ Overlay actual marks from API
   //               student.marks.forEach((m: StudentMarkComponent) => {
-  //                 const comp = studentMarks.find(c => c.componentId === m.componentId)
-  //                 if (comp) comp.obtainedMarks = m.obtainedMarks
-  //               })
+  //                 const comp = studentMarks.find(
+  //                   (c) => c.componentId === m.componentId
+  //                 );
+  //                 if (comp) comp.obtainedMarks = m.obtainedMarks;
+  //               });
 
+  //               // 5️⃣ Build student row
   //               const studentMark: StudentMark = {
   //                 id: student.studentId,
-  //                 enrollmentId: student.studentId, // or real enrollmentId if available
+  //                 enrollmentId: student.studentId, // replace with real enrollmentId if available
   //                 usn: student.usn,
   //                 student_name: student.studentName,
   //                 course_code: course.course.code,
   //                 course_name: course.course.name,
   //                 marks: studentMarks,
-  //                 last_updated_at: new Date().toISOString()
-  //               }
+  //                 last_updated_at: new Date().toISOString(),
+  //               };
 
-  //               allMarks.push(studentMark)
+  //               allMarks.push(studentMark);
   //             }
   //           }
   //         } catch (err) {
-  //           console.error(`Error loading course ${course.course.code}:`, err)
+  //           console.error(`Error loading course ${course.course.code}:`, err);
   //         }
   //       }
 
-  //       setMarks(allMarks)
+  //       setMarks(allMarks);
   //     } else {
-  //       // Case 2: Specific course
-  //       const course = courses.find(c => c.offeringId === selectedCourse)
-  //       if (!course) return
-
-  //       // fetch structure for this course offering
-  //       const structureResponse = await TeacherAPI.getCourseTestComponents(course.course.id, teacherid)
-  //       const components = structureResponse.components || []
-
-  //       // fetch all students + marks
+  //       // Specific course
+  //       console.log("Loading marks for specific course :", selectedCourse   );
+  //       // const course = courses.find((c) => c.offeringId === selectedCourse);
+  //       // console.log("Found course for marks loading:", course);
+  //       // if (!course) return;
+  //       const course = selectedCourse
+  //       console.log("Found courseid and teacher id at TMA page:", course,teacherId);
+  //       // 2️⃣ Fetch students + marks
   //       const marksResponse = await TeacherAPI.getCourseStudentMarks(
-  //         course.offeringId,
-  //         teacherid
-  //       )
-
-  //       const courseMarks: StudentMark[] = []
-
+  //         course,
+  //         teacherId
+  //       );
+  //       console.log("Fetched marks response:", marksResponse);
+  //       const courseMarks: StudentMark[] = [];
+        
   //       if (marksResponse.status === "success" && marksResponse.students) {
   //         for (const student of marksResponse.students) {
-  //           // initialize all components for this student
-  //           const studentMarks = components.map((c: any) => ({
-  //             componentId: c.id,
-  //             componentName: c.name,
-  //             type: c.type,
-  //             maxMarks: c.maxMarks,
-  //             weightage: c.weightage,
-  //             obtainedMarks: null
-  //           }))
+  //           // 3️⃣ Initialize all components (imagine one students dont have marks to that column then what to do ?)
+  //           const studentMarks: StudentMarkComponent[] = componentsTest.map(
+  //             (c) => ({
+  //               componentId: c.id,
+  //               componentName: c.name,
+  //               type: c.type,
+  //               maxMarks: c.maxMarks,
+  //               weightage: c.weightage,
+  //               obtainedMarks: null,
+  //             })
+  //           );  
+  //           console.log("Initialized student :", student," marks ",studentMarks," componentsTest ",componentsTest);  
+  //           // 4️⃣ Overlay actual marks
+  //           student.marks.forEach((m) => {
+  //             const comp = studentMarks.find(
+  //               (c) => c.componentId === m.componentId
+  //             );
+  //             if (comp) comp.obtainedMarks = m.obtainedMarks;
+  //           });
+  //           const cnc = await TeacherAPI.getCourseNameAndCode(course);
+  //           let course_code = "";
+  //           let course_name = "";
+  //           if (cnc.status === "success") {
+  //             course_code = cnc.data.code;
+  //             course_name = cnc.data.name;
+  //           }
 
-  //           // overlay actual marks
-  //           student.marks.forEach((m: any) => {
-  //             const comp = studentMarks.find(c => c.componentId === m.componentId)
-  //             if (comp) comp.obtainedMarks = m.obtainedMarks
-  //           })
-
+  //           // 5️⃣ Build student row
   //           const studentMark: StudentMark = {
   //             id: student.studentId,
   //             enrollmentId: student.studentId,
   //             usn: student.usn,
   //             student_name: student.studentName,
-  //             course_code: course.course.code,
-  //             course_name: course.course.name,
+  //             course_code: course_code || "",
+  //             course_name: course_name || "",
   //             marks: studentMarks,
-  //             last_updated_at: new Date().toISOString()
-  //           }
+  //             last_updated_at: new Date().toISOString(),
+  //           };
 
-  //           courseMarks.push(studentMark)
+  //           courseMarks.push(studentMark);
   //         }
   //       }
-
-  //       setMarks(courseMarks)
+  //       console.log("course marks after filtering i guess:", courseMarks);
+  //       setMarks(courseMarks);
+       
   //     }
   //   } catch (err) {
-  //     setError("Failed to load marks data")
-  //     console.error("Error loading marks:", err)
+  //     setError("Failed to load marks data");
+  //     console.error("Error loading marks:", err);
   //   } finally {
-  //     setLoading(false)
+  //     setLoading(false);
   //   }
-  // }
-  const loadMarksData = async () => {
-    setLoading(true);
-    setError(null);
+  // };
 
-    try {
-      const allMarks: StudentMark[] = [];
-      console.log("load marks data is run:", teacherId);
-      if (selectedCourse === "all") {
-        // Loop through all courses
-        console.log("Loading marks for all courses:", courses);
-        for (const course of courses) {
-          try {
-            // 1️⃣ Fetch the table structure (components)
-            
-            // 2️⃣ Fetch students + their marks
-            const marksResponse = await TeacherAPI.getCourseStudentMarks(
-              course.offeringId,
-              teacherId
-            );
+  const loadMarksData = async (currentComponents: TestComponent[]) => {
+  setLoading(true);
+  setError(null);
+ console.log("loadMarksData called with components:", currentComponents);
+  try {
+    const courseMarks: StudentMark[] = [];
+    const marksResponse = await TeacherAPI.getCourseStudentMarks(
+      selectedCourse,
+      teacherId
+    );
 
-            if (marksResponse.status === "success" && marksResponse.students) {
-              for (const student of marksResponse.students) {
-                // 3️⃣ Initialize student marks with all components
-                console.log("Fetched components for course:", course.course.code, marksResponse.students);
-                const studentMarks: StudentMarkComponent[] = componentsTest.map(
-                  (c) => ({
-                    componentId: c.id,
-                    componentName: c.name,
-                    type: c.type,
-                    maxMarks: c.maxMarks,
-                    weightage: c.weightage,
-                    obtainedMarks: null,
-                  })
-                );
+    if (marksResponse.status === "success" && marksResponse.students) {
+      for (const student of marksResponse.students) {
+        // Initialize marks using the fetched components
+        const studentMarks: StudentMarkComponent[] = currentComponents.map(c => ({
+          componentId: c.id,
+          componentName: c.name,
+          type: c.type,
+          maxMarks: c.maxMarks,
+          weightage: c.weightage,
+          obtainedMarks: null,
+        }));
 
-                // 4️⃣ Overlay actual marks from API
-                student.marks.forEach((m: StudentMarkComponent) => {
-                  const comp = studentMarks.find(
-                    (c) => c.componentId === m.componentId
-                  );
-                  if (comp) comp.obtainedMarks = m.obtainedMarks;
-                });
-
-                // 5️⃣ Build student row
-                const studentMark: StudentMark = {
-                  id: student.studentId,
-                  enrollmentId: student.studentId, // replace with real enrollmentId if available
-                  usn: student.usn,
-                  student_name: student.studentName,
-                  course_code: course.course.code,
-                  course_name: course.course.name,
-                  marks: studentMarks,
-                  last_updated_at: new Date().toISOString(),
-                };
-
-                allMarks.push(studentMark);
-              }
-            }
-          } catch (err) {
-            console.error(`Error loading course ${course.course.code}:`, err);
-          }
-        }
-
-        setMarks(allMarks);
-      } else {
-        // Specific course
-        console.log("Loading marks for specific course :", selectedCourse   );
-        const course = courses.find((c) => c.offeringId === selectedCourse);
-        if (!course) return;
-
-        console.log("Found course:", course);
-        // 2️⃣ Fetch students + marks
-        const marksResponse = await TeacherAPI.getCourseStudentMarks(
-          course.course.id,
-          teacherId
-        );
-        const courseMarks: StudentMark[] = [];
-        console.log("marks:",marksResponse.students);
-        if (marksResponse.status === "success" && marksResponse.students) {
-          for (const student of marksResponse.students) {
-            // 3️⃣ Initialize all components
-            const studentMarks: StudentMarkComponent[] = componentsTest.map(
-              (c) => ({
-                componentId: c.id,
-                componentName: c.name,
-                type: c.type,
-                maxMarks: c.maxMarks,
-                weightage: c.weightage,
-                obtainedMarks: null,
-              })
-            );
-
-            // 4️⃣ Overlay actual marks
-            student.marks.forEach((m) => {
-              const comp = studentMarks.find(
-                (c) => c.componentId === m.componentId
-              );
-              if (comp) comp.obtainedMarks = m.obtainedMarks;
-            });
-
-            // 5️⃣ Build student row
-            const studentMark: StudentMark = {
-              id: student.studentId,
-              enrollmentId: student.studentId,
-              usn: student.usn,
-              student_name: student.studentName,
-              course_code: course.course.code,
-              course_name: course.course.name,
-              marks: studentMarks,
-              last_updated_at: new Date().toISOString(),
-            };
-
-            courseMarks.push(studentMark);
-          }
-        }
-
-        setMarks(courseMarks);
-        console.log(
-          "Loaded marks for course:",
-          course.course.name,
-          courseMarks
-        );
+        // Overlay actual marks
+        student.marks.forEach(m => {
+          const comp = studentMarks.find(c => c.componentId === m.componentId);
+          if (comp) comp.obtainedMarks = m.obtainedMarks;
+        });
+        
+        const cnc = await TeacherAPI.getCourseNameAndCode(selectedCourse);
+             let course_code = "";
+            let course_name = "";
+             if (cnc.status === "success") {
+               course_code = cnc.data.code;
+               course_name = cnc.data.name;
+             }
+        // Build student row
+        courseMarks.push({
+          id: student.studentId,
+          enrollmentId: student.studentId,
+          usn: student.usn,
+          student_name: student.studentName,
+          course_code: course_code,
+          course_name: course_name,
+          marks: studentMarks,
+          last_updated_at: new Date().toISOString(),
+        });
       }
-    } catch (err) {
-      setError("Failed to load marks data");
-      console.error("Error loading marks:", err);
-    } finally {
-      setLoading(false);
     }
-  };
+
+    setMarks(courseMarks);
+  } catch (err) {
+    setError("Failed to load marks data");
+    console.error("Error loading marks:", err);
+  } finally {
+    setLoading(false);
+  }
+};
 
   const loadAttendanceData = async () => {
     if (selectedCourse === "all") {
@@ -878,6 +713,109 @@ useEffect(() => {
     ];
     return monthNames[currentMonth];
   };
+const handleSaveComponents = async () => {
+  try {
+    if (!componentsTest || componentsTest.length === 0) return;
+
+    const response = await TeacherAPI.saveComponents(selectedCourse, teacherId, componentsTest);
+
+    if (response.status == 'success') {
+      alert('Components saved successfully!');
+    } else {
+      alert('Failed to save components: ' + (response.error || 'Unknown error'));
+    }
+  } catch (err) {
+    alert('Error saving components: ' + (err instanceof Error ? err.message : 'Unknown error'));
+  }
+};
+// const saveMarks = async (studentsToSave: Student[]) => {
+//   try {
+//     console.log("Students to save:", studentsToSave);
+//     if (!studentsToSave.length) return;
+
+//     // 🔧 Map your frontend Student → backend API shape
+//     const payload = studentsToSave.map((student) => ({
+//       studentId: student.studentId ,
+//       marks: student.marks.map((m) => ({
+//         componentId: m.componentId,
+//         marksObtained: m.obtainedMarks ?? 0,
+//       })),
+//     }));
+//     console.log("Payload for saving marks:", payload);
+
+//     const updatedStudents = await TeacherAPI.saveStudentMarks(
+//       selectedCourse,
+//       teacherId,
+//       payload
+//     );
+
+//     if (studentsToSave.length === 1) {
+//       console.log("Single student marks saved:", updatedStudents);
+//       alert(`Marks for ${updatedStudents[0].studentName} saved!`);
+//     } else {
+//       alert("All selected student marks saved!");
+//     }
+
+//     return updatedStudents;
+//   } catch (error: any) {
+//     console.error("Error saving marks:", error);
+//     alert(error.message || "Failed to save marks");
+//   }
+// };
+
+// Frontend shape
+interface FrontendStudent {
+  id: string;
+  enrollmentId: string;
+  usn: string;
+  student_name: string;
+  course_code: string;
+  course_name: string;
+  marks: {
+    componentId: string;
+    componentName?: string;
+    type?: string;
+    maxMarks?: number;
+    weightage?: number;
+    obtainedMarks: number | null;
+  }[];
+  last_updated_at?: string;
+}
+
+// saveMarks function
+const saveMarks = async (studentsToSave: FrontendStudent[]) => {
+  try {
+    console.log("Students to save:", studentsToSave);
+    if (!studentsToSave.length) return;
+
+    // Transform frontend object → backend payload
+    const payload = studentsToSave.map((student) => ({
+      studentId: student.id, // backend expects this
+      marks: student.marks.map((m) => ({
+        componentId: m.componentId,
+        marksObtained: m.obtainedMarks ?? 0, // null → 0
+      })),
+    }));
+
+    // Call backend API
+    const updatedStudents = await TeacherAPI.saveStudentMarks(
+      selectedCourse,
+      teacherId,
+      payload
+    );
+
+    if (studentsToSave.length === 1) {
+      alert(`Marks for ${studentsToSave[0].student_name} saved!`);
+    } else {
+      alert("All selected student marks saved!");
+    }
+
+    return updatedStudents;
+  } catch (error: any) {
+    console.error("Error saving marks:", error);
+    alert(error.message || "Failed to save marks");
+  }
+};
 
   return (
     <div className="space-y-6">
@@ -992,7 +930,7 @@ useEffect(() => {
       {!loading && activeTab === "marks" && componentsR ?(
         <Card>
           <CardHeader>
-            <CardTitle>Student Marks</CardTitle>
+            <CardTitle>Student Marks </CardTitle>
             <CardDescription>
               Click on any mark to edit. Shows theory marks and lab marks for
               each course. Totals are automatically calculated.
@@ -1000,221 +938,295 @@ useEffect(() => {
           </CardHeader>
           <CardContent className="p-0">
             <div className="overflow-x-auto">
-              <table className="w-full border-collapse border border-gray-300">
-                <thead className="bg-gray-100">
-                  <tr>
-                    <th className="border border-gray-300 px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                      Student
-                    </th>
-                    <th className="border border-gray-300 px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                      Course
-                    </th>
-                    <th
-                      className="border border-gray-300 px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase tracking-wider"
-                      colSpan={
-                        componentsTest.filter((c) => c.type === "theory").length+2
-                      }
-                    >
-                      Theory Marks
-                    </th>
-                    <th
-                      className="border border-gray-300 px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase tracking-wider"
-                      colSpan={
-                        componentsTest.filter((c) => c.type === "lab").length+2
-                      }
-                    >
-                      Lab Marks
-                    </th>
-                    <th className="border border-gray-300 px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                      Last Updated
-                    </th>
-                  </tr>
-                  <tr>
-                    <th className="border border-gray-300 px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      USN & Name
-                    </th>
-                    <th className="border border-gray-300 px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Code & Name
-                    </th>
-
-                    {/* Dynamic Theory Columns */}
-                    {/* Inside table header */}
-{componentsTest.filter(c => c.type === 'theory').map((comp, index) => (
-  <th key={comp.id} className="border px-3 py-2">
-    <div className="flex items-center gap-1">
-      <input
-        type="text"
-        value={comp.name}
-        className="border rounded px-1 py-0.5 text-xs"
-        onChange={(e) => {
-          const updated = [...componentsTest];
-          updated[index].name = e.target.value;
-          setComponentsTest(updated);
-        }}
-      />
-      <button
-        className="text-red-500 text-xs"
-        onClick={() => {
-          setComponentsTest((prev) => prev.filter((c) => c.id !== comp.id));
-        }}
-      >
-        ×
-      </button>
-    </div>
-  </th>
-))}
-
-{/* Add new column */}
-<th className="border px-3 py-2">
-  <button
-    className="text-green-500 text-xs"
-    onClick={() => {
-      const newComp = {
-        id: crypto.randomUUID(),
-        name: "New Column",
-        type: "theory",
-        maxMarks: 20,
-        weightage: 100,
-      };
-      setComponentsTest((prev) => [...prev, newComp]);
-    }}
-  >
-    + Add
-  </button>
-</th>
-
-                    <th className="border border-gray-300 px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Theory Total
-                    </th>
-
-                    {/* Dynamic Lab Columns */}
-                    {/* Inside table header */}
-{componentsTest.filter(c => c.type === 'lab').map((comp, index) => (
-  <th key={comp.id} className="border px-3 py-2">
-    <div className="flex items-center gap-1">
-      <input
-        type="text"
-        value={comp.name}
-        className="border rounded px-1 py-0.5 text-xs"
-        onChange={(e) => {
-          const updated = [...componentsTest];
-          updated[index].name = e.target.value;
-          setComponentsTest(updated);
-        }}
-      />
-      <button
-        className="text-red-500 text-xs"
-        onClick={() => {
-          setComponentsTest((prev) => prev.filter((c) => c.id !== comp.id));
-        }}
-      >
-        ×
-      </button>
-    </div>
-  </th>
-))}
-
-{/* Add new column */}
-<th className="border px-3 py-2">
-  <button
-    className="text-green-500 text-xs"
-    onClick={() => {
-      const newComp = {
-        id: crypto.randomUUID(),
-        name: "New Column",
-        type: "lab",
-        maxMarks: 20,
-        weightage: 100,
-      };
-      setComponentsTest((prev) => [...prev, newComp]);
-    }}
-  >
-    + Add
-  </button>
-</th>
-
-                    <th className="border border-gray-300 px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Lab Total
-                    </th>
-                    <th className="border border-gray-300 px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"></th>
-                  </tr>
-                </thead>
-
-<tbody className="bg-white">
-  {marks.length === 0 ? (
+             <table className="w-full border-collapse border border-gray-300">
+  <thead className="bg-gray-100">
     <tr>
-      <td
-        colSpan={componentsTest.length + 5}
-        className="border border-gray-300 px-6 py-8 text-center"
+      <th className="border border-gray-300 px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+        Student
+      </th>
+      <th className="border border-gray-300 px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+        Course
+      </th>
+      <th
+        className="border border-gray-300 px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase tracking-wider"
+        colSpan={componentsTest.filter((c) => c.type === "theory").length + 2}
       >
-        <div className="text-gray-500">
-          <BookOpen className="w-8 h-8 mx-auto mb-2 text-gray-400" />
-          <p className="font-medium">No marks data available</p>
-          <p className="text-sm">
-            Select a course to view and edit student marks
-          </p>
-        </div>
-      </td>
+        Theory Marks
+      </th>
+      <th
+        className="border border-gray-300 px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase tracking-wider"
+        colSpan={componentsTest.filter((c) => c.type === "lab").length + 2}
+      >
+        Lab Marks
+      </th>
+      <th className="border border-gray-300 px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+        Last Updated
+      </th>
+      <th className="border border-gray-300 px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+        Actions
+      </th>
     </tr>
-  ) : (
-    marks.map((mark) => {
-      const theoryTotal = mark.marks
-        .filter((m) => m.type === "theory")
-        .reduce((sum, m) => sum + (m.obtainedMarks ?? 0), 0);
+    <tr>
+      <th className="border border-gray-300 px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+        USN & Name
+      </th>
+      <th className="border border-gray-300 px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+        Code & Name
+      </th>
 
-      const labTotal = mark.marks
-        .filter((m) => m.type === "lab")
-        .reduce((sum, m) => sum + (m.obtainedMarks ?? 0), 0);
+      {/* Dynamic Theory Columns */}
+      {componentsTest.filter(c => c.type === 'theory').map((comp, index) => (
+        <th key={comp.id} className="border px-3 py-2">
+          <div className="flex items-center gap-1">
+            <input
+              type="text"
+              value={comp.name}
+              className="border rounded px-1 py-0.5 text-xs"
+              onChange={(e) => {
+  const newName = e.target.value;
+  setComponentsTest(prev =>
+    prev.map(c => c.id === comp.id ? { ...c, name: newName } : c)
+  );
+}}
+            />
+            <button
+              className="text-red-500 text-xs"
+              onClick={() => {
+                setComponentsTest((prev) => prev.filter((c) => c.id !== comp.id));
+              }}
+            >
+              ×
+            </button>
+          </div>
+        </th>
+      ))}
 
-      return (
-        <tr key={mark.enrollmentId} className="hover:bg-gray-50">
-          <td className="border border-gray-300 px-3 py-2">
-            <div className="font-mono text-sm font-bold">{mark.usn}</div>
-            <div className="text-sm text-gray-600">{mark.student_name}</div>
-          </td>
-          <td className="border border-gray-300 px-3 py-2">
-            <div className="font-mono text-sm font-bold">{mark.course_code}</div>
-            <div className="text-sm text-gray-600">{mark.course_name}</div>
-          </td>
+      {/* Add new theory column */}
+      <th className="border px-3 py-2">
+        <button
+          className="text-green-500 text-xs"
+          onClick={() => {
+            const newComp = {
+              id: crypto.randomUUID(),
+              name: "New Column",
+              type: "theory",
+              maxMarks: 20,
+              weightage: 100,
+              obtainedMarks: 0,
+            };
+            setComponentsTest((prev) => [...prev, newComp]);
+          }}
+        > 
+          + Add
+        </button>
+      </th>
+      <th className="border border-gray-300 px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+        Theory Total
+      </th>
 
-          {/* Render Theory Marks */}
-          {componentsTest.filter((c) => c.type === "theory").map((comp) => {
-            const studentMark = mark.marks.find((m) => m.componentId === comp.id);
-            return (
-              <td key={comp.id} className="border border-gray-300 px-3 py-2">
-                {studentMark ? studentMark.obtainedMarks ?? "-" : "-"}
-              </td>
-            );
-          })}
+      {/* Dynamic Lab Columns */}
+      {componentsTest.filter(c => c.type === 'lab').map((comp, index) => (
+        <th key={comp.id} className="border px-3 py-2">
+          <div className="flex items-center gap-1">
+            <input
+              type="text"
+              value={comp.name}
+              className="border rounded px-1 py-0.5 text-xs"
+              onChange={(e) => {
+  const newName = e.target.value;
+  setComponentsTest(prev =>
+    prev.map(c => c.id === comp.id ? { ...c, name: newName } : c)
+  );
+}}
+            />
+            <button
+              className="text-red-500 text-xs"
+              onClick={() => {
+                setComponentsTest((prev) => prev.filter((c) => c.id !== comp.id));
+              }}
+            >
+              ×
+            </button>
+          </div>
+        </th>
+      ))}
 
-          <td className="border border-gray-300 px-3 py-2 font-bold text-emerald-600">
-            {theoryTotal}
-          </td>
+      {/* Add new lab column */}
+      <th className="border px-3 py-2">
+        <button
+          className="text-green-500 text-xs"
+          onClick={() => {
+            const newComp = {
+              id: crypto.randomUUID(),
+              name: "New Column",
+              type: "lab",
+              maxMarks: 20,
+              weightage: 100,
+              obtainedMarks: 0,
+            };
+            setComponentsTest((prev) => [...prev, newComp]);
+          }}
+        >
+          + Add
+        </button>
+      </th>
 
-          {/* Render Lab Marks */}
-          {componentsTest.filter((c) => c.type === "lab").map((comp) => {
-            const studentMark = mark.marks.find((m) => m.componentId === comp.id);
-            return (
-              <td key={comp.id} className="border border-gray-300 px-3 py-2">
-                {studentMark ? studentMark.obtainedMarks ?? "-" : "-"}
-              </td>
-            );
-          })}
+      <th className="border border-gray-300 px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+        Lab Total
+      </th>
+          <th></th>
+      {/* Save Components Button */}
+      <th className="border border-gray-300 px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+        <button
+          className="bg-blue-600 text-white text-xs px-1 py-0.5 rounded hover:bg-blue-700"
+          onClick={() => handleSaveComponents()}
+        >
+          Save
+        </button>
+      </th>
+    </tr>
+  </thead>
 
-          <td className="border border-gray-300 px-3 py-2 font-bold text-green-600">
-            {labTotal}
-          </td>
+  <tbody className="bg-white">
+    {marks.length === 0 ? (
+      <tr>
+        <td colSpan={componentsTest.length + 6} className="border border-gray-300 px-6 py-8 text-center">
+          <div className="text-gray-500">
+            <BookOpen className="w-8 h-8 mx-auto mb-2 text-gray-400" />
+            <p className="font-medium">No marks data available</p>
+            <p className="text-sm">Select a course to view and edit student marks</p>
+          </div>
+        </td>
+      </tr>
+    ) : (
+      marks.map((mark) => {
+        const round1 = (num: number) => Math.round(num * 10) / 10;
 
-          <td className="border border-gray-300 px-3 py-2 text-xs text-gray-500">
-            {new Date(mark.last_updated_at).toLocaleDateString()}
-          </td>
-        </tr>
-      );
-    })
-  )}
-</tbody>
+        const theoryObtained = mark.marks
+          .filter((m) => m.type === "theory")
+          .reduce((sum, m) => sum + (m.obtainedMarks ?? 0) * m.weightage, 0);
+        const theoryMax = mark.marks
+          .filter((m) => m.type === "theory")
+          .reduce((sum, m) => sum + m.maxMarks * m.weightage, 0);
+        const theoryTotal = theoryMax > 0 ? round1((theoryObtained / theoryMax) * 50) : 0;
 
-              </table>
+        const labObtained = mark.marks
+          .filter((m) => m.type === "lab")
+          .reduce((sum, m) => sum + (m.obtainedMarks ?? 0) * m.weightage, 0);
+        const labMax = mark.marks
+          .filter((m) => m.type === "lab")
+          .reduce((sum, m) => sum + m.maxMarks * m.weightage, 0);
+        const labTotal = labMax > 0 ? round1((labObtained / labMax) * 50) : 0;
+
+        return (
+          <tr key={mark.enrollmentId} className="hover:bg-gray-50">
+            <td className="border border-gray-300 px-3 py-2">
+              <div className="font-mono text-sm font-bold">{mark.usn}</div>
+              <div className="text-sm text-gray-600">{mark.student_name}</div>
+            </td>
+            <td className="border border-gray-300 px-3 py-2">
+              <div className="font-mono text-sm font-bold">{mark.course_code}</div>
+              <div className="text-sm text-gray-600">{mark.course_name}</div>
+            </td>
+
+            {/* Editable Theory Marks */}
+            {componentsTest.filter((c) => c.type === "theory").map((comp) => {
+              const studentMark = mark.marks.find((m) => m.componentId === comp.id);
+              return (
+                <td key={comp.id} className="border border-gray-300 px-3 py-2">
+                  <input
+                    type="number"
+                    value={studentMark?.obtainedMarks ?? ""}
+                    className="w-12 border px-1 py-0.5 text-xs rounded"
+                    onChange={(e) => {
+                      const updatedMarks = marks.map((m) => {
+                        if (m.enrollmentId === mark.enrollmentId) {
+                          return {
+                            ...m,
+                            marks: m.marks.map((sm) => {
+                              if (sm.componentId === comp.id) {
+                                return { ...sm, obtainedMarks: Number(e.target.value) };
+                              }
+                              return sm;
+                            }),
+                          };
+                        }
+                        return m;
+                      });
+                      setMarks(updatedMarks);
+                    }}
+                  />
+                </td>
+              );
+            })}
+            <td></td>
+            <td className="border border-gray-300 px-3 py-2 font-bold text-emerald-600">{theoryTotal}</td>
+
+            {/* Editable Lab Marks */}
+            {componentsTest.filter((c) => c.type === "lab").map((comp) => {
+              const studentMark = mark.marks.find((m) => m.componentId === comp.id);
+              return (
+                <td key={comp.id} className="border border-gray-300 px-3 py-2">
+                  <input
+                    type="number"
+                    value={studentMark?.obtainedMarks ?? ""}
+                    className="w-12 border px-1 py-0.5 text-xs rounded"
+                    onChange={(e) => {
+                      const updatedMarks = marks.map((m) => {
+                        if (m.enrollmentId === mark.enrollmentId) {
+                          return {
+                            ...m,
+                            marks: m.marks.map((sm) => {
+                              if (sm.componentId === comp.id) {
+                                return { ...sm, obtainedMarks: Number(e.target.value) };
+                              }
+                              return sm;
+                            }),
+                          };
+                        }
+                        return m;
+                      });
+                      setMarks(updatedMarks);
+                    }}
+                  />
+                </td>
+              );
+            })}
+            <td></td>
+            <td className="border border-gray-300 px-3 py-2 font-bold text-green-600">{labTotal}</td>
+
+            <td className="border border-gray-300 px-3 py-2 text-xs text-gray-500">
+              {new Date(mark.last_updated_at).toLocaleDateString()}
+            </td>
+
+            {/* Save Student Marks */}
+            <td className="border border-gray-300 px-3 py-2 text-center">
+              <button
+                className="bg-emerald-600 text-white px-2 py-1 text-xs rounded hover:bg-emerald-700"
+                onClick={() => saveMarks(marks)}
+              >
+                Save
+              </button>
+            </td>
+          </tr>
+        );
+      })
+    )}
+  </tbody>
+</table>
+
+{/* Bulk Save All Marks Button */}
+
+
+              <div className="mt-4 flex justify-end">
+  <button
+    className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 text-sm"
+    onClick={() => { saveMarks(marks); }}
+  >
+    Save All Changes
+  </button>
+</div>
+
             </div>
           </CardContent>
         </Card>

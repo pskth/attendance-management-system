@@ -61,6 +61,7 @@ export default function TeacherDashboard() {
 
       setDashboardData(dashboardResult)
       setCourses(coursesResult)
+      console.log('Courses loaded in main page:', coursesResult, dashboardResult)
     } catch (err) {
       console.error('Error loading teacher data:', err)
       setError(err instanceof Error ? err.message : 'Failed to load teacher data')

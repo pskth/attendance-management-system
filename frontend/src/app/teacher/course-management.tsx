@@ -22,7 +22,7 @@ interface CourseManagementProps {
   selectedYear: string
   selectedDepartment: string
   selectedSection: Section
-  courses?: any[] // Add courses prop to pass to marks-attendance management
+  courses?: [] // Add courses prop to pass to marks-attendance management
 }
 
 export function CourseManagement({

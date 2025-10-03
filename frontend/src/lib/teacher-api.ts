@@ -197,6 +197,26 @@ export type CourseStudentMarksResponse = {
 // API Functions
 export class TeacherAPI {
 
+    //get course name and code
+
+    static async getCourseNameAndCode(courseId: string): Promise<{ status: string; data: { name: string; code: string };}> {
+
+        const response = await fetch(`${API_BASE_URL}/teacher/coursecnc/${courseId}`, {
+
+            method: 'GET',
+            headers: getAuthHeaders(),
+        }); 
+        if (!response.ok) {
+            throw new Error(`Failed to fetch course name and code: ${response.statusText}`);
+        }
+        const result = await response.json();
+        if (result.status !== 'success') {
+            throw new Error(result.message || 'Failed to fetch course name and code');
+        }   
+        return result;
+    }
+
+
     // Get teacher dashboard data
     static async getDashboard(): Promise<TeacherDashboardData> {
         const response = await fetch(`${API_BASE_URL}/teacher/dashboard`, {
@@ -634,6 +654,108 @@ export class TeacherAPI {
     }
 
     return result;
+}
+    //upadte component details
+    // API.ts (or wherever you keep your API methods)
+static async saveComponents(
+  courseId: string,
+  teacherId: string,
+  components: Array<{
+    id?: string;
+    name: string;
+    maxMarks: number;
+    weightage: number;
+    type: string;
+  }>
+): Promise<any> {
+  const response = await fetch(`${API_BASE_URL}/teacher/course/${courseId}/teacher/${teacherId}/components`, {
+    method: 'POST',
+    headers: {
+      ...getAuthHeaders(),
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ components }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to save components: ${response.statusText}`);
+  }
+
+  const result = await response.json();
+
+  if (result.status !== 'success') {
+    throw new Error(result.error || 'Failed to save components');
+  }
+
+  return result.components;
+}
+//to update student marks for a specific test component
+// static async saveStudentMarks(
+//   courseId: string,
+//   teacherId: string,
+//   students: Array<{
+//     studentId: string;
+//     marks: Array<{
+//       componentId: string;
+//       marksObtained: number;
+//     }>;
+//   }>
+// ): Promise<any> {
+//   const response = await fetch(`${API_BASE_URL}/teacher/course/${courseId}/teacher/${teacherId}/marks`, {
+//     method: 'POST',
+//     headers: {
+//       ...getAuthHeaders(),
+//       'Content-Type': 'application/json',
+//     },
+//     body: JSON.stringify({ students }),
+//   });
+
+//   if (!response.ok) {
+//     throw new Error(`Failed to save student marks: ${response.statusText}`);
+//   }
+
+//   const result = await response.json();
+
+//   if (result.status !== 'success') {
+//     throw new Error(result.error || 'Failed to save student marks');
+//   }
+
+//   return result.students; // return updated students
+// }
+static async saveStudentMarks(
+  courseId: string,
+  teacherId: string,
+  students: Array<{
+    studentId: string;
+    marks: Array<{
+      componentId: string;
+      marksObtained: number;
+    }>;
+  }>
+): Promise<any> {
+  const response = await fetch(
+    `${API_BASE_URL}/teacher/course/${courseId}/teacher/${teacherId}/marks`,
+    {
+      method: 'POST',
+      headers: {
+        ...getAuthHeaders(),
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ students }),
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(`Failed to save student marks: ${response.statusText}`);
+  }
+
+  const result = await response.json();
+
+  if (result.status !== 'success') {
+    throw new Error(result.error || 'Failed to save student marks');
+  }
+
+  return result.updatedStudents; // ✅ backend sends updatedStudents
 }
 
   // Get student marks for a specific course taught by that teacher
