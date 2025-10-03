@@ -1195,12 +1195,17 @@ export default function CourseManagement({ onNavigateToUsers, initialFilters }: 
                       <div className="text-sm text-gray-800">
                         {course.type === 'open_elective' ? (
                           course.openElectiveRestrictions && course.openElectiveRestrictions.length > 0 ? (
-                            <div className="text-red-600">
-                              <span className="font-medium">{course.openElectiveRestrictions.length} restricted</span>
-                              <div className="text-xs text-gray-600 mt-1">
-                                {course.openElectiveRestrictions.map(r => r.restrictedDepartment.code).join(', ')}
-                              </div>
-                            </div>
+                            (() => {
+                              const uniqueDepts = Array.from(new Set(course.openElectiveRestrictions.map(r => r.restrictedDepartment.code)));
+                              return (
+                                <div className="text-red-600">
+                                  <span className="font-medium">{uniqueDepts.length} restricted</span>
+                                  <div className="text-xs text-gray-600 mt-1">
+                                    {uniqueDepts.join(', ')}
+                                  </div>
+                                </div>
+                              );
+                            })()
                           ) : (
                             <span className="text-green-600">No restrictions</span>
                           )

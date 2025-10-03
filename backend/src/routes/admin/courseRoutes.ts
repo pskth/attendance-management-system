@@ -470,6 +470,17 @@ router.get('/course-management', async (req, res) => {
 						colleges: true
 					}
 				},
+				openElectiveRestrictions: {
+					include: {
+						restrictedDepartment: {
+							select: {
+								id: true,
+								name: true,
+								code: true
+							}
+						}
+					}
+				},
 				courseOfferings: {
 					include: {
 						teacher: {
@@ -540,6 +551,15 @@ router.get('/course-management', async (req, res) => {
 				offeringsWithoutTeacher: offeringsWithoutTeachers.length,
 				hasTheoryComponent: course.hasTheoryComponent,
 				hasLabComponent: course.hasLabComponent,
+				// Include open elective restrictions
+				openElectiveRestrictions: course.openElectiveRestrictions?.map(restriction => ({
+					id: restriction.id,
+					restrictedDepartment: {
+						id: restriction.restrictedDepartment.id,
+						name: restriction.restrictedDepartment.name,
+						code: restriction.restrictedDepartment.code
+					}
+				})) || [],
 				// Include detailed offerings for debugging
 				offerings: course.courseOfferings.map(offering => ({
 					id: offering.id,
