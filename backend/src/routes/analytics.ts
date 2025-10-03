@@ -201,6 +201,7 @@ router.get('/attendance/:studyYear?', authenticateToken, async (req: Authenticat
             course_offerings: {
               include: {
                 course: true,
+                sections: true,
                 enrollments: {
                   where: {
                     student: {
@@ -233,91 +234,93 @@ router.get('/attendance/:studyYear?', authenticateToken, async (req: Authenticat
       let deptTotalRecords = 0;
       let deptPresentRecords = 0;
 
-      const sectionAnalytics = await Promise.all(dept.sections.map(async section => {
-        let sectionTotalRecords = 0;
-        let sectionPresentRecords = 0;
+      // Collect all offerings from all sections
+      const allOfferings = dept.sections.flatMap(section => section.course_offerings);
 
-        // Get actual courses for this section with real attendance data
-        const actualCourses = await Promise.all(section.course_offerings.map(async offering => {
-          // Get real attendance records for this course offering
-          const attendanceRecords = await prisma.attendanceRecord.findMany({
+      // Group offerings by course code
+      const courseMap = new Map();
+
+      for (const offering of allOfferings) {
+        const courseKey = offering.course.code;
+        
+        if (!courseMap.has(courseKey)) {
+          courseMap.set(courseKey, {
+            code: offering.course.code,
+            name: offering.course.name,
+            sections: []
+          });
+        }
+
+        // Get attendance records for this offering
+        const attendanceRecords = await prisma.attendanceRecord.findMany({
+          where: {
+            attendance: {
+              offeringId: offering.id
+            }
+          }
+        });
+
+        const coursePresentRecords = attendanceRecords.filter(record => record.status === 'present').length;
+        const courseTotalRecords = attendanceRecords.length;
+        const courseAttendance = courseTotalRecords > 0 ? (coursePresentRecords / courseTotalRecords) * 100 : 0;
+
+        // Add to department totals
+        deptTotalRecords += courseTotalRecords;
+        deptPresentRecords += coursePresentRecords;
+
+        // Get students for this section offering
+        const students = await Promise.all(offering.enrollments.map(async enrollment => {
+          if (!enrollment.student) return null;
+
+          departmentUniqueStudentIds.add(enrollment.student.id);
+
+          // Calculate individual student attendance for this course
+          const studentAttendanceRecords = await prisma.attendanceRecord.findMany({
             where: {
+              studentId: enrollment.student.id,
               attendance: {
                 offeringId: offering.id
               }
             }
           });
 
-          const coursePresentRecords = attendanceRecords.filter(record => record.status === 'present').length;
-          const courseTotalRecords = attendanceRecords.length;
-          const courseAttendance = courseTotalRecords > 0 ? (coursePresentRecords / courseTotalRecords) * 100 : 0;
-
-          // Add to section totals
-          sectionTotalRecords += courseTotalRecords;
-          sectionPresentRecords += coursePresentRecords;
+          const studentPresentCount = studentAttendanceRecords.filter(record => record.status === 'present').length;
+          const studentTotalCount = studentAttendanceRecords.length;
+          const studentAttendancePercent = studentTotalCount > 0 ? (studentPresentCount / studentTotalCount) * 100 : 0;
 
           return {
-            name: offering.course.name,
-            code: offering.course.code,
-            attendance: parseFloat(courseAttendance.toFixed(1)),
-            enrollments: offering.enrollments.length,
-            students: await Promise.all(offering.enrollments.map(async enrollment => {
-              if (!enrollment.student) return null;
-
-              // Calculate individual student attendance for this course
-              const studentAttendanceRecords = await prisma.attendanceRecord.findMany({
-                where: {
-                  studentId: enrollment.student.id,
-                  attendance: {
-                    offeringId: offering.id
-                  }
-                }
-              });
-
-              const studentPresentCount = studentAttendanceRecords.filter(record => record.status === 'present').length;
-              const studentTotalCount = studentAttendanceRecords.length;
-              const studentAttendancePercent = studentTotalCount > 0 ? (studentPresentCount / studentTotalCount) * 100 : 0;
-
-              return {
-                id: enrollment.student.id,
-                name: enrollment.student.user?.name,
-                usn: enrollment.student.usn,
-                semester: enrollment.student.semester,
-                attendancePercent: parseFloat(studentAttendancePercent.toFixed(1))
-              };
-            })).then(results => results.filter(student => student !== null))
+            id: enrollment.student.id,
+            name: enrollment.student.user?.name,
+            usn: enrollment.student.usn,
+            semester: enrollment.student.semester,
+            attendancePercent: parseFloat(studentAttendancePercent.toFixed(1))
           };
-        }));
+        })).then(results => results.filter(student => student !== null));
 
-        // Calculate section attendance
-        const sectionAttendance = sectionTotalRecords > 0 ? (sectionPresentRecords / sectionTotalRecords) * 100 : 0;
-
-        // Add to department totals
-        deptTotalRecords += sectionTotalRecords;
-        deptPresentRecords += sectionPresentRecords;
-
-        // Calculate unique students enrolled in this section's courses
-        const uniqueStudentIds = new Set();
-        section.course_offerings.forEach(offering => {
-          offering.enrollments.forEach(enrollment => {
-            if (enrollment.student?.id) {
-              uniqueStudentIds.add(enrollment.student.id);
-              departmentUniqueStudentIds.add(enrollment.student.id); // Add to department set
-            }
-          });
+        // Add section data to the course
+        courseMap.get(courseKey).sections.push({
+          section: offering.sections?.section_name || 'N/A',
+          attendance: parseFloat(courseAttendance.toFixed(1)),
+          students: students.length,
+          enrolledStudents: students
         });
-        const sectionEnrolledStudents = uniqueStudentIds.size;
+      }
+
+      // Convert courseMap to array
+      const courseAnalytics = Array.from(courseMap.values()).map(course => {
+        // Calculate overall course attendance across all sections
+        const totalAttendance = course.sections.reduce((sum: number, sec: any) => sum + (sec.attendance || 0), 0);
+        const avgAttendance = course.sections.length > 0 ? totalAttendance / course.sections.length : 0;
+        const totalStudents = course.sections.reduce((sum: number, sec: any) => sum + sec.students, 0);
 
         return {
-          section: section.section_name,
-          attendance: parseFloat(sectionAttendance.toFixed(1)),
-          students: sectionEnrolledStudents, // Use actual unique students instead of total enrollments
-          courses: actualCourses.length,
-          courseStats: actualCourses.length > 0 ? actualCourses : [
-            { name: 'No Courses Available', code: 'N/A', attendance: 0, enrollments: 0, students: [] }
-          ]
+          code: course.code,
+          name: course.name,
+          attendance: parseFloat(avgAttendance.toFixed(1)),
+          students: totalStudents,
+          sections: course.sections
         };
-      }));
+      });
 
       // Calculate department attendance
       const deptAttendance = deptTotalRecords > 0 ? (deptPresentRecords / deptTotalRecords) * 100 : 0;
@@ -327,7 +330,7 @@ router.get('/attendance/:studyYear?', authenticateToken, async (req: Authenticat
         code: dept.code || 'XXX',
         attendance: parseFloat(deptAttendance.toFixed(1)),
         students: departmentUniqueStudentIds.size,
-        sections: sectionAnalytics
+        courses: courseAnalytics
       };
     }));
 

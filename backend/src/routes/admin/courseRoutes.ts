@@ -53,14 +53,12 @@ router.get('/courses/:courseId/eligible-students', async (req, res) => {
 		// Semester 1,2 = Year 1; Semester 3,4 = Year 2; Semester 5,6 = Year 3; Semester 7,8 = Year 4
 		const courseYear = Math.ceil(semesterNumber / 2);
 
-		// Students are stored with batchYear which represents their academic year
-		// We need to find students whose current year matches the course year
-		const batchYear: number = courseYear;
+		// Students are stored with semester field which indicates their current semester
+		// We don't use batchYear for filtering as it stores the batch start year (e.g., 2023), not year of study
 		const absoluteSemester: number = semesterNumber;
 
 		// Build student where conditions
 		let studentWhereConditions: any = {
-			batchYear: batchYear,
 			college_id: course.department.college_id,
 			semester: absoluteSemester
 		};

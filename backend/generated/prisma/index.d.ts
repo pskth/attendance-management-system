@@ -26892,6 +26892,7 @@ export namespace Prisma {
 
   export type CourseOfferingWhereUniqueInput = Prisma.AtLeast<{
     id?: string
+    unique_course_offering?: CourseOfferingUnique_course_offeringCompoundUniqueInput
     AND?: CourseOfferingWhereInput | CourseOfferingWhereInput[]
     OR?: CourseOfferingWhereInput[]
     NOT?: CourseOfferingWhereInput | CourseOfferingWhereInput[]
@@ -26906,7 +26907,7 @@ export namespace Prisma {
     teacher?: XOR<TeacherNullableScalarRelationFilter, TeacherWhereInput> | null
     academic_years?: XOR<Academic_yearsNullableScalarRelationFilter, academic_yearsWhereInput> | null
     enrollments?: StudentEnrollmentListRelationFilter
-  }, "id">
+  }, "id" | "unique_course_offering">
 
   export type CourseOfferingOrderByWithAggregationInput = {
     id?: SortOrder
@@ -29437,6 +29438,14 @@ export namespace Prisma {
   export type Academic_yearsNullableScalarRelationFilter = {
     is?: academic_yearsWhereInput | null
     isNot?: academic_yearsWhereInput | null
+  }
+
+  export type CourseOfferingUnique_course_offeringCompoundUniqueInput = {
+    courseId: string
+    semester: number
+    year_id: string
+    teacherId: string
+    section_id: string
   }
 
   export type CourseOfferingCountOrderByAggregateInput = {

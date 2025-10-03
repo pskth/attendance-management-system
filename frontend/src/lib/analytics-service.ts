@@ -23,16 +23,6 @@ export interface OverviewStats {
   totalDepartments: number;
 }
 
-export interface CourseStats {
-  name: string;
-  code: string;
-  attendance?: number;
-  avgMarks?: number;
-  passRate?: number;
-  failRate?: number;
-  students?: StudentInfo[];
-}
-
 export interface StudentInfo {
   id?: string;
   name?: string;
@@ -50,8 +40,18 @@ export interface SectionStats {
   avgMarks?: number;
   passRate?: number;
   students: number;
-  courses: number;
-  courseStats: CourseStats[];
+  enrolledStudents?: StudentInfo[];
+}
+
+export interface CourseStats {
+  name: string;
+  code: string;
+  attendance?: number;
+  avgMarks?: number;
+  passRate?: number;
+  failRate?: number;
+  students: number;
+  sections: SectionStats[];
 }
 
 export interface DepartmentStats {
@@ -61,7 +61,7 @@ export interface DepartmentStats {
   avgMarks?: number;
   passRate?: number;
   students: number;
-  sections: SectionStats[];
+  courses: CourseStats[];
 }
 
 export interface AttendanceAnalyticsData {

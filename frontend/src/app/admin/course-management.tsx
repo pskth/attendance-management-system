@@ -149,8 +149,7 @@ export default function CourseManagement({ onNavigateToUsers, initialFilters }: 
   const [enrollmentData, setEnrollmentData] = useState<any>(null)
   const [eligibleStudents, setEligibleStudents] = useState<any[]>([])
   const [selectedStudents, setSelectedStudents] = useState<string[]>([])
-  const [enrollmentYear, setEnrollmentYear] = useState('2024')
-  const [enrollmentSemester, setEnrollmentSemester] = useState('1')
+  const [enrollmentSemester, setEnrollmentSemester] = useState('5') // Default to 5th semester (Year 3)
   const [selectedTeacher, setSelectedTeacher] = useState('')
   const [teachers, setTeachers] = useState<any[]>([])
   const [selectedSection, setSelectedSection] = useState('')
@@ -167,11 +166,11 @@ export default function CourseManagement({ onNavigateToUsers, initialFilters }: 
   const handleEnrollmentFilterChange = useCallback(async () => {
     if (selectedCourse) {
       setEnrollmentLoading(true)
-      await fetchEligibleStudents(selectedCourse.id, enrollmentYear, enrollmentSemester)
+      await fetchEligibleStudents(selectedCourse.id, enrollmentSemester)
       setEnrollmentLoading(false)
       setSelectedStudents([]) // Clear selections when filters change
     }
-  }, [selectedCourse, enrollmentYear, enrollmentSemester])
+  }, [selectedCourse, enrollmentSemester])
 
   useEffect(() => {
     if (selectedCourse && showEnrollmentModal) {
@@ -613,7 +612,7 @@ export default function CourseManagement({ onNavigateToUsers, initialFilters }: 
       }
 
       // Fetch eligible students
-      await fetchEligibleStudents(course.id, enrollmentYear, enrollmentSemester)
+      await fetchEligibleStudents(course.id, enrollmentSemester)
 
     } catch (error) {
       console.error('Error fetching enrollment data:', error)
@@ -624,9 +623,10 @@ export default function CourseManagement({ onNavigateToUsers, initialFilters }: 
   }
 
   // Fetch eligible students based on course type and restrictions
-  const fetchEligibleStudents = async (courseId: string, year: string, semester: string) => {
+  const fetchEligibleStudents = async (courseId: string, semester: string) => {
     try {
-      const response = await adminApi.getEligibleStudents(courseId, year, semester)
+      // Use current academic year 2025
+      const response = await adminApi.getEligibleStudents(courseId, '2025', semester)
       if (response.status === 'success') {
         setEligibleStudents(response.data.eligibleStudents)
         setEnrollmentData(response.data)
@@ -671,7 +671,7 @@ export default function CourseManagement({ onNavigateToUsers, initialFilters }: 
       const response = await adminApi.enrollStudents(
         selectedCourse.id,
         studentsToEnroll,
-        enrollmentYear,
+        '2025', // Current academic year
         enrollmentSemester,
         selectedTeacher || undefined,
         selectedSection || undefined
@@ -689,7 +689,7 @@ export default function CourseManagement({ onNavigateToUsers, initialFilters }: 
         } else {
           setSelectedStudents([])
           // Refresh eligible students
-          const refreshResponse = await adminApi.getEligibleStudents(selectedCourse.id, enrollmentYear, enrollmentSemester)
+          const refreshResponse = await adminApi.getEligibleStudents(selectedCourse.id, '2025', enrollmentSemester)
           if (refreshResponse.status === 'success') {
             setEligibleStudents(refreshResponse.data.eligibleStudents)
           }
@@ -736,7 +736,7 @@ export default function CourseManagement({ onNavigateToUsers, initialFilters }: 
 
       const formData = new FormData()
       formData.append('file', csvFile)
-      formData.append('academicYear', enrollmentYear)
+      formData.append('academicYear', '2025') // Current academic year
       formData.append('semester', enrollmentSemester)
 
       // Get auth token from cookies (consistent with API client)
@@ -762,7 +762,7 @@ export default function CourseManagement({ onNavigateToUsers, initialFilters }: 
 
         // Refresh eligible students list
         if (selectedCourse) {
-          await fetchEligibleStudents(selectedCourse.id, enrollmentYear, enrollmentSemester)
+          await fetchEligibleStudents(selectedCourse.id, enrollmentSemester)
         }
       } else {
         alert('Upload failed: ' + (result.error || 'Unknown error'))
@@ -976,49 +976,67 @@ export default function CourseManagement({ onNavigateToUsers, initialFilters }: 
                     </td>
                     <td className="border border-gray-300 px-3 py-2">
                       <div className="text-sm text-gray-800">
-                        {course.teacherAssigned && course.teacher ? (
-                          <div>
-                            <div className="font-medium text-green-700">{course.teacher.name}</div>
-                            <div className="text-xs text-gray-600">Assigned</div>
+                        {course.offerings && course.offerings.length > 0 ? (
+                          <div className="space-y-1">
+                            {(() => {
+                              // Group offerings by teacher-section combination
+                              const teacherSections = course.offerings
+                                .filter(o => o.teacher && o.section)
+                                .reduce((acc, offering) => {
+                                  const key = `${offering.teacher?.id}-${offering.section}`;
+                                  if (!acc[key]) {
+                                    acc[key] = {
+                                      teacher: offering.teacher,
+                                      sections: new Set(),
+                                      semesters: new Set()
+                                    };
+                                  }
+                                  acc[key].sections.add(offering.section);
+                                  acc[key].semesters.add(offering.semester);
+                                  return acc;
+                                }, {} as Record<string, any>);
+
+                              const entries = Object.values(teacherSections);
+
+                              if (entries.length === 0) {
+                                return (
+                                  <div>
+                                    <div className="font-medium text-red-600">No Teachers</div>
+                                    <div className="text-xs text-gray-600">Unassigned</div>
+                                  </div>
+                                );
+                              }
+
+                              return (
+                                <>
+                                  <div className="font-medium text-green-700">
+                                    {entries.length} Assignment{entries.length > 1 ? 's' : ''}
+                                  </div>
+                                  <div className="max-h-24 overflow-y-auto space-y-1 mt-1">
+                                    {entries.map((entry: any, idx: number) => (
+                                      <div key={idx} className="text-xs border-l-2 border-blue-400 pl-2 py-1 bg-blue-50 rounded">
+                                        <div className="font-medium text-gray-900">{entry.teacher.name}</div>
+                                        <div className="text-gray-600">
+                                          Section{Array.from(entry.sections).length > 1 ? 's' : ''}: {Array.from(entry.sections).join(', ')}
+                                        </div>
+                                        <div className="text-gray-500">
+                                          Sem: {Array.from(entry.semesters).join(', ')}
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </>
+                              );
+                            })()}
                           </div>
                         ) : (
                           <div>
-                            <div className="font-medium text-red-600">No Teacher</div>
+                            <div className="font-medium text-red-600">No Teachers</div>
                             <div className="text-xs text-gray-600">Unassigned</div>
                           </div>
                         )}
                       </div>
                     </td>
-                    {/* testing for number of teachers */}
-                    {/* <td className="border border-gray-300 px-3 py-2">
-      <div className="text-sm text-gray-800">
-        {assignedTeachers.length > 0 ? (
-          <div>
-            <div className="font-medium text-green-700">
-              {assignedTeachers.length} Teacher{assignedTeachers.length > 1 ? "s" : ""} Assigned
-              <button
-                className="ml-2 text-gray-500 hover:text-gray-700"
-                onClick={() => setShowNames(!showNames)}
-              >
-                ...
-              </button>
-            </div>
-            {showNames && (
-              <ul className="mt-1 text-xs text-gray-600 list-disc list-inside">
-                {assignedTeachers.map((teacher, index) => (
-                  <li key={index}>{teacher.name}</li>
-                ))}
-              </ul>
-            )}
-          </div>
-        ) : (
-          <div>
-            <div className="font-medium text-red-600">No Teacher</div>
-            <div className="text-xs text-gray-600">Unassigned</div>
-          </div>
-        )}
-      </div>
-    </td> */}
 
 
                     {/* testing  */}
@@ -1452,7 +1470,7 @@ export default function CourseManagement({ onNavigateToUsers, initialFilters }: 
                       <p><strong>Enrollment Rules:</strong></p>
                       {enrollmentData.course.type === 'open_elective' && (
                         <ul className="list-disc list-inside ml-2">
-                          <li>Open to all students of the selected academic year</li>
+                          <li>Open to all students of the selected semester</li>
                           {enrollmentData.course.restrictions.length > 0 && (
                             <li>
                               Restricted departments: {enrollmentData.course.restrictions.map((r: { departmentCode: string }) => r.departmentCode).join(', ')}
@@ -1463,13 +1481,13 @@ export default function CourseManagement({ onNavigateToUsers, initialFilters }: 
                       {enrollmentData.course.type === 'department_elective' && (
                         <ul className="list-disc list-inside ml-2">
                           <li>Only students from {enrollmentData.course.department?.name} department</li>
-                          <li>Students of the selected academic year</li>
+                          <li>Students of the selected semester</li>
                         </ul>
                       )}
                       {enrollmentData.course.type === 'core' && (
                         <ul className="list-disc list-inside ml-2">
                           <li><strong>Mandatory enrollment:</strong> All students from {enrollmentData.course.department?.name} department</li>
-                          <li>Students of the selected academic year will be automatically enrolled</li>
+                          <li>Students of the selected semester will be automatically enrolled</li>
                         </ul>
                       )}
                     </div>
@@ -1554,20 +1572,6 @@ export default function CourseManagement({ onNavigateToUsers, initialFilters }: 
               {showManualSelection && (
                 <form onSubmit={handleEnrollmentSubmit} className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-900 mb-1">Academic Year</label>
-                    <select
-                      className="w-full px-3 py-2 border rounded-md bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      value={enrollmentYear}
-                      onChange={(e) => setEnrollmentYear(e.target.value)}
-                      title="Select Academic Year"
-                    >
-                      <option value="2024">2024</option>
-                      <option value="2025">2025</option>
-                      <option value="2026">2026</option>
-                      <option value="2027">2027</option>
-                    </select>
-                  </div>
-                  <div>
                     <label className="block text-sm font-medium text-gray-900 mb-1">Semester</label>
                     <select
                       className="w-full px-3 py-2 border rounded-md bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -1575,8 +1579,14 @@ export default function CourseManagement({ onNavigateToUsers, initialFilters }: 
                       onChange={(e) => setEnrollmentSemester(e.target.value)}
                       title="Select Semester"
                     >
-                      <option value="1">1st Semester</option>
-                      <option value="2">2nd Semester</option>
+                      <option value="1">1st Semester (Year 1)</option>
+                      <option value="2">2nd Semester (Year 1)</option>
+                      <option value="3">3rd Semester (Year 2)</option>
+                      <option value="4">4th Semester (Year 2)</option>
+                      <option value="5">5th Semester (Year 3)</option>
+                      <option value="6">6th Semester (Year 3)</option>
+                      <option value="7">7th Semester (Year 4)</option>
+                      <option value="8">8th Semester (Year 4)</option>
                     </select>
                   </div>
 
@@ -1593,7 +1603,7 @@ export default function CourseManagement({ onNavigateToUsers, initialFilters }: 
                         </div>
                       ) : eligibleStudents.length === 0 ? (
                         <p className="text-gray-500 text-sm py-4 text-center">
-                          No eligible students found for this course and academic year/semester combination.
+                          No eligible students found for this course and semester combination.
                         </p>
                       ) : selectedCourse.type === 'core' ? (
                         /* For core courses, show all students as automatically selected */

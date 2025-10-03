@@ -171,6 +171,7 @@ model CourseOffering {
   academic_years academic_years?     @relation(fields: [year_id], references: [year_id], onDelete: Cascade, onUpdate: NoAction)
   enrollments    StudentEnrollment[]
 
+  @@unique([courseId, semester, year_id, teacherId, section_id], name: "unique_course_offering")
   @@map("course_offerings")
 }
 
