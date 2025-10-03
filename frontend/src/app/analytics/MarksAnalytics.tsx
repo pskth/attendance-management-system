@@ -6,10 +6,11 @@ import { ChevronDown, ChevronRight, Loader2, AlertTriangle } from "lucide-react"
 import analyticsService, { MarksAnalyticsData, DepartmentStats } from '@/lib/analytics-service';
 
 interface MarksAnalyticsProps {
-  academicYear: string;
+  studyYear: number;
+  collegeId: string;
 }
 
-export default function MarksAnalytics({ academicYear }: MarksAnalyticsProps) {
+export default function MarksAnalytics({ studyYear, collegeId }: MarksAnalyticsProps) {
   const [expandedDepts, setExpandedDepts] = useState<string[]>([]);
   const [expandedCourses, setExpandedCourses] = useState<string[]>([]);
   const [data, setData] = useState<MarksAnalyticsData | null>(null);
@@ -21,7 +22,7 @@ export default function MarksAnalytics({ academicYear }: MarksAnalyticsProps) {
       try {
         setLoading(true);
         setError(null);
-        const analyticsData = await analyticsService.getMarksAnalytics(academicYear);
+        const analyticsData = await analyticsService.getMarksAnalytics(studyYear, collegeId);
         setData(analyticsData);
       } catch (err) {
         console.error('Failed to fetch marks analytics:', err);
@@ -32,7 +33,7 @@ export default function MarksAnalytics({ academicYear }: MarksAnalyticsProps) {
     };
 
     fetchData();
-  }, [academicYear]);
+  }, [studyYear, collegeId]);
 
   if (loading) {
     return (
@@ -72,7 +73,7 @@ export default function MarksAnalytics({ academicYear }: MarksAnalyticsProps) {
       <Card className="p-6">
         <div className="text-center text-gray-600">
           <p className="font-medium">No marks data available</p>
-          <p className="text-sm text-gray-500 mt-1">For academic year {academicYear}</p>
+          <p className="text-sm text-gray-500 mt-1">For Year {studyYear} students</p>
         </div>
       </Card>
     );

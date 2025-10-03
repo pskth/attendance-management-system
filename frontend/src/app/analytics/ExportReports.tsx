@@ -6,7 +6,8 @@ import { Download, FileText, FileSpreadsheet, Printer, Loader2 } from "lucide-re
 
 interface ExportReportsProps {
   filters: {
-    academicYear: string;
+    studyYear: number;
+    collegeId: string;
   };
 }
 
@@ -47,7 +48,8 @@ export default function ExportReports({ filters }: ExportReportsProps) {
         throw new Error('No authentication token found. Please log in again.');
       }
 
-      const response = await fetch(`/api/export/${format}?academicYear=${encodeURIComponent(filters.academicYear)}`, {
+      const collegeParam = filters.collegeId !== 'all' ? `&collegeId=${filters.collegeId}` : '';
+      const response = await fetch(`/api/export/${format}?studyYear=${filters.studyYear}${collegeParam}`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -63,7 +65,7 @@ export default function ExportReports({ filters }: ExportReportsProps) {
       const contentType = response.headers.get('content-type');
       const contentDisposition = response.headers.get('content-disposition');
 
-      let filename = `analytics_report_${filters.academicYear}_${Date.now()}`;
+      let filename = `analytics_report_year${filters.studyYear}_${Date.now()}`;
       if (contentDisposition) {
         const fileNameMatch = contentDisposition.match(/filename="(.+)"/);
         if (fileNameMatch) {

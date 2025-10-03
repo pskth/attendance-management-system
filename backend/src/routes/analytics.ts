@@ -8,25 +8,72 @@ const router = Router();
 console.log('=== ANALYTICS ROUTES LOADED ===');
 
 // Get overview statistics
-router.get('/overview/:academicYear?', authenticateToken, async (req: AuthenticatedRequest, res) => {
+router.get('/overview/:studyYear?', authenticateToken, async (req: AuthenticatedRequest, res) => {
   try {
-    const academicYear = req.params.academicYear || '2024-25';
+    const studyYear = parseInt(req.params.studyYear || '3'); // Default to 3rd year
+    const collegeId = req.query.collegeId as string | undefined;
     const prisma = DatabaseService.getInstance();
 
-    // Get basic counts
+    // Calculate semester range for the study year
+    // Year 1: Sem 1-2, Year 2: Sem 3-4, Year 3: Sem 5-6, Year 4: Sem 7-8
+    const semesterStart = (studyYear - 1) * 2 + 1;
+    const semesterEnd = studyYear * 2;
+
+    // Build student filter
+    const studentFilter: any = {
+      semester: {
+        gte: semesterStart,
+        lte: semesterEnd
+      }
+    };
+
+    // Add college filter if provided
+    if (collegeId) {
+      studentFilter.college_id = collegeId;
+    }
+
+    // Get students in this year of study
+    const studentsInYear = await prisma.student.findMany({
+      where: studentFilter,
+      select: {
+        id: true
+      }
+    });
+
+    const studentIds = studentsInYear.map(s => s.id);
+    const totalStudents = studentIds.length;
+
+    // Build filters for college-specific counts
+    const departmentFilter: any = {};
+    if (collegeId) {
+      departmentFilter.college_id = collegeId;
+    }
+
+    // Get departments in this college (if filtered)
+    const departments = await prisma.department.findMany({
+      where: departmentFilter,
+      select: { id: true }
+    });
+    const departmentIds = departments.map(d => d.id);
+
+    // Build course filter based on departments
+    const courseFilter: any = {};
+    if (collegeId && departmentIds.length > 0) {
+      courseFilter.departmentId = { in: departmentIds };
+    }
+
+    // Get counts - courses filtered by college, others global or filtered
     const [
-      totalStudents,
       totalTeachers,
       totalCourses,
       totalSections,
       totalDepartments,
       totalAttendanceSessions
     ] = await Promise.all([
-      prisma.student.count(),
       prisma.teacher.count(),
-      prisma.course.count(),
+      prisma.course.count({ where: courseFilter }),
       prisma.sections.count(),
-      prisma.department.count(),
+      collegeId ? Promise.resolve(departmentIds.length) : prisma.department.count(),
       prisma.attendance.count()
     ]);
 
@@ -93,7 +140,7 @@ router.get('/overview/:academicYear?', authenticateToken, async (req: Authentica
     res.json({
       status: 'success',
       data: {
-        academicYear,
+        studyYear,
         totalStudents,
         totalCourses,
         totalSections,
@@ -117,17 +164,36 @@ router.get('/overview/:academicYear?', authenticateToken, async (req: Authentica
 });
 
 // Get department-wise attendance analytics
-router.get('/attendance/:academicYear?', authenticateToken, async (req: AuthenticatedRequest, res) => {
+router.get('/attendance/:studyYear?', authenticateToken, async (req: AuthenticatedRequest, res) => {
   try {
-    const academicYear = req.params.academicYear || '2024-25';
+    const studyYear = parseInt(req.params.studyYear || '3'); // Default to 3rd year
+    const collegeId = req.query.collegeId as string | undefined;
     const prisma = DatabaseService.getInstance();
 
+    // Calculate semester range for the study year
+    const semesterStart = (studyYear - 1) * 2 + 1;
+    const semesterEnd = studyYear * 2;
+
+    // Build department filter
+    const departmentFilter: any = {};
+    if (collegeId) {
+      departmentFilter.college_id = collegeId;
+    }
+
     // Get departments with their sections, students, and actual course offerings
+    // Filter students by semester range
     const departments = await prisma.department.findMany({
+      where: departmentFilter,
       include: {
         sections: {
           include: {
             students: {
+              where: {
+                semester: {
+                  gte: semesterStart,
+                  lte: semesterEnd
+                }
+              },
               include: {
                 user: true
               }
@@ -136,6 +202,14 @@ router.get('/attendance/:academicYear?', authenticateToken, async (req: Authenti
               include: {
                 course: true,
                 enrollments: {
+                  where: {
+                    student: {
+                      semester: {
+                        gte: semesterStart,
+                        lte: semesterEnd
+                      }
+                    }
+                  },
                   include: {
                     student: {
                       include: {
@@ -260,7 +334,7 @@ router.get('/attendance/:academicYear?', authenticateToken, async (req: Authenti
     res.json({
       status: 'success',
       data: {
-        academicYear,
+        studyYear,
         departments: departmentAnalytics
       }
     });
@@ -275,17 +349,36 @@ router.get('/attendance/:academicYear?', authenticateToken, async (req: Authenti
 });
 
 // Get department-wise marks analytics
-router.get('/marks/:academicYear?', authenticateToken, async (req: AuthenticatedRequest, res) => {
+router.get('/marks/:studyYear?', authenticateToken, async (req: AuthenticatedRequest, res) => {
   try {
-    const academicYear = req.params.academicYear || '2024-25';
+    const studyYear = parseInt(req.params.studyYear || '3'); // Default to 3rd year
+    const collegeId = req.query.collegeId as string | undefined;
     const prisma = DatabaseService.getInstance();
 
+    // Calculate semester range for the study year
+    const semesterStart = (studyYear - 1) * 2 + 1;
+    const semesterEnd = studyYear * 2;
+
+    // Build department filter
+    const departmentFilter: any = {};
+    if (collegeId) {
+      departmentFilter.college_id = collegeId;
+    }
+
     // Get departments with their sections, students, and actual course offerings
+    // Filter students by semester range
     const departments = await prisma.department.findMany({
+      where: departmentFilter,
       include: {
         sections: {
           include: {
             students: {
+              where: {
+                semester: {
+                  gte: semesterStart,
+                  lte: semesterEnd
+                }
+              },
               include: {
                 user: true
               }
@@ -294,6 +387,14 @@ router.get('/marks/:academicYear?', authenticateToken, async (req: Authenticated
               include: {
                 course: true,
                 enrollments: {
+                  where: {
+                    student: {
+                      semester: {
+                        gte: semesterStart,
+                        lte: semesterEnd
+                      }
+                    }
+                  },
                   include: {
                     student: {
                       include: {
@@ -473,7 +574,7 @@ router.get('/marks/:academicYear?', authenticateToken, async (req: Authenticated
     res.json({
       status: 'success',
       data: {
-        academicYear,
+        studyYear,
         departments: departmentAnalytics
       }
     });
@@ -492,14 +593,21 @@ router.get('/academic-years', authenticateToken, async (req: AuthenticatedReques
   try {
     const prisma = DatabaseService.getInstance();
 
+    // Get only active academic years
     const academicYears = await prisma.academic_years.findMany({
+      where: {
+        is_active: true
+      },
       orderBy: { year_name: 'desc' }
     });
 
+    // Remove duplicates (same year from different colleges) and get unique year names
+    const uniqueYears = [...new Set(academicYears.map(year => year.year_name))];
+
     // If no years in DB, return default years
-    const years = academicYears.length > 0
-      ? academicYears.map(year => year.year_name)
-      : ['2024-25', '2023-24', '2022-23', '2021-22'];
+    const years = uniqueYears.length > 0
+      ? uniqueYears
+      : ['2025-26', '2024-25', '2023-24', '2022-23'];
 
     res.json({
       status: 'success',
@@ -511,6 +619,34 @@ router.get('/academic-years', authenticateToken, async (req: AuthenticatedReques
     res.status(500).json({
       status: 'error',
       error: 'Failed to fetch academic years'
+    });
+  }
+});
+
+// Get available colleges
+router.get('/colleges', authenticateToken, async (req: AuthenticatedRequest, res) => {
+  try {
+    const prisma = DatabaseService.getInstance();
+
+    const colleges = await prisma.college.findMany({
+      select: {
+        id: true,
+        name: true,
+        code: true
+      },
+      orderBy: { name: 'asc' }
+    });
+
+    res.json({
+      status: 'success',
+      data: colleges
+    });
+
+  } catch (error) {
+    console.error('Colleges error:', error);
+    res.status(500).json({
+      status: 'error',
+      error: 'Failed to fetch colleges'
     });
   }
 });

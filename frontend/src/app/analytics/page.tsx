@@ -12,28 +12,35 @@ import OverviewStats from './OverviewStats';
 import analyticsService from '@/lib/analytics-service';
 
 export default function AnalyticsPage() {
-  const [selectedAcademicYear, setSelectedAcademicYear] = useState<string>('2024-25');
-  const [academicYears, setAcademicYears] = useState<string[]>([]);
+  const [selectedStudyYear, setSelectedStudyYear] = useState<number>(3); // Default to 3rd year
+  const [selectedCollege, setSelectedCollege] = useState<string>('all'); // Default to all colleges
+  const [colleges, setColleges] = useState<Array<{ id: string, name: string, code: string }>>([]);
+
+  const studyYears = [
+    { value: 1, label: '1st Year' },
+    { value: 2, label: '2nd Year' },
+    { value: 3, label: '3rd Year' },
+    { value: 4, label: '4th Year' },
+  ];
 
   useEffect(() => {
-    const fetchAcademicYears = async () => {
+    const fetchColleges = async () => {
       try {
-        const years = await analyticsService.getAcademicYears();
-        if (years.length > 0) {
-          // Remove duplicates and sort years in descending order
-          const uniqueYears = Array.from(new Set(years)).sort((a, b) => b.localeCompare(a));
-          setAcademicYears(uniqueYears);
-        }
+        const collegeList = await analyticsService.getColleges();
+        setColleges(collegeList);
       } catch (error) {
-        console.error('Failed to fetch academic years:', error);
-        // Keep default years if API fails, but ensure they're unique
-        const defaultYears = ['2024-25', '2023-24', '2022-23', '2021-22'];
-        setAcademicYears(Array.from(new Set(defaultYears)));
+        console.error('Failed to fetch colleges:', error);
       }
     };
-
-    fetchAcademicYears();
+    fetchColleges();
   }, []);
+
+  // Get college display name
+  const getCollegeName = (collegeId: string) => {
+    if (collegeId === 'all') return 'All Colleges';
+    const college = colleges.find(c => c.id === collegeId);
+    return college ? college.name : 'Select college';
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -62,14 +69,29 @@ export default function AnalyticsPage() {
                 </CardHeader>
                 <CardContent className="space-y-4 sm:space-y-5">
                   <div className="space-y-2">
-                    <label className="text-xs sm:text-sm font-medium text-gray-700">Academic Year</label>
-                    <Select value={selectedAcademicYear} onValueChange={setSelectedAcademicYear}>
+                    <label className="text-xs sm:text-sm font-medium text-gray-700">College</label>
+                    <Select value={selectedCollege} onValueChange={setSelectedCollege}>
+                      <SelectTrigger className="h-10 sm:h-11">
+                        <span className="truncate">{getCollegeName(selectedCollege)}</span>
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Colleges</SelectItem>
+                        {colleges.map(college => (
+                          <SelectItem key={college.id} value={college.id}>{college.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-xs sm:text-sm font-medium text-gray-700">Year of Study</label>
+                    <Select value={selectedStudyYear.toString()} onValueChange={(val) => setSelectedStudyYear(parseInt(val))}>
                       <SelectTrigger className="h-10 sm:h-11">
                         <SelectValue placeholder="Select year" />
                       </SelectTrigger>
                       <SelectContent>
-                        {academicYears.map(year => (
-                          <SelectItem key={year} value={year}>{year}</SelectItem>
+                        {studyYears.map(year => (
+                          <SelectItem key={year.value} value={year.value.toString()}>{year.label}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -79,7 +101,8 @@ export default function AnalyticsPage() {
                     <label className="text-xs sm:text-sm font-medium text-gray-700">Export Reports</label>
                     <ExportReports
                       filters={{
-                        academicYear: selectedAcademicYear
+                        studyYear: selectedStudyYear,
+                        collegeId: selectedCollege
                       }}
                     />
                   </div>
@@ -92,10 +115,10 @@ export default function AnalyticsPage() {
               <Card className="h-full">
                 <CardHeader className="pb-4 sm:pb-6">
                   <CardTitle className="text-base sm:text-lg">Overview Statistics</CardTitle>
-                  <CardDescription className="text-sm">Key metrics for Academic Year {selectedAcademicYear}</CardDescription>
+                  <CardDescription className="text-sm">Key metrics for {studyYears.find(y => y.value === selectedStudyYear)?.label} Students</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4 sm:space-y-5">
-                  <OverviewStats academicYear={selectedAcademicYear} />
+                  <OverviewStats studyYear={selectedStudyYear} collegeId={selectedCollege} />
                 </CardContent>
               </Card>
             </div>
@@ -119,13 +142,15 @@ export default function AnalyticsPage() {
 
           <TabsContent value="attendance" className="space-y-4 sm:space-y-6">
             <AttendanceAnalytics
-              academicYear={selectedAcademicYear}
+              studyYear={selectedStudyYear}
+              collegeId={selectedCollege}
             />
           </TabsContent>
 
           <TabsContent value="marks" className="space-y-4 sm:space-y-6">
             <MarksAnalytics
-              academicYear={selectedAcademicYear}
+              studyYear={selectedStudyYear}
+              collegeId={selectedCollege}
             />
           </TabsContent>
         </Tabs>

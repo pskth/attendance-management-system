@@ -6,10 +6,11 @@ import { ChevronDown, ChevronRight, Loader2, AlertTriangle } from "lucide-react"
 import analyticsService, { AttendanceAnalyticsData, DepartmentStats } from '@/lib/analytics-service';
 
 interface AttendanceAnalyticsProps {
-  academicYear: string;
+  studyYear: number;
+  collegeId: string;
 }
 
-export default function AttendanceAnalytics({ academicYear }: AttendanceAnalyticsProps) {
+export default function AttendanceAnalytics({ studyYear, collegeId }: AttendanceAnalyticsProps) {
   const [expandedDepts, setExpandedDepts] = useState<string[]>([]);
   const [expandedCourses, setExpandedCourses] = useState<string[]>([]);
   const [data, setData] = useState<AttendanceAnalyticsData | null>(null);
@@ -21,7 +22,7 @@ export default function AttendanceAnalytics({ academicYear }: AttendanceAnalytic
       try {
         setLoading(true);
         setError(null);
-        const analyticsData = await analyticsService.getAttendanceAnalytics(academicYear);
+        const analyticsData = await analyticsService.getAttendanceAnalytics(studyYear, collegeId);
         setData(analyticsData);
       } catch (err) {
         console.error('Failed to fetch attendance analytics:', err);
@@ -32,7 +33,7 @@ export default function AttendanceAnalytics({ academicYear }: AttendanceAnalytic
     };
 
     fetchData();
-  }, [academicYear]);
+  }, [studyYear, collegeId]);
 
   if (loading) {
     return (
@@ -72,7 +73,7 @@ export default function AttendanceAnalytics({ academicYear }: AttendanceAnalytic
       <Card className="p-6">
         <div className="text-center text-gray-600">
           <p className="font-medium">No attendance data available</p>
-          <p className="text-sm text-gray-500 mt-1">For academic year {academicYear}</p>
+          <p className="text-sm text-gray-500 mt-1">For Year {studyYear} students</p>
         </div>
       </Card>
     );

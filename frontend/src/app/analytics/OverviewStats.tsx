@@ -6,10 +6,11 @@ import { Users, BookOpen, GraduationCap, TrendingUp, CheckCircle2, AlertTriangle
 import analyticsService, { OverviewStats as OverviewStatsType } from "@/lib/analytics-service";
 
 interface OverviewStatsProps {
-  academicYear: string;
+  studyYear: number;
+  collegeId: string;
 }
 
-export default function OverviewStats({ academicYear }: OverviewStatsProps) {
+export default function OverviewStats({ studyYear, collegeId }: OverviewStatsProps) {
   const [stats, setStats] = useState<OverviewStatsType | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -19,7 +20,7 @@ export default function OverviewStats({ academicYear }: OverviewStatsProps) {
       try {
         setLoading(true);
         setError(null);
-        const data = await analyticsService.getOverviewStats(academicYear);
+        const data = await analyticsService.getOverviewStats(studyYear, collegeId);
         setStats(data);
       } catch (err) {
         console.error('Failed to fetch overview stats:', err);
@@ -30,7 +31,7 @@ export default function OverviewStats({ academicYear }: OverviewStatsProps) {
     };
 
     fetchStats();
-  }, [academicYear]);
+  }, [studyYear, collegeId]);
 
   if (loading) {
     return (
@@ -105,14 +106,14 @@ export default function OverviewStats({ academicYear }: OverviewStatsProps) {
       value: stats.totalStudents.toLocaleString(),
       icon: Users,
       color: "bg-blue-500",
-      description: `All departments • Academic Year ${academicYear}`
+      description: `All departments • Year ${studyYear} Students`
     },
     {
       title: "Total Courses",
       value: stats.totalCourses.toString(),
       icon: BookOpen,
       color: "bg-green-500",
-      description: `Active courses in ${academicYear}`
+      description: `Active courses for Year ${studyYear}`
     },
     {
       title: "Average Attendance",

@@ -3,8 +3,14 @@ import { authService } from './auth';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4000';
 
+export interface College {
+  id: string;
+  name: string;
+  code: string;
+}
+
 export interface OverviewStats {
-  academicYear: string;
+  studyYear: number;
   totalStudents: number;
   totalCourses: number;
   totalSections: number;
@@ -59,12 +65,12 @@ export interface DepartmentStats {
 }
 
 export interface AttendanceAnalyticsData {
-  academicYear: string;
+  studyYear: number;
   departments: DepartmentStats[];
 }
 
 export interface MarksAnalyticsData {
-  academicYear: string;
+  studyYear: number;
   departments: DepartmentStats[];
 }
 
@@ -129,30 +135,47 @@ class AnalyticsService {
     return data.data;
   }
 
-  async getOverviewStats(academicYear?: string): Promise<OverviewStats> {
-    const endpoint = academicYear
-      ? `/api/analytics/overview/${academicYear}`
+  async getOverviewStats(studyYear?: number, collegeId?: string): Promise<OverviewStats> {
+    let endpoint = studyYear
+      ? `/api/analytics/overview/${studyYear}`
       : '/api/analytics/overview';
 
+    if (collegeId && collegeId !== 'all') {
+      endpoint += `?collegeId=${collegeId}`;
+    }
+
     return this.makeRequest(endpoint);
   }
 
-  async getAttendanceAnalytics(academicYear?: string): Promise<AttendanceAnalyticsData> {
-    const endpoint = academicYear
-      ? `/api/analytics/attendance/${academicYear}`
+  async getAttendanceAnalytics(studyYear?: number, collegeId?: string): Promise<AttendanceAnalyticsData> {
+    let endpoint = studyYear
+      ? `/api/analytics/attendance/${studyYear}`
       : '/api/analytics/attendance';
 
+    if (collegeId && collegeId !== 'all') {
+      endpoint += `?collegeId=${collegeId}`;
+    }
+
     return this.makeRequest(endpoint);
   }
 
-  async getMarksAnalytics(academicYear?: string): Promise<MarksAnalyticsData> {
-    const endpoint = academicYear
-      ? `/api/analytics/marks/${academicYear}`
+  async getMarksAnalytics(studyYear?: number, collegeId?: string): Promise<MarksAnalyticsData> {
+    let endpoint = studyYear
+      ? `/api/analytics/marks/${studyYear}`
       : '/api/analytics/marks';
 
+    if (collegeId && collegeId !== 'all') {
+      endpoint += `?collegeId=${collegeId}`;
+    }
+
     return this.makeRequest(endpoint);
   }
 
+  async getColleges(): Promise<College[]> {
+    return this.makeRequest('/api/analytics/colleges');
+  }
+
+  // Keep this for potential future use
   async getAcademicYears(): Promise<string[]> {
     return this.makeRequest('/api/analytics/academic-years');
   }
