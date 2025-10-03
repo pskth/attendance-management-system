@@ -381,6 +381,49 @@ export default function TeacherMarksAttendanceManagement({
         }
     }
 
+    // Bulk mark all students with a specific status
+    const markAllAttendance = async (status: 'present' | 'absent' | 'unmarked') => {
+        if (selectedCourse === 'all') {
+            setError('Please select a specific course to mark attendance')
+            return
+        }
+
+        if (filteredAttendanceRecords.length === 0) {
+            setError('No students to mark attendance for')
+            return
+        }
+
+        try {
+            setLoading(true)
+            
+            // Update all filtered records
+            const updatePromises = filteredAttendanceRecords.map(record =>
+                TeacherAPI.updateStudentAttendance({
+                    studentId: record.studentId,
+                    courseId: selectedCourse,
+                    date: selectedDate,
+                    status: status
+                })
+            )
+
+            await Promise.all(updatePromises)
+
+            // Update local state
+            setAttendanceRecords(prev => prev.map(r => {
+                const isFiltered = filteredAttendanceRecords.some(fr => fr.id === r.id)
+                return isFiltered ? { ...r, status } : r
+            }))
+
+            // Success feedback via console for now
+            console.log(`Successfully marked ${filteredAttendanceRecords.length} student(s) as ${status}`)
+        } catch (err) {
+            console.error('Error marking bulk attendance:', err)
+            setError('Failed to mark attendance for all students')
+        } finally {
+            setLoading(false)
+        }
+    }
+
     // Create attendance session for selected date and course
     // Export marks functionality
     const exportMarks = () => {
@@ -828,24 +871,59 @@ export default function TeacherMarksAttendanceManagement({
                     {/* Daily Attendance */}
                     <Card className="lg:col-span-2">
                         <CardHeader>
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <CardTitle className="text-lg">
-                                        Attendance for {new Date(selectedDate).toLocaleDateString()}
-                                    </CardTitle>
-                                    <CardDescription>
-                                        {attendanceRecords.length > 0 ? (
-                                            <>
-                                                {attendanceSummary.present} present, {attendanceSummary.absent} absent
-                                                {attendanceSummary.unmarked > 0 && `, ${attendanceSummary.unmarked} unmarked`}
-                                            </>
-                                        ) : selectedCourse === 'all' ? (
-                                            'Select a specific course to view attendance'
-                                        ) : (
-                                            'All students are unmarked for this date - click to mark attendance'
-                                        )}
-                                    </CardDescription>
+                            <div className="flex flex-col space-y-4">
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <CardTitle className="text-lg">
+                                            Attendance for {new Date(selectedDate).toLocaleDateString()}
+                                        </CardTitle>
+                                        <CardDescription>
+                                            {attendanceRecords.length > 0 ? (
+                                                <>
+                                                    {attendanceSummary.present} present, {attendanceSummary.absent} absent
+                                                    {attendanceSummary.unmarked > 0 && `, ${attendanceSummary.unmarked} unmarked`}
+                                                </>
+                                            ) : selectedCourse === 'all' ? (
+                                                'Select a specific course to view attendance'
+                                            ) : (
+                                                'All students are unmarked for this date - click to mark attendance'
+                                            )}
+                                        </CardDescription>
+                                    </div>
                                 </div>
+                                
+                                {/* Bulk Action Buttons */}
+                                {selectedCourse !== 'all' && filteredAttendanceRecords.length > 0 && (
+                                    <div className="flex flex-wrap gap-2">
+                                        <Button
+                                            onClick={() => markAllAttendance('present')}
+                                            disabled={loading}
+                                            size="sm"
+                                            className="bg-green-600 hover:bg-green-700 text-white"
+                                        >
+                                            <CheckCircle className="w-4 h-4 mr-2" />
+                                            Mark All Present
+                                        </Button>
+                                        <Button
+                                            onClick={() => markAllAttendance('absent')}
+                                            disabled={loading}
+                                            size="sm"
+                                            className="bg-red-600 hover:bg-red-700 text-white"
+                                        >
+                                            <XCircle className="w-4 h-4 mr-2" />
+                                            Mark All Absent
+                                        </Button>
+                                        <Button
+                                            onClick={() => markAllAttendance('unmarked')}
+                                            disabled={loading}
+                                            size="sm"
+                                            variant="outline"
+                                        >
+                                            <Clock className="w-4 h-4 mr-2" />
+                                            Mark All Unmarked
+                                        </Button>
+                                    </div>
+                                )}
                             </div>
                         </CardHeader>
                         <CardContent className="p-0">
