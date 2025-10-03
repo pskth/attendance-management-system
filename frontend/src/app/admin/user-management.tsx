@@ -655,17 +655,6 @@ export default function UserManagement({ initialFilters }: UserManagementProps) 
                 <option key={section} value={section}>Section {section}</option>
               ))}
             </select>
-            <select
-              value={selectedCourse}
-              onChange={(e) => setSelectedCourse(e.target.value)}
-              className="rounded-md border border-gray-300 px-3 py-2 text-sm"
-              aria-label="Filter by course"
-            >
-              <option value="all">All Courses</option>
-              {allCourses.map(course => (
-                <option key={course} value={course}>{course}</option>
-              ))}
-            </select>
           </div>
         </CardContent>
       </Card>
