@@ -313,12 +313,17 @@ router.get('/attendance/:studyYear?', authenticateToken, async (req: Authenticat
         const avgAttendance = course.sections.length > 0 ? totalAttendance / course.sections.length : 0;
         const totalStudents = course.sections.reduce((sum: number, sec: any) => sum + sec.students, 0);
 
+        // Sort sections alphabetically
+        const sortedSections = course.sections.sort((a: any, b: any) => {
+          return a.section.localeCompare(b.section);
+        });
+
         return {
           code: course.code,
           name: course.name,
           attendance: parseFloat(avgAttendance.toFixed(1)),
           students: totalStudents,
-          sections: course.sections
+          sections: sortedSections
         };
       });
 

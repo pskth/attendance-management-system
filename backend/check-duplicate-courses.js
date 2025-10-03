@@ -1,80 +1,74 @@
-const { PrismaClient } = require("./generated/prisma");
+const { PrismaClient } = require('./generated/prisma');
 const prisma = new PrismaClient();
 
 async function checkDuplicateCourses() {
   try {
-    console.log("üîç Checking for Duplicate CS301 Courses\n");
+    console.log('\nÌ≥ö Checking for Duplicate Course Names\n');
+    console.log('='.repeat(80) + '\n');
 
-    const nmamit = await prisma.college.findFirst({
-      where: { code: "NMAMIT" },
-    });
-    const nmamitCS = await prisma.department.findFirst({
-      where: { code: "CS", college_id: nmamit.id },
-    });
+    const colleges = await prisma.college.findMany();
 
-    // Get all CS301 courses for NMAMIT CS department
-    const cs301Courses = await prisma.course.findMany({
-      where: {
-        code: "CS301",
-        departmentId: nmamitCS.id,
-      },
-    });
+    for (const college of colleges) {
+      console.log(`\nÌøõÔ∏è  ${college.name} (${college.code})`);
+      console.log('‚îÄ'.repeat(80));
 
-    console.log(
-      `Found ${cs301Courses.length} CS301 courses in NMAMIT CS department\n`
-    );
-
-    cs301Courses.forEach((course, idx) => {
-      console.log(`${idx + 1}. Course ID: ${course.id}`);
-      console.log(`   Name: ${course.name}`);
-      console.log(`   Code: ${course.code}`);
-      console.log("");
-    });
-
-    // Get all offerings for each course
-    const academicYear = await prisma.academic_years.findFirst({
-      where: { is_active: true, college_id: nmamit.id },
-    });
-
-    for (const course of cs301Courses) {
-      const offerings = await prisma.courseOffering.findMany({
-        where: {
-          courseId: course.id,
-          semester: 5,
-          year_id: academicYear.year_id,
-        },
-        include: {
-          sections: true,
-          _count: {
-            select: { enrollments: true },
-          },
-        },
+      const csDept = await prisma.department.findFirst({
+        where: { code: 'CS', college_id: college.id }
       });
 
-      console.log(
-        `Course ${course.id.substring(0, 8)}... has ${
-          offerings.length
-        } offerings:`
-      );
-      offerings.forEach((o) => {
-        console.log(
-          `  Section ${o.sections?.section_name}: ${o._count.enrollments} students`
-        );
+      if (!csDept) {
+        console.log('  No CS department\n');
+        continue;
+      }
+
+      const courses = await prisma.course.findMany({
+        where: { departmentId: csDept.id },
+        orderBy: { code: 'asc' }
       });
-      console.log("");
+
+      console.log(`\n  Total Courses: ${courses.length}\n`);
+
+      // Group by name to find duplicates
+      const nameGroups = {};
+      courses.forEach(course => {
+        if (!nameGroups[course.name]) {
+          nameGroups[course.name] = [];
+        }
+        nameGroups[course.name].push(course);
+      });
+
+      // Show all courses
+      courses.forEach(course => {
+        const isDuplicate = nameGroups[course.name].length > 1;
+        const marker = isDuplicate ? '‚ö†Ô∏è  DUPLICATE' : '‚úì';
+        console.log(`  ${marker} ${course.code} - ${course.name}`);
+      });
+
+      // Show duplicates summary
+      console.log('\n  Duplicate Names:');
+      let foundDuplicates = false;
+      Object.entries(nameGroups).forEach(([name, coursesWithName]) => {
+        if (coursesWithName.length > 1) {
+          foundDuplicates = true;
+          console.log(`\n    "${name}"`);
+          coursesWithName.forEach(c => {
+            console.log(`      - ${c.code} (ID: ${c.id.substring(0, 8)}...)`);
+          });
+        }
+      });
+
+      if (!foundDuplicates) {
+        console.log('    None');
+      }
+
+      console.log('');
     }
 
-    // Check if there are multiple courses with same code
-    if (cs301Courses.length > 1) {
-      console.log(
-        "‚ö†Ô∏è  Multiple CS301 courses found! This will cause duplicates in UI.\n"
-      );
-      console.log(
-        "Solution: Keep one course, migrate offerings to it, delete the rest.\n"
-      );
-    }
+    console.log('\n' + '='.repeat(80));
+    console.log('‚úÖ Check Complete\n');
+
   } catch (error) {
-    console.error("‚ùå Error:", error.message);
+    console.error('‚ùå Error:', error.message);
   } finally {
     await prisma.$disconnect();
   }
