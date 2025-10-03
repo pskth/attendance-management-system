@@ -332,7 +332,7 @@ export default function TeacherDashboard() {
         </Card>
 
         {/* Statistics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-5xl mx-auto">
+        <div className="flex flex-row items-center justify-center gap-4 max-w-5xl mx-auto">
           <Card
             className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:border-emerald-300"
             onClick={() => {
@@ -365,7 +365,7 @@ export default function TeacherDashboard() {
               <p className="text-xs text-muted-foreground mt-1">Click to view all students</p>
             </div>
           </Card>
-          <Card>
+          {/* <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <div className="text-sm font-medium">Sessions Taken</div>
               <Calendar className="h-4 w-4 text-muted-foreground" />
@@ -373,7 +373,7 @@ export default function TeacherDashboard() {
             <div className="px-6 pb-4">
               <div className="text-2xl font-bold">{dashboardData.statistics.totalSessions}</div>
             </div>
-          </Card>
+          </Card> */}
         </div>
 
         {/* Master Search */}
