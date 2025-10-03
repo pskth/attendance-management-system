@@ -920,7 +920,7 @@ export default function TeacherMarksAttendanceManagement({
                                             variant="outline"
                                         >
                                             <Clock className="w-4 h-4 mr-2" />
-                                            Mark All Unmarked
+                                            Unmark All
                                         </Button>
                                     </div>
                                 )}
