@@ -230,7 +230,7 @@ export const MasterSearch = forwardRef<MasterSearchRef, MasterSearchProps>(
     }
 
     return (
-      <div ref={searchRef} className={`relative w-full max-w-2xl z-[40] ${hidden ? 'opacity-0 pointer-events-none' : ''}`}>
+      <div ref={searchRef} className={`relative w-full max-w-2xl z-[70] ${hidden ? 'opacity-0 pointer-events-none' : ''}`}>
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 sm:w-5 sm:h-5" />
           <input
@@ -259,7 +259,7 @@ export const MasterSearch = forwardRef<MasterSearchRef, MasterSearchProps>(
         </div>
 
         {isOpen && results.length > 0 && (
-          <Card className="absolute top-full left-0 right-0 mt-2 shadow-lg border z-[40] max-h-80 sm:max-h-96 overflow-y-auto">
+          <Card className="absolute top-full left-0 right-0 mt-2 shadow-lg border z-[70] max-h-80 sm:max-h-96 overflow-y-auto">
             <CardContent className="p-0">
               <div className="py-2">
                 {results.map((result, index) => (
@@ -304,7 +304,7 @@ export const MasterSearch = forwardRef<MasterSearchRef, MasterSearchProps>(
         )}
 
         {isOpen && searchTerm && results.length === 0 && !loading && (
-          <Card className="absolute top-full left-0 right-0 mt-2 shadow-lg border z-[40]">
+          <Card className="absolute top-full left-0 right-0 mt-2 shadow-lg border z-[70]">
             <CardContent className="p-4 text-center text-gray-500">
               <Search className="w-8 h-8 text-gray-300 mx-auto mb-2" />
               <p className="text-sm">No results found for &quot;{searchTerm}&quot;</p>
