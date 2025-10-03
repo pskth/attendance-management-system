@@ -395,7 +395,7 @@ export default function TeacherMarksAttendanceManagement({
 
         try {
             setLoading(true)
-            
+
             // Update all filtered records
             const updatePromises = filteredAttendanceRecords.map(record =>
                 TeacherAPI.updateStudentAttendance({
@@ -891,7 +891,7 @@ export default function TeacherMarksAttendanceManagement({
                                         </CardDescription>
                                     </div>
                                 </div>
-                                
+
                                 {/* Bulk Action Buttons */}
                                 {selectedCourse !== 'all' && filteredAttendanceRecords.length > 0 && (
                                     <div className="flex flex-wrap gap-2">
