@@ -99,15 +99,91 @@ The database schema is defined in `prisma/schema.prisma` and includes:
 backend/
 ├── src/
 │   ├── index.ts          # Main server file
-│   └── db-setup.ts       # Database setup script
+│   ├── routes/           # API route handlers
+│   │   ├── admin/        # Admin-specific routes
+│   │   ├── auth.ts       # Authentication routes
+│   │   ├── student.ts    # Student routes
+│   │   └── teacher.ts    # Teacher routes
+│   └── middleware/       # Express middleware
 ├── prisma/
 │   └── schema.prisma     # Database schema
+├── excel-seed-data/      # Sample Excel files for import
 ├── generated/
 │   └── prisma/          # Generated Prisma client
+├── create-admin.js       # Script to create admin user
+├── seed-from-excel.js    # Script to seed database from Excel
+├── create-sample-excel.js # Script to generate sample Excel files
+├── list-teachers.js      # Utility to list all teachers
+├── setup-teacher.js      # Utility to setup teacher accounts
 ├── .env                 # Environment variables
 ├── .env.example         # Environment template
 └── package.json         # Dependencies and scripts
 ```
+
+## Utility Scripts
+
+The backend includes several utility scripts to help with setup and administration:
+
+### `create-admin.js`
+Creates an admin user in the system.
+
+```bash
+node create-admin.js
+```
+
+**What it does:**
+- Prompts for admin details (username, email, password)
+- Creates user with admin role
+- Useful for initial system setup
+
+### `seed-from-excel.js`
+Seeds the database from Excel files.
+
+```bash
+node seed-from-excel.js
+```
+
+**What it does:**
+- Reads Excel files from `excel-seed-data/` directory
+- Imports colleges, departments, users, students, teachers, courses
+- Validates data before insertion
+- Useful for bulk data import
+
+### `create-sample-excel.js`
+Generates sample Excel files for testing import functionality.
+
+```bash
+node create-sample-excel.js
+```
+
+**What it does:**
+- Creates sample Excel files with proper format
+- Includes realistic test data
+- Useful for testing Excel import feature
+
+### `list-teachers.js`
+Lists all teachers in the system.
+
+```bash
+node list-teachers.js
+```
+
+**What it does:**
+- Displays all teacher accounts with their details
+- Shows username, name, department
+- Useful for verification and debugging
+
+### `setup-teacher.js`
+Interactive script to setup or modify teacher accounts.
+
+```bash
+node setup-teacher.js
+```
+
+**What it does:**
+- Creates or updates teacher profiles
+- Assigns teachers to departments
+- Useful for manual teacher management
 
 ## Development Workflow
 
