@@ -16,6 +16,9 @@
     "migrate-passwords": "ts-node src/scripts/migrate-passwords.ts",
     "demo-auth": "ts-node scripts/demo-auth.ts",
     "create-demo-users": "ts-node scripts/create-demo-users.ts",
+    "create-admin": "node create-admin.js",
+    "excel:create-samples": "node create-sample-excel.js",
+    "excel:seed": "node seed-from-excel.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "prisma": {
@@ -37,7 +40,8 @@
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.526.0",
     "multer": "^2.0.1",
-    "pg": "^8.16.0"
+    "pg": "^8.16.0",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
