@@ -123,6 +123,9 @@ backend/
 ├── create-sample-excel.js # Script to generate sample Excel files
 ├── list-teachers.js      # Utility to list all teachers
 ├── setup-teacher.js      # Utility to setup teacher accounts
+├── export-dump.js        # Export PostgreSQL database dump
+├── import-dump.js        # Import PostgreSQL database dump
+├── dumps/                # Database dump files (auto-created)
 ├── .env                 # Environment variables
 ├── .env.example         # Environment template
 └── package.json         # Dependencies and scripts
@@ -202,6 +205,76 @@ node setup-teacher.js
 - Creates or updates teacher profiles
 - Assigns teachers to departments
 - Useful for manual teacher management
+
+### `export-dump.js`
+
+Export complete PostgreSQL database dump.
+
+```bash
+node export-dump.js
+```
+
+**What it does:**
+
+- Creates a complete `.sql` dump file of the database
+- Uses PostgreSQL's `pg_dump` tool
+- Saves to `dumps/` directory with timestamp
+- Includes schema, data, indexes, and constraints
+- Useful for full backups and database migration
+
+**Requirements:** PostgreSQL client tools (`pg_dump`) must be installed
+
+### `import-dump.js`
+
+Import PostgreSQL database dump.
+
+```bash
+node import-dump.js <path-to-dump.sql>
+```
+
+**Example:**
+
+```bash
+node import-dump.js dumps/attendance-db-dump-2025-10-12.sql
+```
+
+**What it does:**
+
+- Restores database from a `.sql` dump file
+- Uses PostgreSQL's `psql` tool
+- Imports schema and data
+- Useful for disaster recovery and database cloning
+
+**Requirements:** PostgreSQL client tools (`psql`) must be installed
+
+**Warning:** This adds data to the existing database. Consider clearing the database first for a clean restore.
+
+## Database Backup & Restore
+
+### Quick Backup:
+
+```bash
+# Create a backup
+node export-dump.js
+
+# Output: dumps/attendance-db-dump-2025-10-12-14-30-15.sql
+```
+
+### Quick Restore:
+
+```bash
+# Restore from backup
+node import-dump.js dumps/attendance-db-dump-2025-10-12.sql
+```
+
+### Using the Web UI:
+
+1. Login as admin
+2. Navigate to: **Admin Dashboard → DB Dump** tab
+3. Click "Export Database Dump" to backup
+4. Click "Import Database Dump" to restore
+
+See `DATABASE_DUMP_FEATURE.md` for complete documentation.
 
 ## Development Workflow
 

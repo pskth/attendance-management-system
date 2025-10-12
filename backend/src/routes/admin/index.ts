@@ -9,6 +9,7 @@ import debugRoutes from './debugRoutes';
 import enrollmentRoutes from './enrollmentRoutes';
 import excelImportRoutes from './excelImportRoutes';
 import exportRoutes from './exportRoutes';
+import dumpRoutes from './dumpRoutes';
 
 const router = Router();
 
@@ -29,6 +30,7 @@ router.use(requireAdmin);
 router.use('/', importRoutes);
 router.use('/', excelImportRoutes);
 router.use('/', exportRoutes);
+router.use('/', dumpRoutes);
 router.use('/', marksRoutes);
 router.use('/', courseRoutes);
 router.use('/', attendanceRoutes);

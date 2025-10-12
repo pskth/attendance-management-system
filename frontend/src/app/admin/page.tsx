@@ -12,6 +12,7 @@ import CollegeManagement from '@/app/admin/college-management'
 import DatabaseSetup from '@/app/admin/database-setup'
 import DatabaseSetupExcel from '@/app/admin/database-setup-excel'
 import AcademicYearExport from '@/app/admin/academic-year-export'
+import DatabaseDump from '@/app/admin/database-dump'
 
 export default function AdminDashboard() {
   const { user } = useAuth()
@@ -94,7 +95,7 @@ export default function AdminDashboard() {
 
           {/* Main Content */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid w-full grid-cols-7">
+            <TabsList className="grid w-full grid-cols-8">
               <TabsTrigger value="users">Users</TabsTrigger>
               <TabsTrigger value="courses">Courses</TabsTrigger>
               <TabsTrigger value="departments">Departments</TabsTrigger>
@@ -102,6 +103,7 @@ export default function AdminDashboard() {
               {/* <TabsTrigger value="setup">Database Setup (CSV)</TabsTrigger> */}
               <TabsTrigger value="excel">Excel Import</TabsTrigger>
               <TabsTrigger value="export">Year Export</TabsTrigger>
+              <TabsTrigger value="dump">DB Dump</TabsTrigger>
             </TabsList>
 
             <TabsContent value="users">
@@ -140,6 +142,10 @@ export default function AdminDashboard() {
 
             <TabsContent value="export">
               <AcademicYearExport />
+            </TabsContent>
+
+            <TabsContent value="dump">
+              <DatabaseDump />
             </TabsContent>
           </Tabs>
         </div>

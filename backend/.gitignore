@@ -37,6 +37,10 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 
+# database dumps
+/dumps
+*.sql
+
 # vercel
 .vercel
 .txt
