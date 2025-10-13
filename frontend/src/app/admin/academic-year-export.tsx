@@ -271,88 +271,77 @@ export default function AcademicYearExport() {
 
             {/* Academic Years List */}
             <div>
-                <h2 className="text-xl font-semibold mb-4">Export by Academic Year</h2>
-                {academicYears.length === 0 ? (
-                    <Card>
-                        <CardContent className="pt-6 text-center text-gray-500">
-                            <Calendar className="w-12 h-12 mx-auto mb-3 text-gray-400" />
-                            <p>No academic years found in the database.</p>
-                            <p className="text-sm mt-2">Create academic years first using the Excel Import tab.</p>
-                        </CardContent>
-                    </Card>
-                ) : (
-                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                        {academicYears.map((year) => {
-                            const status = exportStatus[year.year_id]
-                            const isExporting = exportingYearId === year.year_id
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                    {academicYears.map((year) => {
+                        const status = exportStatus[year.year_id]
+                        const isExporting = exportingYearId === year.year_id
 
-                            return (
-                                <Card key={year.year_id} className={year.is_active ? 'border-blue-500 border-2' : ''}>
-                                    <CardHeader>
-                                        <CardTitle className="flex items-center gap-2">
-                                            <Calendar className="w-5 h-5" />
-                                            {year.year_name}
-                                            {year.is_active && (
-                                                <span className="ml-auto text-xs bg-blue-500 text-white px-2 py-1 rounded">
-                                                    Active
-                                                </span>
-                                            )}
-                                        </CardTitle>
-                                        <CardDescription>
-                                            {year.colleges.name} ({year.colleges.code})
-                                        </CardDescription>
-                                        <div className="text-xs text-gray-500 mt-2">
-                                            {new Date(year.start_date).toLocaleDateString()} - {new Date(year.end_date).toLocaleDateString()}
-                                        </div>
-                                    </CardHeader>
-                                    <CardContent className="space-y-3">
-                                        <Button
-                                            onClick={() => exportAcademicYearData(year.year_id, year.year_name)}
-                                            disabled={loading}
-                                            className="w-full"
-                                            variant={year.is_active ? 'default' : 'outline'}
-                                        >
-                                            {isExporting ? (
-                                                <>
-                                                    <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                                                    Exporting...
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <Download className="w-4 h-4 mr-2" />
-                                                    Export Data
-                                                </>
-                                            )}
-                                        </Button>
+                        return (
+                            <Card key={year.year_id} className={year.is_active ? 'border-blue-500 border-2' : ''}>
+                                <CardHeader>
+                                    <CardTitle className="flex items-center gap-2">
+                                        <Calendar className="w-5 h-5" />
+                                        {year.year_name}
+                                        {year.is_active && (
+                                            <span className="ml-auto text-xs bg-blue-500 text-white px-2 py-1 rounded">
+                                                Active
+                                            </span>
+                                        )}
+                                    </CardTitle>
+                                    <CardDescription>
+                                        {year.colleges.name} ({year.colleges.code})
+                                    </CardDescription>
+                                    <div className="text-xs text-gray-500 mt-2">
+                                        {new Date(year.start_date).toLocaleDateString()} - {new Date(year.end_date).toLocaleDateString()}
+                                    </div>
+                                </CardHeader>
+                                <CardContent className="space-y-3">
+                                    <Button
+                                        onClick={() => exportAcademicYearData(year.year_id, year.year_name)}
+                                        disabled={loading}
+                                        className="w-full"
+                                        variant={year.is_active ? 'default' : 'outline'}
+                                    >
+                                        {isExporting ? (
+                                            <>
+                                                <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                                                Exporting...
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Download className="w-4 h-4 mr-2" />
+                                                Export Data
+                                            </>
+                                        )}
+                                    </Button>
 
-                                        {/* Export Result */}
-                                        {status && (
-                                            <div className={`p-2 rounded text-sm ${status.success ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'}`}>
-                                                <div className="flex items-start gap-2">
-                                                    {status.success ? (
-                                                        <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
-                                                    ) : (
-                                                        <AlertCircle className="w-4 h-4 text-red-600 flex-shrink-0 mt-0.5" />
-                                                    )}
-                                                    <div className="flex-1">
-                                                        <p className={status.success ? 'text-green-800' : 'text-red-800'}>
-                                                            {status.message}
+                                    {/* Export Result */}
+                                    {status && (
+                                        <div className={`p-2 rounded text-sm ${status.success ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'}`}>
+                                            <div className="flex items-start gap-2">
+                                                {status.success ? (
+                                                    <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
+                                                ) : (
+                                                    <AlertCircle className="w-4 h-4 text-red-600 flex-shrink-0 mt-0.5" />
+                                                )}
+                                                <div className="flex-1">
+                                                    <p className={status.success ? 'text-green-800' : 'text-red-800'}>
+                                                        {status.message}
+                                                    </p>
+                                                    {status.success && status.zipFileName && (
+                                                        <p className="text-xs text-gray-600 mt-1">
+                                                            {status.zipFileName}
                                                         </p>
-                                                        {status.success && status.zipFileName && (
-                                                            <p className="text-xs text-gray-600 mt-1">
-                                                                {status.zipFileName}
-                                                            </p>
-                                                        )}
-                                                    </div>
+                                                    )}
                                                 </div>
                                             </div>
-                                        )}
-                                    </CardContent>
-                                </Card>
-                            )
-                        })}
-                    </div>
-                )}
+                                        </div>
+                                    )}
+                                </CardContent>
+                            </Card>
+                        )
+                    })}
+                </div>
             </div>
 
             {/* Tips Card */}

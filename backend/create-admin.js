@@ -12,7 +12,7 @@ async function createAdminUser() {
       username: "admin",
       name: "System Administrator",
       email: "admin@example.com",
-      phone: "9999999999",
+      phone: "9876543210",
       password: "admin123", // Change this to your desired password
     };
 
