@@ -31,7 +31,7 @@ router.post('/import/:table', upload.single('file'), async (req, res) => {
   } catch (error) {
     console.error('=== IMPORT ENDPOINT ERROR ===', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    res.status(500).json({ 
+    res.status(500).json({
       error: errorMessage,
       timestamp: new Date().toISOString()
     });
@@ -42,10 +42,29 @@ router.post('/import/:table', upload.single('file'), async (req, res) => {
 router.post('/clear-database', async (req, res) => {
   try {
     const prisma = DatabaseService.getInstance();
-    
+
     console.log('=== CLEARING DATABASE ===');
-    
-    // Clear in reverse dependency order
+    console.log('⚠️  WARNING: Using deprecated importRoutes clear-database endpoint');
+    console.log('⚠️  This endpoint does NOT preserve admin users!');
+    console.log('⚠️  Please use dumpRoutes /api/admin/clear-database instead');
+
+    // Get all admin user IDs before clearing (PRESERVE ADMINS)
+    const adminUsers = await prisma.admin.findMany({
+      select: { userId: true }
+    });
+    const adminUserIds = adminUsers.map(a => a.userId);
+
+    if (adminUserIds.length === 0) {
+      console.error('❌ No admin users found! Aborting clear operation.');
+      return res.status(400).json({
+        error: 'Cannot clear database: No admin users found. Create an admin first.',
+        suggestion: 'Run: node create-admin.js'
+      });
+    }
+
+    console.log(`Preserving ${adminUserIds.length} admin user(s)...`);
+
+    // Clear in reverse dependency order (PRESERVING ADMINS)
     await prisma.attendanceRecord.deleteMany({});
     await prisma.attendance.deleteMany({});
     await prisma.theoryMarks.deleteMany({});
@@ -53,23 +72,39 @@ router.post('/clear-database', async (req, res) => {
     await prisma.studentEnrollment.deleteMany({});
     await prisma.courseOffering.deleteMany({});
     await prisma.academic_years.deleteMany({});
-    await prisma.userRoleAssignment.deleteMany({});
-    await prisma.student.deleteMany({});
-    await prisma.teacher.deleteMany({});
+
+    // Delete non-admin users only
+    await prisma.student.deleteMany({
+      where: adminUserIds.length > 0 ? { userId: { notIn: adminUserIds } } : {}
+    });
+    await prisma.teacher.deleteMany({
+      where: adminUserIds.length > 0 ? { userId: { notIn: adminUserIds } } : {}
+    });
+
     await prisma.course.deleteMany({});
     await prisma.sections.deleteMany({});
     await prisma.department.deleteMany({});
-    await prisma.user.deleteMany({});
     await prisma.college.deleteMany({});
 
-    res.json({ 
-      success: true, 
-      message: 'Database cleared successfully',
+    // Delete non-admin role assignments and users
+    await prisma.userRoleAssignment.deleteMany({
+      where: { userId: { notIn: adminUserIds } }
+    });
+    await prisma.user.deleteMany({
+      where: { id: { notIn: adminUserIds } }
+    });
+
+    console.log(`✅ Database cleared. Admin users preserved: ${adminUserIds.length}`);
+
+    res.json({
+      success: true,
+      message: 'Database cleared successfully. Admin users preserved.',
+      preserved: adminUserIds.length,
       timestamp: new Date().toISOString()
     });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    res.status(500).json({ 
+    res.status(500).json({
       error: errorMessage,
       timestamp: new Date().toISOString()
     });
@@ -80,7 +115,7 @@ router.post('/clear-database', async (req, res) => {
 router.get('/import-status', async (req, res) => {
   try {
     const prisma = DatabaseService.getInstance();
-    
+
     const counts = {
       colleges: await prisma.college.count(),
       users: await prisma.user.count(),
@@ -106,7 +141,7 @@ router.get('/import-status', async (req, res) => {
     });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    res.status(500).json({ 
+    res.status(500).json({
       error: errorMessage,
       timestamp: new Date().toISOString()
     });
@@ -117,19 +152,19 @@ router.get('/import-status', async (req, res) => {
 router.post('/fix-course-components', async (req, res) => {
   try {
     const prisma = DatabaseService.getInstance();
-    
+
     console.log('=== FIXING COURSE COMPONENTS ===');
-    
+
     // Get all courses
     const courses = await prisma.course.findMany();
     console.log(`Found ${courses.length} courses to update`);
-    
+
     let updatedCount = 0;
-    
+
     for (const course of courses) {
       let hasTheory = false;
       let hasLab = false;
-      
+
       // Check for theory marks
       const theoryMarksCount = await prisma.theoryMarks.count({
         where: {
@@ -140,7 +175,7 @@ router.post('/fix-course-components', async (req, res) => {
           }
         }
       });
-      
+
       // Check for lab marks
       const labMarksCount = await prisma.labMarks.count({
         where: {
@@ -151,10 +186,10 @@ router.post('/fix-course-components', async (req, res) => {
           }
         }
       });
-      
+
       hasTheory = theoryMarksCount > 0;
       hasLab = labMarksCount > 0;
-      
+
       // Update course if flags are different
       if (course.hasTheoryComponent !== hasTheory || course.hasLabComponent !== hasLab) {
         await prisma.course.update({
@@ -165,11 +200,11 @@ router.post('/fix-course-components', async (req, res) => {
           }
         });
         updatedCount++;
-        
+
         console.log(`Updated course ${course.code}: theory=${hasTheory}, lab=${hasLab}`);
       }
     }
-    
+
     res.json({
       success: true,
       message: `Fixed ${updatedCount} courses`,
@@ -179,7 +214,7 @@ router.post('/fix-course-components', async (req, res) => {
   } catch (error) {
     console.error('Error fixing course components:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    res.status(500).json({ 
+    res.status(500).json({
       error: errorMessage,
       timestamp: new Date().toISOString()
     });

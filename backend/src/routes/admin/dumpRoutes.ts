@@ -4,9 +4,11 @@ import { promisify } from 'util';
 import * as fs from 'fs';
 import * as path from 'path';
 import multer from 'multer';
+import DatabaseService from '../../services/database.service';
 
 const execAsync = promisify(exec);
 const router = Router();
+const prisma = DatabaseService.getInstance().getPrisma();
 
 // Configure multer for SQL file uploads
 const storage = multer.diskStorage({
@@ -212,7 +214,7 @@ router.post('/import-dump', upload.single('dumpFile'), async (req: Request, res:
 
 /**
  * POST /api/admin/clear-database
- * Clear all data from database (WARNING: Destructive operation)
+ * Clear all data from database except admin users (WARNING: Destructive operation)
  */
 router.post('/clear-database', async (req: Request, res: Response) => {
     try {
@@ -225,39 +227,189 @@ router.post('/clear-database', async (req: Request, res: Response) => {
             });
         }
 
-        const databaseUrl = process.env.DATABASE_URL;
-        if (!databaseUrl) {
-            return res.status(500).json({
+        console.log('\n' + '='.repeat(70));
+        console.log('🗑️  DATABASE CLEAR OPERATION STARTED');
+        console.log('='.repeat(70));
+        console.log('Starting database clear (preserving admin users)...');
+
+        // Get all admin user IDs before clearing
+        console.log('\n[Step 1] Fetching admin users from database...');
+        const adminUsers = await prisma.admin.findMany({
+            select: {
+                userId: true,
+                user: {
+                    select: {
+                        id: true,
+                        username: true,
+                        name: true
+                    }
+                }
+            }
+        });
+        console.log(`[Step 1] Query returned ${adminUsers.length} admin user(s)`);
+
+        // Safety check: Ensure admins exist
+        if (adminUsers.length === 0) {
+            console.error('\n❌ OPERATION ABORTED: No admin users found in database!');
+            console.log('='.repeat(70) + '\n');
+            return res.status(400).json({
                 success: false,
-                error: 'DATABASE_URL not configured'
+                error: 'Cannot clear database: No admin users found. Please create an admin user first using the create-admin.js script.',
+                suggestion: 'Run: node create-admin.js'
             });
         }
 
-        const dbParams = parseDatabaseUrl(databaseUrl);
-        const env = { ...process.env, PGPASSWORD: dbParams.password };
+        const adminUserIds = adminUsers.map((admin: any) => admin.userId);
+        console.log(`\n[Step 1] ✅ Admin users to preserve:`);
+        adminUsers.forEach((a: any, i: number) => {
+            console.log(`  ${i + 1}. ${a.user.username} (${a.user.name})`);
+            console.log(`     User ID: ${a.userId}`);
+        });
+        console.log(`\n[Step 1] Admin User IDs array: [${adminUserIds.join(', ')}]`);
 
-        // SQL to drop all tables
-        const dropScript = `
-            DO $$ DECLARE
-                r RECORD;
-            BEGIN
-                -- Disable triggers
-                FOR r IN (SELECT tablename FROM pg_tables WHERE schemaname = 'public') LOOP
-                    EXECUTE 'DROP TABLE IF EXISTS public.' || quote_ident(r.tablename) || ' CASCADE';
-                END LOOP;
-            END $$;
-        `;
+        // Delete data in order (respecting foreign key constraints)
+        // Start with leaf tables (no dependencies) and work backwards
 
-        const command = `psql -h ${dbParams.host} -p ${dbParams.port} -U ${dbParams.user} -d ${dbParams.database} -c "${dropScript.replace(/\n/g, ' ')}"`;
+        console.log('Deleting transactional data...');
 
-        await execAsync(command, { env });
+        // 1. Theory and Lab Marks (depend on enrollments)
+        await prisma.theoryMarks.deleteMany({});
+        await prisma.labMarks.deleteMany({});
+        console.log('  ✓ Deleted marks');
 
-        console.log('Database cleared successfully');
+        // 2. Attendance Records (depend on attendance and students)
+        await prisma.attendanceRecord.deleteMany({});
+        console.log('  ✓ Deleted attendance records');
+
+        // 3. Attendance (depends on course offerings)
+        await prisma.attendance.deleteMany({});
+        console.log('  ✓ Deleted attendance sessions');
+
+        // 4. Student Enrollments (depend on students and offerings)
+        await prisma.studentEnrollment.deleteMany({});
+        console.log('  ✓ Deleted student enrollments');
+
+        // 5. Course Offerings (depend on courses, teachers, sections)
+        await prisma.courseOffering.deleteMany({});
+        console.log('  ✓ Deleted course offerings');
+
+        console.log('Deleting configuration data...');
+
+        // 6. Elective configuration
+        await prisma.courseElectiveGroupMember.deleteMany({});
+        await prisma.openElectiveRestriction.deleteMany({});
+        await prisma.departmentElectiveGroup.deleteMany({});
+        console.log('  ✓ Deleted elective configurations');
+
+        // 7. Courses (depend on departments)
+        await prisma.course.deleteMany({});
+        console.log('  ✓ Deleted courses');
+
+        // 8. Academic Years (depend on colleges)
+        await prisma.academic_years.deleteMany({});
+        console.log('  ✓ Deleted academic years');
+
+        console.log('Deleting user profiles (except admins)...');
+
+        // 9. Students (depend on users) - delete non-admin students
+        const deletedStudents = await prisma.student.deleteMany({
+            where: {
+                userId: {
+                    notIn: adminUserIds
+                }
+            }
+        });
+        console.log(`  ✓ Deleted ${deletedStudents.count} students`);
+
+        // 10. Teachers (depend on users) - delete non-admin teachers
+        const deletedTeachers = await prisma.teacher.deleteMany({
+            where: {
+                userId: {
+                    notIn: adminUserIds
+                }
+            }
+        });
+        console.log(`  ✓ Deleted ${deletedTeachers.count} teachers`);
+
+        // 11. Report Viewers (depend on users) - delete non-admin viewers
+        const deletedViewers = await prisma.reportViewer.deleteMany({
+            where: {
+                userId: {
+                    notIn: adminUserIds
+                }
+            }
+        });
+        console.log(`  ✓ Deleted ${deletedViewers.count} report viewers`);
+
+        // 12. Sections (depend on departments)
+        await prisma.sections.deleteMany({});
+        console.log('  ✓ Deleted sections');
+
+        // 13. Departments (depend on colleges)
+        await prisma.department.deleteMany({});
+        console.log('  ✓ Deleted departments');
+
+        // 14. Colleges (independent)
+        await prisma.college.deleteMany({});
+        console.log('  ✓ Deleted colleges');
+
+        console.log('Deleting non-admin users...');
+
+        // 15. User Role Assignments (depend on users) - delete non-admin roles
+        const deletedRoles = await prisma.userRoleAssignment.deleteMany({
+            where: {
+                userId: {
+                    notIn: adminUserIds
+                }
+            }
+        });
+        console.log(`  ✓ Deleted ${deletedRoles.count} user role assignments`);
+
+        // 16. Users (keep only admins)
+        const deletedUsers = await prisma.user.deleteMany({
+            where: {
+                id: {
+                    notIn: adminUserIds
+                }
+            }
+        });
+        console.log(`  ✓ Deleted ${deletedUsers.count} non-admin users`);
+
+        console.log('\n' + '='.repeat(70));
+        console.log('✅ DATABASE CLEAR COMPLETED');
+        console.log('='.repeat(70));
+        console.log(`Preserved ${adminUsers.length} admin user(s)`);
+
+        // VERIFICATION: Double-check admins still exist
+        console.log('\n[VERIFICATION] Checking if admin users still exist...');
+        const remainingAdmins = await prisma.admin.findMany({
+            include: { user: { select: { username: true } } }
+        });
+        console.log(`[VERIFICATION] Found ${remainingAdmins.length} admin(s) after clear:`);
+        remainingAdmins.forEach((a: any, i: number) => {
+            console.log(`  ${i + 1}. ${a.user.username}`);
+        });
+
+        const remainingUsers = await prisma.user.count();
+        console.log(`[VERIFICATION] Total users remaining: ${remainingUsers}`);
+        console.log('='.repeat(70) + '\n');
 
         res.json({
             success: true,
-            message: 'All database tables have been dropped. Run migrations to recreate schema.',
-            warning: 'This action cannot be undone. Restore from a backup if needed.'
+            message: 'Database cleared successfully. Admin users preserved.',
+            details: {
+                preserved: {
+                    admins: adminUsers.length,
+                    usernames: adminUsers.map((a: any) => a.user.username)
+                },
+                deleted: {
+                    users: deletedUsers.count,
+                    students: deletedStudents.count,
+                    teachers: deletedTeachers.count,
+                    roles: deletedRoles.count
+                }
+            },
+            warning: 'All data except admin users has been deleted. This action cannot be undone.'
         });
 
     } catch (error: any) {

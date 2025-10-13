@@ -54,8 +54,11 @@ export default function DatabaseDump() {
                 setStatus({
                     type: 'error',
                     message: 'Authentication Failed',
-                    details: 'Your session may have expired. Please logout and login again.'
+                    details: 'Your session has expired or user was deleted. Redirecting to login...'
                 })
+                setTimeout(() => {
+                    authService.logout()
+                }, 2000)
             }
             setDumpAvailable(false)
         }
@@ -104,8 +107,12 @@ export default function DatabaseDump() {
                 setStatus({
                     type: 'error',
                     message: 'Authentication Failed',
-                    details: 'Your session has expired. Please logout and login again.'
+                    details: 'Your session has expired or user was deleted. Redirecting to login...'
                 })
+                // Clear auth and redirect after 2 seconds
+                setTimeout(() => {
+                    authService.logout()
+                }, 2000)
             } else {
                 setStatus({
                     type: 'error',
@@ -184,8 +191,11 @@ export default function DatabaseDump() {
                 setStatus({
                     type: 'error',
                     message: 'Authentication Failed',
-                    details: 'Your session has expired. Please logout and login again.'
+                    details: 'Your session has expired or user was deleted. Redirecting to login...'
                 })
+                setTimeout(() => {
+                    authService.logout()
+                }, 2000)
             } else {
                 setStatus({
                     type: 'error',
@@ -224,8 +234,11 @@ export default function DatabaseDump() {
                 setStatus({
                     type: 'error',
                     message: 'Authentication Failed',
-                    details: 'Your session has expired. Please logout and login again.'
+                    details: 'Your session has expired or user was deleted. Redirecting to login...'
                 })
+                setTimeout(() => {
+                    authService.logout()
+                }, 2000)
             } else {
                 setStatus({
                     type: 'error',
@@ -280,7 +293,7 @@ export default function DatabaseDump() {
             {/* Header */}
             <div>
                 <h1 className="text-3xl font-bold flex items-center gap-2">
-                    <Database className="w-8 h-8" />
+                    <Database className="w-8 h-8 text-black" />
                     Database Dump Operations
                 </h1>
                 <p className="text-gray-600 mt-2">
@@ -421,7 +434,7 @@ export default function DatabaseDump() {
                         Clear Database
                     </CardTitle>
                     <CardDescription className="text-red-700">
-                        ⚠️ DANGER: Remove all data from the database
+                        ⚠️ DANGER: Remove all data from the database (except admin users)
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="pt-6 space-y-4">
@@ -431,12 +444,23 @@ export default function DatabaseDump() {
                             <div className="text-sm text-red-900">
                                 <p className="font-bold">⚠️ DESTRUCTIVE OPERATION ⚠️</p>
                                 <ul className="list-disc list-inside mt-2 space-y-1 ml-4">
-                                    <li>This will DROP ALL TABLES from the database</li>
-                                    <li>ALL DATA will be permanently deleted</li>
+                                    <li>This will DELETE ALL DATA from the database</li>
+                                    <li>Students, teachers, courses, attendance - all deleted</li>
+                                    <li>Admin users will be PRESERVED (you won't lose access)</li>
                                     <li>This action CANNOT be undone</li>
                                     <li>Use before importing a dump to avoid conflicts</li>
                                     <li>Always export a backup before clearing!</li>
                                 </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="bg-green-50 border border-green-300 rounded-lg p-3">
+                        <div className="flex items-start gap-2">
+                            <CheckCircle className="w-5 h-5 text-green-700 flex-shrink-0 mt-0.5" />
+                            <div className="text-sm text-green-900">
+                                <p className="font-semibold">✅ Admin users are preserved</p>
+                                <p className="mt-1">You will remain logged in and can continue using the system after clearing.</p>
                             </div>
                         </div>
                     </div>

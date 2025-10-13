@@ -6,18 +6,47 @@ const prisma = new PrismaClient();
 async function seed() {
     try {
         console.log('Cleaning up existing data...');
-        await prisma.$transaction([
-            prisma.studentEnrollment.deleteMany(),
-            prisma.courseOffering.deleteMany(),
-            prisma.course.deleteMany(),
-            prisma.teacher.deleteMany(),
-            prisma.student.deleteMany(),
-            prisma.user.deleteMany(),
-            prisma.sections.deleteMany(),
-            prisma.department.deleteMany(),
-            prisma.academic_years.deleteMany(),
-            prisma.college.deleteMany(),
-        ]);
+
+        // Get admin user IDs BEFORE clearing (to preserve them)
+        const adminUsers = await prisma.admin.findMany({
+            select: { userId: true }
+        });
+        const adminUserIds = adminUsers.map(a => a.userId);
+
+        if (adminUserIds.length > 0) {
+            console.log(`⚠️  Preserving ${adminUserIds.length} admin user(s) during seed...`);
+        } else {
+            console.log('⚠️  WARNING: No admin users found! Consider running create-admin.js after seeding.');
+        }
+
+        // Delete in proper order, excluding admin users
+        await prisma.studentEnrollment.deleteMany();
+        await prisma.courseOffering.deleteMany();
+        await prisma.course.deleteMany();
+        await prisma.teacher.deleteMany({
+            where: adminUserIds.length > 0 ? { userId: { notIn: adminUserIds } } : {}
+        });
+        await prisma.student.deleteMany({
+            where: adminUserIds.length > 0 ? { userId: { notIn: adminUserIds } } : {}
+        });
+        await prisma.sections.deleteMany();
+        await prisma.department.deleteMany();
+        await prisma.academic_years.deleteMany();
+        await prisma.college.deleteMany();
+
+        // Delete non-admin users and their roles
+        if (adminUserIds.length > 0) {
+            await prisma.userRoleAssignment.deleteMany({
+                where: { userId: { notIn: adminUserIds } }
+            });
+            await prisma.user.deleteMany({
+                where: { id: { notIn: adminUserIds } }
+            });
+            console.log('✅ Admin users preserved during seed');
+        } else {
+            await prisma.userRoleAssignment.deleteMany();
+            await prisma.user.deleteMany();
+        }
 
         console.log('Creating colleges...');
         const [nmamit, nmit] = await Promise.all([
@@ -139,7 +168,7 @@ async function seed() {
 
         // Create courses for each department in both colleges
         const allDepts = [...nmamitDepts, ...nmitDepts];
-        
+
         for (const dept of allDepts) {
             const courses = departmentCourses[dept.code!];
             if (!courses) continue;
