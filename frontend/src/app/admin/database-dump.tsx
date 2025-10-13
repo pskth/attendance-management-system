@@ -75,6 +75,15 @@ export default function DatabaseDump() {
                 responseType: 'blob'
             })
 
+            // Check if the response is an error (JSON) disguised as a blob
+            const contentType = response.headers['content-type']
+            if (contentType && contentType.includes('application/json')) {
+                // It's an error response
+                const text = await response.data.text()
+                const errorData = JSON.parse(text)
+                throw new Error(errorData.error || 'Export failed')
+            }
+
             // Create download link
             const url = window.URL.createObjectURL(new Blob([response.data]))
             const link = document.createElement('a')
@@ -103,6 +112,13 @@ export default function DatabaseDump() {
             })
         } catch (error: any) {
             console.error('Export error:', error)
+            console.error('Error details:', {
+                message: error.message,
+                response: error.response,
+                status: error.response?.status,
+                data: error.response?.data
+            })
+
             if (error.response?.status === 401) {
                 setStatus({
                     type: 'error',
@@ -114,10 +130,25 @@ export default function DatabaseDump() {
                     authService.logout()
                 }, 2000)
             } else {
+                // Try to extract error message from blob response
+                let errorMessage = error.message || 'Unknown error occurred'
+
+                if (error.response?.data instanceof Blob) {
+                    try {
+                        const text = await error.response.data.text()
+                        const errorData = JSON.parse(text)
+                        errorMessage = errorData.error || errorMessage
+                    } catch (e) {
+                        // If parsing fails, use the original error message
+                    }
+                } else if (error.response?.data?.error) {
+                    errorMessage = error.response.data.error
+                }
+
                 setStatus({
                     type: 'error',
-                    message: 'Failed to export database dump',
-                    details: error.response?.data?.error || error.message
+                    message: 'Export failed',
+                    details: errorMessage
                 })
             }
         } finally {
@@ -289,7 +320,7 @@ export default function DatabaseDump() {
     }
 
     return (
-        <div className="space-y-6 p-6">
+        <div className="space-y-6 p-6  text-black">
             {/* Header */}
             <div>
                 <h1 className="text-3xl font-bold flex items-center gap-2">

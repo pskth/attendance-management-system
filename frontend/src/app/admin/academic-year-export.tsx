@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Download, Database, Calendar, CheckCircle, AlertCircle, Info, FileArchive, RefreshCw } from 'lucide-react'
+import { authService } from '@/lib/auth'
 
 interface AcademicYear {
     year_id: string
@@ -37,8 +38,12 @@ export default function AcademicYearExport() {
 
     const fetchAcademicYears = async () => {
         try {
+            const token = authService.getToken()
             const response = await fetch('http://localhost:4000/api/admin/academic-years', {
-                credentials: 'include'
+                credentials: 'include',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
             })
             if (response.ok) {
                 const data = await response.json()
@@ -55,9 +60,13 @@ export default function AcademicYearExport() {
         setExportStatus(prev => ({ ...prev, [yearId]: { success: false, message: 'Exporting...' } }))
 
         try {
+            const token = authService.getToken()
             const response = await fetch(`http://localhost:4000/api/admin/export-academic-year/${yearId}`, {
                 method: 'GET',
-                credentials: 'include'
+                credentials: 'include',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
             })
 
             if (!response.ok) {
@@ -109,9 +118,13 @@ export default function AcademicYearExport() {
         setExportStatus(prev => ({ ...prev, 'all': { success: false, message: 'Exporting all data...' } }))
 
         try {
+            const token = authService.getToken()
             const response = await fetch('http://localhost:4000/api/admin/export-all-data', {
                 method: 'GET',
-                credentials: 'include'
+                credentials: 'include',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
             })
 
             if (!response.ok) {

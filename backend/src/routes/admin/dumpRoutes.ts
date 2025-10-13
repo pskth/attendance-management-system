@@ -71,23 +71,42 @@ function parseDatabaseUrl(databaseUrl: string): {
  */
 router.get('/export-dump', async (req: Request, res: Response) => {
     try {
+        console.log('\n' + '='.repeat(70));
+        console.log('📦 DATABASE EXPORT STARTED');
+        console.log('='.repeat(70));
+
         const databaseUrl = process.env.DATABASE_URL;
         if (!databaseUrl) {
+            console.error('❌ DATABASE_URL not configured');
             return res.status(500).json({
                 success: false,
                 error: 'DATABASE_URL not configured'
             });
         }
 
+        console.log('✓ DATABASE_URL found');
+
         const dbParams = parseDatabaseUrl(databaseUrl);
+        console.log('✓ Database parameters parsed');
+        console.log(`  Host: ${dbParams.host}`);
+        console.log(`  Port: ${dbParams.port}`);
+        console.log(`  Database: ${dbParams.database}`);
+        console.log(`  User: ${dbParams.user}`);
+
         const timestamp = Date.now();
         const dumpFileName = `attendance-db-dump-${timestamp}.sql`;
         const dumpDir = path.join(__dirname, '../../../dumps');
         const dumpPath = path.join(dumpDir, dumpFileName);
 
+        console.log(`✓ Dump path: ${dumpPath}`);
+
         // Create dumps directory if it doesn't exist
         if (!fs.existsSync(dumpDir)) {
+            console.log('Creating dumps directory...');
             fs.mkdirSync(dumpDir, { recursive: true });
+            console.log('✓ Dumps directory created');
+        } else {
+            console.log('✓ Dumps directory exists');
         }
 
         // Set PGPASSWORD environment variable for pg_dump
@@ -96,11 +115,15 @@ router.get('/export-dump', async (req: Request, res: Response) => {
         // Execute pg_dump command
         const command = `pg_dump -h ${dbParams.host} -p ${dbParams.port} -U ${dbParams.user} -d ${dbParams.database} -F p -f "${dumpPath}"`;
 
-        console.log('Exporting database dump...');
+        console.log('Executing pg_dump command...');
+        console.log(`Command: pg_dump -h ${dbParams.host} -p ${dbParams.port} -U ${dbParams.user} -d ${dbParams.database} -F p -f "<dumpPath>"`);
+
         await execAsync(command, { env, maxBuffer: 50 * 1024 * 1024 }); // 50MB buffer
+        console.log('✓ pg_dump completed');
 
         // Check if file was created
         if (!fs.existsSync(dumpPath)) {
+            console.error('❌ Dump file was not created at:', dumpPath);
             return res.status(500).json({
                 success: false,
                 error: 'Dump file was not created'
@@ -108,12 +131,16 @@ router.get('/export-dump', async (req: Request, res: Response) => {
         }
 
         const stats = fs.statSync(dumpPath);
-        console.log(`Dump created: ${dumpFileName} (${(stats.size / 1024 / 1024).toFixed(2)} MB)`);
+        console.log(`✓ Dump file created: ${dumpFileName}`);
+        console.log(`  Size: ${(stats.size / 1024 / 1024).toFixed(2)} MB (${stats.size} bytes)`);
 
         // Set response headers for file download
         res.setHeader('Content-Type', 'application/sql');
         res.setHeader('Content-Disposition', `attachment; filename="${dumpFileName}"`);
         res.setHeader('Content-Length', stats.size);
+
+        console.log('✓ Response headers set');
+        console.log('✓ Streaming file to client...');
 
         // Stream the file to response
         const fileStream = fs.createReadStream(dumpPath);
@@ -121,12 +148,20 @@ router.get('/export-dump', async (req: Request, res: Response) => {
 
         // Delete the file after streaming
         fileStream.on('end', () => {
-            fs.unlinkSync(dumpPath);
-            console.log('Dump file cleaned up');
+            try {
+                fs.unlinkSync(dumpPath);
+                console.log('✓ Dump file cleaned up');
+                console.log('='.repeat(70));
+                console.log('✅ DATABASE EXPORT COMPLETED');
+                console.log('='.repeat(70) + '\n');
+            } catch (err) {
+                console.error('Warning: Could not delete dump file:', err);
+            }
         });
 
         fileStream.on('error', (error) => {
-            console.error('Stream error:', error);
+            console.error('❌ Stream error:', error);
+            console.log('='.repeat(70) + '\n');
             if (!res.headersSent) {
                 res.status(500).json({
                     success: false,
@@ -136,7 +171,10 @@ router.get('/export-dump', async (req: Request, res: Response) => {
         });
 
     } catch (error: any) {
-        console.error('Export dump error:', error);
+        console.error('❌ Export dump error:', error);
+        console.error('   Error message:', error.message);
+        console.error('   Error stack:', error.stack);
+        console.log('='.repeat(70) + '\n');
         if (!res.headersSent) {
             res.status(500).json({
                 success: false,
