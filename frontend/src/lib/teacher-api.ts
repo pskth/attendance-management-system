@@ -745,6 +745,13 @@ export class TeacherAPI {
             type: string;
         }>
     ): Promise<any> {
+        console.log('saveComponents API call:', {
+            url: `${API_BASE_URL}/teacher/course/${courseId}/teacher/${teacherId}/components`,
+            courseId,
+            teacherId,
+            components
+        });
+
         const response = await fetch(`${API_BASE_URL}/teacher/course/${courseId}/teacher/${teacherId}/components`, {
             method: 'POST',
             headers: {
@@ -754,22 +761,27 @@ export class TeacherAPI {
             body: JSON.stringify({ components }),
         });
 
+        console.log('saveComponents response status:', response.status);
+        console.log('saveComponents response ok:', response.ok);
+
         if (!response.ok) {
             let details = '';
             try {
                 const errJson = await response.json();
+                console.error('Error response body:', errJson);
                 details = errJson?.error || errJson?.message || '';
             } catch { }
             throw new Error(`Failed to save components: ${response.status} ${response.statusText}${details ? ` - ${details}` : ''}`);
         }
 
         const result = await response.json();
+        console.log('saveComponents result:', result);
 
         if (result.status !== 'success') {
             throw new Error(result.error || result.message || 'Failed to save components');
         }
 
-        return result.components;
+        return result;
     }
     //to update student marks for a specific test component
     // static async saveStudentMarks(

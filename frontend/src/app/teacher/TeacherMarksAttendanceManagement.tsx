@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Card,
   CardContent,
@@ -24,6 +24,10 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { TeacherAPI, type CourseOffering } from "@/lib/teacher-api";
+
+// Client-side only ID generator to avoid hydration issues
+let tempIdCounter = 0;
+const generateTempId = () => `temp-${Date.now()}-${++tempIdCounter}`;
 
 //interface for test components
 interface StudentMarkComponent {
@@ -721,6 +725,10 @@ export default function TeacherMarksAttendanceManagement({
       }
       if (!componentsTest || componentsTest.length === 0) return;
 
+      console.log('Saving components:', componentsTest);
+      console.log('Course ID:', selectedCourse);
+      console.log('Teacher ID:', teacherId);
+
       const response = await TeacherAPI.saveComponents(selectedCourse, teacherId, componentsTest);
 
       if (response.status == 'success') {
@@ -729,6 +737,7 @@ export default function TeacherMarksAttendanceManagement({
         alert('Failed to save components: ' + (response.error || 'Unknown error'));
       }
     } catch (err) {
+      console.error('Full error:', err);
       alert('Error saving components: ' + (err instanceof Error ? err.message : 'Unknown error'));
     }
   };
@@ -1030,7 +1039,7 @@ export default function TeacherMarksAttendanceManagement({
                         className="text-green-600 text-xs font-semibold hover:bg-green-100 px-2 py-1 rounded"
                         onClick={() => {
                           const newComp = {
-                            id: crypto.randomUUID(),
+                            id: generateTempId(),
                             name: "New Column",
                             type: "theory",
                             maxMarks: 20,
@@ -1100,7 +1109,7 @@ export default function TeacherMarksAttendanceManagement({
                         className="text-green-600 text-xs font-semibold hover:bg-green-100 px-2 py-1 rounded"
                         onClick={() => {
                           const newComp = {
-                            id: crypto.randomUUID(),
+                            id: generateTempId(),
                             name: "New Column",
                             type: "lab",
                             maxMarks: 20,

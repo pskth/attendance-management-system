@@ -1982,6 +1982,11 @@ router.post('/course/:courseId/teacher/:teacherId/components', async (req, res) 
         const { courseId, teacherId } = req.params;
         const { components } = req.body;
 
+        console.log('=== SAVE COMPONENTS REQUEST ===');
+        console.log('Course ID:', courseId);
+        console.log('Teacher ID:', teacherId);
+        console.log('Components received:', JSON.stringify(components, null, 2));
+
         if (!Array.isArray(components)) {
             return res.status(400).json({ status: 'error', error: 'Invalid components array' });
         }
@@ -1992,6 +1997,7 @@ router.post('/course/:courseId/teacher/:teacherId/components', async (req, res) 
             include: { testComponents: true },
         });
         if (!offering) {
+            console.log('First lookup failed, trying with offeringId...');
             offering = await prisma.courseOffering.findFirst({
                 where: { id: courseId, teacherId },
                 include: { testComponents: true },
@@ -1999,8 +2005,11 @@ router.post('/course/:courseId/teacher/:teacherId/components', async (req, res) 
         }
 
         if (!offering) {
+            console.error('Course offering not found for courseId:', courseId, 'teacherId:', teacherId);
             return res.status(404).json({ status: 'error', error: 'Course offering not found' });
         }
+
+        console.log('Found offering:', offering.id);
 
         const existingComponents = offering.testComponents;
         const incomingIds = components.filter(c => c.id).map(c => c.id);
@@ -2024,10 +2033,12 @@ router.post('/course/:courseId/teacher/:teacherId/components', async (req, res) 
                 continue;
             }
 
-            if (comp.id) {
-                // Update if exists, otherwise create
-                const existing = await prisma.testComponent.findUnique({ where: { id: comp.id } });
-                if (existing) {
+            // Check if this is a temp ID (from frontend "Add" button)
+            const isTempId = comp.id && comp.id.startsWith('temp-');
+
+            if (comp.id && !isTempId) {
+                // Update existing component (real database ID)
+                try {
                     await prisma.testComponent.update({
                         where: { id: comp.id },
                         data: {
@@ -2037,7 +2048,9 @@ router.post('/course/:courseId/teacher/:teacherId/components', async (req, res) 
                             type: comp.type,
                         },
                     });
-                } else {
+                } catch (e) {
+                    // If update fails (ID doesn't exist), create new
+                    console.warn(`Component ${comp.id} not found, creating new one`);
                     await prisma.testComponent.create({
                         data: {
                             name: comp.name,
@@ -2049,7 +2062,7 @@ router.post('/course/:courseId/teacher/:teacherId/components', async (req, res) 
                     });
                 }
             } else {
-                // Create new
+                // Create new component (no ID or temp ID)
                 await prisma.testComponent.create({
                     data: {
                         name: comp.name,
