@@ -755,13 +755,18 @@ export class TeacherAPI {
         });
 
         if (!response.ok) {
-            throw new Error(`Failed to save components: ${response.statusText}`);
+            let details = '';
+            try {
+                const errJson = await response.json();
+                details = errJson?.error || errJson?.message || '';
+            } catch { }
+            throw new Error(`Failed to save components: ${response.status} ${response.statusText}${details ? ` - ${details}` : ''}`);
         }
 
         const result = await response.json();
 
         if (result.status !== 'success') {
-            throw new Error(result.error || 'Failed to save components');
+            throw new Error(result.error || result.message || 'Failed to save components');
         }
 
         return result.components;
@@ -822,14 +827,20 @@ export class TeacherAPI {
             }
         );
 
+        // Try to read informative error from body when available
         if (!response.ok) {
-            throw new Error(`Failed to save student marks: ${response.statusText}`);
+            let details = '';
+            try {
+                const errJson = await response.json();
+                details = errJson?.error || errJson?.message || '';
+            } catch { }
+            throw new Error(`Failed to save student marks: ${response.status} ${response.statusText}${details ? ` - ${details}` : ''}`);
         }
 
         const result = await response.json();
 
         if (result.status !== 'success') {
-            throw new Error(result.error || 'Failed to save student marks');
+            throw new Error(result.error || result.message || 'Failed to save student marks');
         }
 
         return result.updatedStudents; // ✅ backend sends updatedStudents

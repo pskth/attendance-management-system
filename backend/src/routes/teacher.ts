@@ -1864,15 +1864,18 @@ router.get('/course/:courseId/teacher/:teacherId/components', async (req, res) =
         const { courseId, teacherId } = req.params;
 
         // Find course offering for this teacher & course
-        const offering = await prisma.courseOffering.findFirst({
-            where: {
-                courseId,
-                teacherId
-            },
-            include: {
-                testComponents: true
-            }
+        // Accept either actual courseId or an offeringId passed as courseId from UI
+        let offering = await prisma.courseOffering.findFirst({
+            where: { courseId, teacherId },
+            include: { testComponents: true }
         });
+        if (!offering) {
+            // Fallback: treat courseId param as offeringId
+            offering = await prisma.courseOffering.findFirst({
+                where: { id: courseId, teacherId },
+                include: { testComponents: true }
+            });
+        }
 
         if (!offering) {
             return res.status(404).json({
@@ -1983,11 +1986,17 @@ router.post('/course/:courseId/teacher/:teacherId/components', async (req, res) 
             return res.status(400).json({ status: 'error', error: 'Invalid components array' });
         }
 
-        // Find course offering
-        const offering = await prisma.courseOffering.findFirst({
+        // Find course offering (accept courseId or offeringId)
+        let offering = await prisma.courseOffering.findFirst({
             where: { courseId, teacherId },
             include: { testComponents: true },
         });
+        if (!offering) {
+            offering = await prisma.courseOffering.findFirst({
+                where: { id: courseId, teacherId },
+                include: { testComponents: true },
+            });
+        }
 
         if (!offering) {
             return res.status(404).json({ status: 'error', error: 'Course offering not found' });
@@ -2075,11 +2084,8 @@ router.get('/course/:courseId/teacher/:teacherId/marks', async (req, res) => {
         const { courseId, teacherId } = req.params;
 
         // 1. Find the offering
-        const offering = await prisma.courseOffering.findFirst({
-            where: {
-                courseId,
-                teacherId
-            },
+        let offering = await prisma.courseOffering.findFirst({
+            where: { courseId, teacherId },
             include: {
                 enrollments: {
                     include: {
@@ -2097,6 +2103,20 @@ router.get('/course/:courseId/teacher/:teacherId/marks', async (req, res) => {
                 }
             }
         });
+        if (!offering) {
+            // Fallback: treat param as offeringId
+            offering = await prisma.courseOffering.findFirst({
+                where: { id: courseId, teacherId },
+                include: {
+                    enrollments: {
+                        include: {
+                            student: { include: { user: true } },
+                            studentMarks: { include: { testComponent: true } }
+                        }
+                    }
+                }
+            });
+        }
 
         if (!offering) {
             return res.status(404).json({
@@ -2149,10 +2169,16 @@ router.post('/course/:courseId/teacher/:teacherId/marks', async (req, res) => {
         }
 
         // 1️⃣ Find the course offering
-        const offering = await prisma.courseOffering.findFirst({
+        let offering = await prisma.courseOffering.findFirst({
             where: { courseId, teacherId },
             include: { enrollments: true },
         });
+        if (!offering) {
+            offering = await prisma.courseOffering.findFirst({
+                where: { id: courseId, teacherId },
+                include: { enrollments: true },
+            });
+        }
 
         if (!offering) {
             return res.status(404).json({ status: 'error', error: 'Course offering not found' });
