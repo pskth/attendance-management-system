@@ -119,21 +119,21 @@ router.get('/courses/:courseId/eligible-students', async (req, res) => {
 		const yearNumber = parseInt(year as string);
 		const semesterNumber = parseInt(semester as string);
 
-		// Convert semester to year using proper mapping:
-		// Semester 1,2 = Year 1; Semester 3,4 = Year 2; Semester 5,6 = Year 3; Semester 7,8 = Year 4
-		//himanshu thinks this is not necessary for now :)
-		//const courseYear = Math.ceil(semesterNumber / 2);
+		// Students should match based on:
+		// 1. Their current semester (e.g., semester 5 for year 3 courses)
+		// 2. The course's year field (e.g., year: 3 for semester 5,6)
+		// 3. Same college and (for core/dept elective) same department
 
-		// Students are stored with batchYear which represents their academic year
-		// We need to find students whose current year matches the course year
-		const batchYear: number = yearNumber;
-		const absoluteSemester: number = semesterNumber;
+		// Verify course year matches semester
+		const expectedCourseYear = Math.ceil(semesterNumber / 2);
+		if (course.year && course.year !== expectedCourseYear) {
+			console.warn(`Warning: Course ${course.code} has year ${course.year} but semester ${semesterNumber} expects year ${expectedCourseYear}`);
+		}
 
 		// Build student where conditions
 		let studentWhereConditions: any = {
-			batchYear: batchYear,
-			college_id: course.department.college_id,
-			semester: absoluteSemester
+			semester: semesterNumber,
+			college_id: course.department.college_id
 		};
 
 		// Apply course-specific filters
@@ -158,7 +158,7 @@ router.get('/courses/:courseId/eligible-students', async (req, res) => {
 					none: {
 						offering: {
 							courseId: courseId,
-							semester: absoluteSemester
+							semester: semesterNumber
 						}
 					}
 				}
@@ -213,8 +213,7 @@ router.get('/courses/:courseId/eligible-students', async (req, res) => {
 				eligibleStudents: transformedStudents,
 				filters: {
 					year: yearNumber,
-					semester: semesterNumber,
-					absoluteSemester: absoluteSemester
+					semester: semesterNumber
 				}
 			}
 		});

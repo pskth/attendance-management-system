@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Card,
   CardContent,
@@ -21,8 +21,13 @@ import {
   ChevronLeft,
   ChevronRight,
   Download,
+  AlertTriangle,
 } from "lucide-react";
 import { TeacherAPI, type CourseOffering } from "@/lib/teacher-api";
+
+// Client-side only ID generator to avoid hydration issues
+let tempIdCounter = 0;
+const generateTempId = () => `temp-${Date.now()}-${++tempIdCounter}`;
 
 //interface for test components
 interface StudentMarkComponent {
@@ -52,7 +57,7 @@ interface StudentMarksContainer {
   weightage: number;
   obtainedMarks: number | null;
   name: string;
-  
+
 }
 
 interface StudentMark1 {
@@ -84,12 +89,12 @@ interface MarksAttendanceProps {
   teacherId: string;
 }
 interface TestComponent {
-    id: string;
-    name: string;
-    type: string;
-    maxMarks: number;
-    weightage: number;
-    obtainedMarks: number;
+  id: string;
+  name: string;
+  type: string;
+  maxMarks: number;
+  weightage: number;
+  obtainedMarks: number;
 }
 
 
@@ -128,73 +133,74 @@ export default function TeacherMarksAttendanceManagement({
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [componentsTest, setComponentsTest] = useState<TestComponent[]>([]); // to store test components structure
   const [componentsR, setComponentsR] = useState<true | false>(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
 
 
   // Load data from database
-// useEffect(() => {
-//   console.log("Fetching compoennts pls be the first time")
-//   const fetchComponents = async () => {
-//     try {
-//       const structureResponse = await TeacherAPI.getCourseTestComponents(
-//         selectedCourseId || "",
-//         teacherId
-//       );
+  // useEffect(() => {
+  //   console.log("Fetching compoennts pls be the first time")
+  //   const fetchComponents = async () => {
+  //     try {
+  //       const structureResponse = await TeacherAPI.getCourseTestComponents(
+  //         selectedCourseId || "",
+  //         teacherId
+  //       );
 
-//       const components: TestComponent[] = structureResponse.components || [];
-//       console.log("Fetched components for course (initial load):", selectedCourseId, components);
-//       console.log("structureResponse:", structureResponse.status);
-//       if (structureResponse.status == 'success') { // check response status, not components.status
-//         console.log("True it is")
-//         setComponentsTest(prev => [...prev, ...components]);
+  //       const components: TestComponent[] = structureResponse.components || [];
+  //       console.log("Fetched components for course (initial load):", selectedCourseId, components);
+  //       console.log("structureResponse:", structureResponse.status);
+  //       if (structureResponse.status == 'success') { // check response status, not components.status
+  //         console.log("True it is")
+  //         setComponentsTest(prev => [...prev, ...components]);
 
-//         console.log("componentsTest state after setting:", componentsTest);
-//         setComponentsR(true);
-//         loadMarksData();
-//       }
-//       console.log("After fetching components, componentsTest state:", componentsTest);
-//     } catch (err) {
-//       console.error("Failed to fetch components", err);
-//     }
-//   };
+  //         console.log("componentsTest state after setting:", componentsTest);
+  //         setComponentsR(true);
+  //         loadMarksData();
+  //       }
+  //       console.log("After fetching components, componentsTest state:", componentsTest);
+  //     } catch (err) {
+  //       console.error("Failed to fetch components", err);
+  //     }
+  //   };
 
-//   fetchComponents();
-// }, [componentsTest]);
+  //   fetchComponents();
+  // }, [componentsTest]);
 
-//   useEffect(() => {
-//     if (activeTab === "marks") {
-//       loadMarksData();
-//     } else {
-//       loadAttendanceData();
-//     }
-//   }, [ componentsR]);
+  //   useEffect(() => {
+  //     if (activeTab === "marks") {
+  //       loadMarksData();
+  //     } else {
+  //       loadAttendanceData();
+  //     }
+  //   }, [ componentsR]);
 
-useEffect(() => {
-  const fetchComponentsAndMarks = async () => {
-    try {
-      const structureResponse = await TeacherAPI.getCourseTestComponents(
-        selectedCourseId ,
-        teacherId
-      );
+  useEffect(() => {
+    const fetchComponentsAndMarks = async () => {
+      try {
+        const structureResponse = await TeacherAPI.getCourseTestComponents(
+          selectedCourseId,
+          teacherId
+        );
 
-      if (structureResponse.status === "success") {
-        const fetchedComponents: TestComponent[] = structureResponse.components || [];
-        console.log("Fetched components:", fetchedComponents);
-        setComponentsR(true);
-        // 1️⃣ Update state
-        setComponentsTest(fetchedComponents);
+        if (structureResponse.status === "success") {
+          const fetchedComponents: TestComponent[] = structureResponse.components || [];
+          console.log("Fetched components:", fetchedComponents);
+          setComponentsR(true);
+          // 1️⃣ Update state
+          setComponentsTest(fetchedComponents);
 
-        // 2️⃣ Fetch marks AFTER components are ready
-        await loadMarksData(fetchedComponents); // pass components directly
+          // 2️⃣ Fetch marks AFTER components are ready
+          await loadMarksData(fetchedComponents); // pass components directly
+        }
+      } catch (err) {
+        console.error("Failed to fetch components or marks:", err);
       }
-    } catch (err) {
-      console.error("Failed to fetch components or marks:", err);
-    }
-  };
+    };
 
-  fetchComponentsAndMarks();
-}, [selectedCourseId, teacherId]); // run when course or teacher changes
-  
+    fetchComponentsAndMarks();
+  }, [selectedCourseId, teacherId]); // run when course or teacher changes
+
   // const loadMarksData = async () => {
   //   setLoading(true);
   //   setError(null);
@@ -208,7 +214,7 @@ useEffect(() => {
   //       for (const course of courses) {
   //         try {
   //           // 1️⃣ Fetch the table structure (components)
-            
+
   //           // 2️⃣ Fetch students + their marks
   //           const marksResponse = await TeacherAPI.getCourseStudentMarks(
   //             course.offeringId,
@@ -274,7 +280,7 @@ useEffect(() => {
   //       );
   //       console.log("Fetched marks response:", marksResponse);
   //       const courseMarks: StudentMark[] = [];
-        
+
   //       if (marksResponse.status === "success" && marksResponse.students) {
   //         for (const student of marksResponse.students) {
   //           // 3️⃣ Initialize all components (imagine one students dont have marks to that column then what to do ?)
@@ -321,7 +327,7 @@ useEffect(() => {
   //       }
   //       console.log("course marks after filtering i guess:", courseMarks);
   //       setMarks(courseMarks);
-       
+
   //     }
   //   } catch (err) {
   //     setError("Failed to load marks data");
@@ -332,63 +338,63 @@ useEffect(() => {
   // };
 
   const loadMarksData = async (currentComponents: TestComponent[]) => {
-  setLoading(true);
-  setError(null);
- console.log("loadMarksData called with components:", currentComponents);
-  try {
-    const courseMarks: StudentMark[] = [];
-    const marksResponse = await TeacherAPI.getCourseStudentMarks(
-      selectedCourse,
-      teacherId
-    );
+    setLoading(true);
+    setError(null);
+    console.log("loadMarksData called with components:", currentComponents);
+    try {
+      const courseMarks: StudentMark[] = [];
+      const marksResponse = await TeacherAPI.getCourseStudentMarks(
+        selectedCourse,
+        teacherId
+      );
 
-    if (marksResponse.status === "success" && marksResponse.students) {
-      for (const student of marksResponse.students) {
-        // Initialize marks using the fetched components
-        const studentMarks: StudentMarkComponent[] = currentComponents.map(c => ({
-          componentId: c.id,
-          componentName: c.name,
-          type: c.type,
-          maxMarks: c.maxMarks,
-          weightage: c.weightage,
-          obtainedMarks: null,
-        }));
+      if (marksResponse.status === "success" && marksResponse.students) {
+        for (const student of marksResponse.students) {
+          // Initialize marks using the fetched components
+          const studentMarks: StudentMarkComponent[] = currentComponents.map(c => ({
+            componentId: c.id,
+            componentName: c.name,
+            type: c.type,
+            maxMarks: c.maxMarks,
+            weightage: c.weightage,
+            obtainedMarks: null,
+          }));
 
-        // Overlay actual marks
-        student.marks.forEach(m => {
-          const comp = studentMarks.find(c => c.componentId === m.componentId);
-          if (comp) comp.obtainedMarks = m.obtainedMarks;
-        });
-        
-        const cnc = await TeacherAPI.getCourseNameAndCode(selectedCourse);
-             let course_code = "";
-            let course_name = "";
-             if (cnc.status === "success") {
-               course_code = cnc.data.code;
-               course_name = cnc.data.name;
-             }
-        // Build student row
-        courseMarks.push({
-          id: student.studentId,
-          enrollmentId: student.studentId,
-          usn: student.usn,
-          student_name: student.studentName,
-          course_code: course_code,
-          course_name: course_name,
-          marks: studentMarks,
-          last_updated_at: new Date().toISOString(),
-        });
+          // Overlay actual marks
+          student.marks.forEach(m => {
+            const comp = studentMarks.find(c => c.componentId === m.componentId);
+            if (comp) comp.obtainedMarks = m.obtainedMarks;
+          });
+
+          const cnc = await TeacherAPI.getCourseNameAndCode(selectedCourse);
+          let course_code = "";
+          let course_name = "";
+          if (cnc.status === "success") {
+            course_code = cnc.data.code;
+            course_name = cnc.data.name;
+          }
+          // Build student row
+          courseMarks.push({
+            id: student.studentId,
+            enrollmentId: student.studentId,
+            usn: student.usn,
+            student_name: student.studentName,
+            course_code: course_code,
+            course_name: course_name,
+            marks: studentMarks,
+            last_updated_at: new Date().toISOString(),
+          });
+        }
       }
-    }
 
-    setMarks(courseMarks);
-  } catch (err) {
-    setError("Failed to load marks data");
-    console.error("Error loading marks:", err);
-  } finally {
-    setLoading(false);
-  }
-};
+      setMarks(courseMarks);
+    } catch (err) {
+      setError("Failed to load marks data");
+      console.error("Error loading marks:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const loadAttendanceData = async () => {
     if (selectedCourse === "all") {
@@ -429,73 +435,73 @@ useEffect(() => {
     }
   };
 
-  // Handle marks editing
-  const handleMarkEdit = async (
-    enrollmentId: string,
-    field: string,
-    value: string
-  ) => {
-    const numValue = value === "" ? null : parseInt(value);
-    try {
-      const response = await TeacherAPI.updateStudentMark(
-        enrollmentId,
-        field,
-        numValue
-      );
-      if (response.status === "success") {
-        // Update local state
-        setMarks((prev) =>
-          prev.map((mark) => {
-            if (mark.enrollmentId === enrollmentId) {
-              const updatedMark = { ...mark, [field]: numValue };
+  // Handle marks editing (DEPRECATED - using dynamic marks structure now)
+  // const handleMarkEdit = async (
+  //   enrollmentId: string,
+  //   field: string,
+  //   value: string
+  // ) => {
+  //   const numValue = value === "" ? null : parseInt(value);
+  //   try {
+  //     const response = await TeacherAPI.updateStudentMark(
+  //       enrollmentId,
+  //       field,
+  //       numValue
+  //     );
+  //     if (response.status === "success") {
+  //       // Update local state
+  //       setMarks((prev) =>
+  //         prev.map((mark) => {
+  //           if (mark.enrollmentId === enrollmentId) {
+  //             const updatedMark = { ...mark, [field]: numValue };
 
-              // Handle MSE3 eligibility constraint
-              if (field === "mse1_marks" || field === "mse2_marks") {
-                const mse1 =
-                  field === "mse1_marks" ? numValue : updatedMark.mse1_marks;
-                const mse2 =
-                  field === "mse2_marks" ? numValue : updatedMark.mse2_marks;
+  //             // Handle MSE3 eligibility constraint
+  //             if (field === "mse1_marks" || field === "mse2_marks") {
+  //               const mse1 =
+  //                 field === "mse1_marks" ? numValue : updatedMark.mse1_marks;
+  //               const mse2 =
+  //                 field === "mse2_marks" ? numValue : updatedMark.mse2_marks;
 
-                // If MSE1 + MSE2 >= 20, clear MSE3
-                if ((mse1 || 0) + (mse2 || 0) >= 20) {
-                  updatedMark.mse3_marks = null;
-                }
-              }
+  //               // If MSE1 + MSE2 >= 20, clear MSE3
+  //               if ((mse1 || 0) + (mse2 || 0) >= 20) {
+  //                 updatedMark.mse3_marks = null;
+  //               }
+  //             }
 
-              // Recalculate totals
-              const theoryTotal = [
-                updatedMark.mse1_marks,
-                updatedMark.mse2_marks,
-                updatedMark.mse3_marks,
-                updatedMark.task1_marks,
-                updatedMark.task2_marks,
-                updatedMark.task3_marks,
-              ].reduce((sum, val) => (sum || 0) + (val || 0), 0);
+  //             // Recalculate totals
+  //             const theoryTotal = [
+  //               updatedMark.mse1_marks,
+  //               updatedMark.mse2_marks,
+  //               updatedMark.mse3_marks,
+  //               updatedMark.task1_marks,
+  //               updatedMark.task2_marks,
+  //               updatedMark.task3_marks,
+  //             ].reduce((sum, val) => (sum || 0) + (val || 0), 0);
 
-              const labTotal = [
-                updatedMark.record_marks,
-                updatedMark.continuous_evaluation_marks,
-                updatedMark.lab_mse_marks,
-              ].reduce((sum, val) => (sum || 0) + (val || 0), 0);
+  //             const labTotal = [
+  //               updatedMark.record_marks,
+  //               updatedMark.continuous_evaluation_marks,
+  //               updatedMark.lab_mse_marks,
+  //             ].reduce((sum, val) => (sum || 0) + (val || 0), 0);
 
-              updatedMark.theory_total = theoryTotal || 0;
-              updatedMark.lab_total = labTotal || 0;
-              updatedMark.last_updated_at = new Date().toISOString();
-              return updatedMark;
-            }
-            return mark;
-          })
-        );
-      }
-    } catch (err) {
-      console.error("Error updating mark:", err);
-      const errorMessage =
-        err instanceof Error ? err.message : "Failed to update mark";
-      setError(`Failed to update mark: ${errorMessage}`);
-    }
-    setEditingMarkId(null);
-    setEditingMarkField(null);
-  };
+  //             updatedMark.theory_total = theoryTotal || 0;
+  //             updatedMark.lab_total = labTotal || 0;
+  //             updatedMark.last_updated_at = new Date().toISOString();
+  //             return updatedMark;
+  //           }
+  //           return mark;
+  //         })
+  //       );
+  //     }
+  //   } catch (err) {
+  //     console.error("Error updating mark:", err);
+  //     const errorMessage =
+  //       err instanceof Error ? err.message : "Failed to update mark";
+  //     setError(`Failed to update mark: ${errorMessage}`);
+  //   }
+  //   setEditingMarkId(null);
+  //   setEditingMarkField(null);
+  // };
 
   // Handle attendance toggle
   const toggleAttendance = async (recordId: string) => {
@@ -597,9 +603,8 @@ useEffect(() => {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `teacher_marks_${
-      selectedCourse === "all" ? "all_courses" : selectedCourse
-    }_${new Date().toISOString().split("T")[0]}.csv`;
+    a.download = `teacher_marks_${selectedCourse === "all" ? "all_courses" : selectedCourse
+      }_${new Date().toISOString().split("T")[0]}.csv`;
     a.click();
     window.URL.revokeObjectURL(url);
   };
@@ -611,7 +616,7 @@ useEffect(() => {
     return (
       mark.usn.toLowerCase().includes(search) ||
       mark.student_name.toLowerCase().includes(search) ||
-      mark.course_code.toLowerCase().includes(search) ||    
+      mark.course_code.toLowerCase().includes(search) ||
       mark.course_name.toLowerCase().includes(search)
     );
   });
@@ -662,13 +667,12 @@ useEffect(() => {
         <button
           key={day}
           onClick={() => setSelectedDate(date)}
-          className={`h-8 w-8 text-sm rounded ${
-            isSelected
-              ? "bg-emerald-600 text-white"
-              : hasData
+          className={`h-8 w-8 text-sm rounded ${isSelected
+            ? "bg-emerald-600 text-white"
+            : hasData
               ? "bg-green-100 text-green-800 hover:bg-green-200"
               : "hover:bg-gray-100"
-          }`}
+            }`}
         >
           {day}
         </button>
@@ -713,109 +717,122 @@ useEffect(() => {
     ];
     return monthNames[currentMonth];
   };
-const handleSaveComponents = async () => {
-  try {
-    if (!componentsTest || componentsTest.length === 0) return;
+  const handleSaveComponents = async () => {
+    try {
+      if (!selectedCourse || selectedCourse === 'all') {
+        alert('Please select a specific course before saving columns.');
+        return;
+      }
+      if (!componentsTest || componentsTest.length === 0) return;
 
-    const response = await TeacherAPI.saveComponents(selectedCourse, teacherId, componentsTest);
+      console.log('Saving components:', componentsTest);
+      console.log('Course ID:', selectedCourse);
+      console.log('Teacher ID:', teacherId);
 
-    if (response.status == 'success') {
-      alert('Components saved successfully!');
-    } else {
-      alert('Failed to save components: ' + (response.error || 'Unknown error'));
+      const response = await TeacherAPI.saveComponents(selectedCourse, teacherId, componentsTest);
+
+      if (response.status == 'success') {
+        alert('Components saved successfully!');
+      } else {
+        alert('Failed to save components: ' + (response.error || 'Unknown error'));
+      }
+    } catch (err) {
+      console.error('Full error:', err);
+      alert('Error saving components: ' + (err instanceof Error ? err.message : 'Unknown error'));
     }
-  } catch (err) {
-    alert('Error saving components: ' + (err instanceof Error ? err.message : 'Unknown error'));
+  };
+  // const saveMarks = async (studentsToSave: Student[]) => {
+  //   try {
+  //     console.log("Students to save:", studentsToSave);
+  //     if (!studentsToSave.length) return;
+
+  //     // 🔧 Map your frontend Student → backend API shape
+  //     const payload = studentsToSave.map((student) => ({
+  //       studentId: student.studentId ,
+  //       marks: student.marks.map((m) => ({
+  //         componentId: m.componentId,
+  //         marksObtained: m.obtainedMarks ?? 0,
+  //       })),
+  //     }));
+  //     console.log("Payload for saving marks:", payload);
+
+  //     const updatedStudents = await TeacherAPI.saveStudentMarks(
+  //       selectedCourse,
+  //       teacherId,
+  //       payload
+  //     );
+
+  //     if (studentsToSave.length === 1) {
+  //       console.log("Single student marks saved:", updatedStudents);
+  //       alert(`Marks for ${updatedStudents[0].studentName} saved!`);
+  //     } else {
+  //       alert("All selected student marks saved!");
+  //     }
+
+  //     return updatedStudents;
+  //   } catch (error: any) {
+  //     console.error("Error saving marks:", error);
+  //     alert(error.message || "Failed to save marks");
+  //   }
+  // };
+
+  // Frontend shape
+  interface FrontendStudent {
+    id: string;
+    enrollmentId: string;
+    usn: string;
+    student_name: string;
+    course_code: string;
+    course_name: string;
+    marks: {
+      componentId: string;
+      componentName?: string;
+      type?: string;
+      maxMarks?: number;
+      weightage?: number;
+      obtainedMarks: number | null;
+    }[];
+    last_updated_at?: string;
   }
-};
-// const saveMarks = async (studentsToSave: Student[]) => {
-//   try {
-//     console.log("Students to save:", studentsToSave);
-//     if (!studentsToSave.length) return;
 
-//     // 🔧 Map your frontend Student → backend API shape
-//     const payload = studentsToSave.map((student) => ({
-//       studentId: student.studentId ,
-//       marks: student.marks.map((m) => ({
-//         componentId: m.componentId,
-//         marksObtained: m.obtainedMarks ?? 0,
-//       })),
-//     }));
-//     console.log("Payload for saving marks:", payload);
+  // saveMarks function
+  const saveMarks = async (studentsToSave: FrontendStudent[]) => {
+    try {
+      if (!selectedCourse || selectedCourse === 'all') {
+        alert('Please select a specific course before saving marks.');
+        return;
+      }
+      console.log("Students to save:", studentsToSave);
+      if (!studentsToSave.length) return;
 
-//     const updatedStudents = await TeacherAPI.saveStudentMarks(
-//       selectedCourse,
-//       teacherId,
-//       payload
-//     );
+      // Transform frontend object → backend payload
+      const payload = studentsToSave.map((student) => ({
+        studentId: student.id, // backend expects this
+        marks: student.marks.map((m) => ({
+          componentId: m.componentId,
+          marksObtained: m.obtainedMarks ?? 0, // null → 0
+        })),
+      }));
 
-//     if (studentsToSave.length === 1) {
-//       console.log("Single student marks saved:", updatedStudents);
-//       alert(`Marks for ${updatedStudents[0].studentName} saved!`);
-//     } else {
-//       alert("All selected student marks saved!");
-//     }
+      // Call backend API
+      const updatedStudents = await TeacherAPI.saveStudentMarks(
+        selectedCourse,
+        teacherId,
+        payload
+      );
 
-//     return updatedStudents;
-//   } catch (error: any) {
-//     console.error("Error saving marks:", error);
-//     alert(error.message || "Failed to save marks");
-//   }
-// };
+      if (studentsToSave.length === 1) {
+        alert(`Marks for ${studentsToSave[0].student_name} saved!`);
+      } else {
+        alert("All selected student marks saved!");
+      }
 
-// Frontend shape
-interface FrontendStudent {
-  id: string;
-  enrollmentId: string;
-  usn: string;
-  student_name: string;
-  course_code: string;
-  course_name: string;
-  marks: {
-    componentId: string;
-    componentName?: string;
-    type?: string;
-    maxMarks?: number;
-    weightage?: number;
-    obtainedMarks: number | null;
-  }[];
-  last_updated_at?: string;
-}
-
-// saveMarks function
-const saveMarks = async (studentsToSave: FrontendStudent[]) => {
-  try {
-    console.log("Students to save:", studentsToSave);
-    if (!studentsToSave.length) return;
-
-    // Transform frontend object → backend payload
-    const payload = studentsToSave.map((student) => ({
-      studentId: student.id, // backend expects this
-      marks: student.marks.map((m) => ({
-        componentId: m.componentId,
-        marksObtained: m.obtainedMarks ?? 0, // null → 0
-      })),
-    }));
-
-    // Call backend API
-    const updatedStudents = await TeacherAPI.saveStudentMarks(
-      selectedCourse,
-      teacherId,
-      payload
-    );
-
-    if (studentsToSave.length === 1) {
-      alert(`Marks for ${studentsToSave[0].student_name} saved!`);
-    } else {
-      alert("All selected student marks saved!");
+      return updatedStudents;
+    } catch (error: any) {
+      console.error("Error saving marks:", error);
+      alert(error.message || "Failed to save marks");
     }
-
-    return updatedStudents;
-  } catch (error: any) {
-    console.error("Error saving marks:", error);
-    alert(error.message || "Failed to save marks");
-  }
-};
+  };
 
   return (
     <div className="space-y-6">
@@ -927,318 +944,412 @@ const saveMarks = async (studentsToSave: FrontendStudent[]) => {
           </CardContent>
         </Card>
       )}
-      {!loading && activeTab === "marks" && componentsR ?(
+      {!loading && activeTab === "marks" && componentsR ? (
         <Card>
           <CardHeader>
-            <CardTitle>Student Marks </CardTitle>
-            <CardDescription>
+            <CardTitle className="text-xl font-bold">Student Marks</CardTitle>
+            <CardDescription className="text-sm">
               Click on any mark to edit. Shows theory marks and lab marks for
-              each course. Totals are automatically calculated.
+              each course. Totals are automatically calculated. Add or remove columns using the + Add and × buttons.
             </CardDescription>
+            {hasUnsavedChanges && (
+              <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-md flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4 text-amber-600" />
+                <span className="text-sm text-amber-800 font-medium">
+                  You have unsaved changes. Click "Save All Changes" to save your edits.
+                </span>
+              </div>
+            )}
           </CardHeader>
           <CardContent className="p-0">
             <div className="overflow-x-auto">
-             <table className="w-full border-collapse border border-gray-300">
-  <thead className="bg-gray-100">
-    <tr>
-      <th className="border border-gray-300 px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-        Student
-      </th>
-      <th className="border border-gray-300 px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-        Course
-      </th>
-      <th
-        className="border border-gray-300 px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase tracking-wider"
-        colSpan={componentsTest.filter((c) => c.type === "theory").length + 2}
-      >
-        Theory Marks
-      </th>
-      <th
-        className="border border-gray-300 px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase tracking-wider"
-        colSpan={componentsTest.filter((c) => c.type === "lab").length + 2}
-      >
-        Lab Marks
-      </th>
-      <th className="border border-gray-300 px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-        Last Updated
-      </th>
-      <th className="border border-gray-300 px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-        Actions
-      </th>
-    </tr>
-    <tr>
-      <th className="border border-gray-300 px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-        USN & Name
-      </th>
-      <th className="border border-gray-300 px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-        Code & Name
-      </th>
+              <table className="w-full border-collapse border border-gray-300">
+                <thead className="bg-gray-100">
+                  <tr>
+                    <th className="border border-gray-300 px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                      Student
+                    </th>
+                    <th className="border border-gray-300 px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                      Course
+                    </th>
+                    <th
+                      className="border border-gray-300 px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase tracking-wider"
+                      colSpan={componentsTest.filter((c) => c.type === "theory").length + 2}
+                    >
+                      Theory Marks
+                    </th>
+                    <th
+                      className="border border-gray-300 px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase tracking-wider"
+                      colSpan={componentsTest.filter((c) => c.type === "lab").length + 2}
+                    >
+                      Lab Marks
+                    </th>
+                    <th className="border border-gray-300 px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                      Last Updated
+                    </th>
+                    <th className="border border-gray-300 px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                      Actions
+                    </th>
+                  </tr>
+                  <tr>
+                    <th className="border border-gray-300 px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      USN & Name
+                    </th>
+                    <th className="border border-gray-300 px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Code & Name
+                    </th>
 
-      {/* Dynamic Theory Columns */}
-      {componentsTest.filter(c => c.type === 'theory').map((comp, index) => (
-        <th key={comp.id} className="border px-3 py-2">
-          <div className="flex items-center gap-1">
-            <input
-              type="text"
-              value={comp.name}
-              className="border rounded px-1 py-0.5 text-xs"
-              onChange={(e) => {
-  const newName = e.target.value;
-  setComponentsTest(prev =>
-    prev.map(c => c.id === comp.id ? { ...c, name: newName } : c)
-  );
-}}
-            />
-            <button
-              className="text-red-500 text-xs"
-              onClick={() => {
-                setComponentsTest((prev) => prev.filter((c) => c.id !== comp.id));
-              }}
-            >
-              ×
-            </button>
-          </div>
-        </th>
-      ))}
-
-      {/* Add new theory column */}
-      <th className="border px-3 py-2">
-        <button
-          className="text-green-500 text-xs"
-          onClick={() => {
-            const newComp = {
-              id: crypto.randomUUID(),
-              name: "New Column",
-              type: "theory",
-              maxMarks: 20,
-              weightage: 100,
-              obtainedMarks: 0,
-            };
-            setComponentsTest((prev) => [...prev, newComp]);
-          }}
-        > 
-          + Add
-        </button>
-      </th>
-      <th className="border border-gray-300 px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-        Theory Total
-      </th>
-
-      {/* Dynamic Lab Columns */}
-      {componentsTest.filter(c => c.type === 'lab').map((comp, index) => (
-        <th key={comp.id} className="border px-3 py-2">
-          <div className="flex items-center gap-1">
-            <input
-              type="text"
-              value={comp.name}
-              className="border rounded px-1 py-0.5 text-xs"
-              onChange={(e) => {
-  const newName = e.target.value;
-  setComponentsTest(prev =>
-    prev.map(c => c.id === comp.id ? { ...c, name: newName } : c)
-  );
-}}
-            />
-            <button
-              className="text-red-500 text-xs"
-              onClick={() => {
-                setComponentsTest((prev) => prev.filter((c) => c.id !== comp.id));
-              }}
-            >
-              ×
-            </button>
-          </div>
-        </th>
-      ))}
-
-      {/* Add new lab column */}
-      <th className="border px-3 py-2">
-        <button
-          className="text-green-500 text-xs"
-          onClick={() => {
-            const newComp = {
-              id: crypto.randomUUID(),
-              name: "New Column",
-              type: "lab",
-              maxMarks: 20,
-              weightage: 100,
-              obtainedMarks: 0,
-            };
-            setComponentsTest((prev) => [...prev, newComp]);
-          }}
-        >
-          + Add
-        </button>
-      </th>
-
-      <th className="border border-gray-300 px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-        Lab Total
-      </th>
-          <th></th>
-      {/* Save Components Button */}
-      <th className="border border-gray-300 px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-        <button
-          className="bg-blue-600 text-white text-xs px-1 py-0.5 rounded hover:bg-blue-700"
-          onClick={() => handleSaveComponents()}
-        >
-          Save
-        </button>
-      </th>
-    </tr>
-  </thead>
-
-  <tbody className="bg-white">
-    {marks.length === 0 ? (
-      <tr>
-        <td colSpan={componentsTest.length + 6} className="border border-gray-300 px-6 py-8 text-center">
-          <div className="text-gray-500">
-            <BookOpen className="w-8 h-8 mx-auto mb-2 text-gray-400" />
-            <p className="font-medium">No marks data available</p>
-            <p className="text-sm">Select a course to view and edit student marks</p>
-          </div>
-        </td>
-      </tr>
-    ) : (
-      marks.map((mark) => {
-        const round1 = (num: number) => Math.round(num * 10) / 10;
-
-        const theoryObtained = mark.marks
-          .filter((m) => m.type === "theory")
-          .reduce((sum, m) => sum + (m.obtainedMarks ?? 0) * m.weightage, 0);
-        const theoryMax = mark.marks
-          .filter((m) => m.type === "theory")
-          .reduce((sum, m) => sum + m.maxMarks * m.weightage, 0);
-        const theoryTotal = theoryMax > 0 ? round1((theoryObtained / theoryMax) * 50) : 0;
-
-        const labObtained = mark.marks
-          .filter((m) => m.type === "lab")
-          .reduce((sum, m) => sum + (m.obtainedMarks ?? 0) * m.weightage, 0);
-        const labMax = mark.marks
-          .filter((m) => m.type === "lab")
-          .reduce((sum, m) => sum + m.maxMarks * m.weightage, 0);
-        const labTotal = labMax > 0 ? round1((labObtained / labMax) * 50) : 0;
-
-        return (
-          <tr key={mark.enrollmentId} className="hover:bg-gray-50">
-            <td className="border border-gray-300 px-3 py-2">
-              <div className="font-mono text-sm font-bold">{mark.usn}</div>
-              <div className="text-sm text-gray-600">{mark.student_name}</div>
-            </td>
-            <td className="border border-gray-300 px-3 py-2">
-              <div className="font-mono text-sm font-bold">{mark.course_code}</div>
-              <div className="text-sm text-gray-600">{mark.course_name}</div>
-            </td>
-
-            {/* Editable Theory Marks */}
-            {componentsTest.filter((c) => c.type === "theory").map((comp) => {
-              const studentMark = mark.marks.find((m) => m.componentId === comp.id);
-              return (
-                <td key={comp.id} className="border border-gray-300 px-3 py-2">
-                  <input
-                    type="number"
-                    value={studentMark?.obtainedMarks ?? ""}
-                    className="w-12 border px-1 py-0.5 text-xs rounded"
-                    onChange={(e) => {
-                      const updatedMarks = marks.map((m) => {
-                        if (m.enrollmentId === mark.enrollmentId) {
-                          return {
-                            ...m,
-                            marks: m.marks.map((sm) => {
-                              if (sm.componentId === comp.id) {
-                                return { ...sm, obtainedMarks: Number(e.target.value) };
+                    {/* Dynamic Theory Columns */}
+                    {componentsTest.filter(c => c.type === 'theory').map((comp, index) => (
+                      <th key={comp.id} className="border px-3 py-2">
+                        <div className="flex items-center gap-1">
+                          <input
+                            type="text"
+                            value={comp.name}
+                            className="border rounded px-1 py-0.5 text-xs w-20"
+                            onChange={(e) => {
+                              const newName = e.target.value;
+                              setComponentsTest(prev =>
+                                prev.map(c => c.id === comp.id ? { ...c, name: newName } : c)
+                              );
+                            }}
+                          />
+                          <button
+                            className="text-red-500 text-xs font-bold hover:bg-red-100 px-1 rounded"
+                            onClick={() => {
+                              if (confirm(`Delete column "${comp.name}"? This will remove marks for all students.`)) {
+                                setComponentsTest((prev) => prev.filter((c) => c.id !== comp.id));
+                                // Remove marks for this component from all students
+                                setMarks((prev) => prev.map(student => ({
+                                  ...student,
+                                  marks: student.marks.filter(m => m.componentId !== comp.id)
+                                })));
                               }
-                              return sm;
-                            }),
-                          };
-                        }
-                        return m;
-                      });
-                      setMarks(updatedMarks);
-                    }}
-                  />
-                </td>
-              );
-            })}
-            <td></td>
-            <td className="border border-gray-300 px-3 py-2 font-bold text-emerald-600">{theoryTotal}</td>
+                            }}
+                          >
+                            ×
+                          </button>
+                        </div>
+                      </th>
+                    ))}
 
-            {/* Editable Lab Marks */}
-            {componentsTest.filter((c) => c.type === "lab").map((comp) => {
-              const studentMark = mark.marks.find((m) => m.componentId === comp.id);
-              return (
-                <td key={comp.id} className="border border-gray-300 px-3 py-2">
-                  <input
-                    type="number"
-                    value={studentMark?.obtainedMarks ?? ""}
-                    className="w-12 border px-1 py-0.5 text-xs rounded"
-                    onChange={(e) => {
-                      const updatedMarks = marks.map((m) => {
-                        if (m.enrollmentId === mark.enrollmentId) {
-                          return {
-                            ...m,
-                            marks: m.marks.map((sm) => {
-                              if (sm.componentId === comp.id) {
-                                return { ...sm, obtainedMarks: Number(e.target.value) };
+                    {/* Add new theory column */}
+                    <th className="border px-3 py-2">
+                      <button
+                        className="text-green-600 text-xs font-semibold hover:bg-green-100 px-2 py-1 rounded"
+                        onClick={() => {
+                          const newComp = {
+                            id: generateTempId(),
+                            name: "New Column",
+                            type: "theory",
+                            maxMarks: 20,
+                            weightage: 100,
+                            obtainedMarks: 0,
+                          };
+                          setComponentsTest((prev) => [...prev, newComp]);
+
+                          // Add empty marks entry for all students
+                          setMarks((prev) => prev.map(student => ({
+                            ...student,
+                            marks: [...student.marks, {
+                              componentId: newComp.id,
+                              componentName: newComp.name,
+                              type: newComp.type,
+                              maxMarks: newComp.maxMarks,
+                              weightage: newComp.weightage,
+                              obtainedMarks: null
+                            }]
+                          })));
+                        }}
+                      >
+                        + Add
+                      </button>
+                    </th>
+                    <th className="border border-gray-300 px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Theory Total
+                    </th>
+
+                    {/* Dynamic Lab Columns */}
+                    {componentsTest.filter(c => c.type === 'lab').map((comp, index) => (
+                      <th key={comp.id} className="border px-3 py-2">
+                        <div className="flex items-center gap-1">
+                          <input
+                            type="text"
+                            value={comp.name}
+                            className="border rounded px-1 py-0.5 text-xs w-20"
+                            onChange={(e) => {
+                              const newName = e.target.value;
+                              setComponentsTest(prev =>
+                                prev.map(c => c.id === comp.id ? { ...c, name: newName } : c)
+                              );
+                            }}
+                          />
+                          <button
+                            className="text-red-500 text-xs font-bold hover:bg-red-100 px-1 rounded"
+                            onClick={() => {
+                              if (confirm(`Delete column "${comp.name}"? This will remove marks for all students.`)) {
+                                setComponentsTest((prev) => prev.filter((c) => c.id !== comp.id));
+                                // Remove marks for this component from all students
+                                setMarks((prev) => prev.map(student => ({
+                                  ...student,
+                                  marks: student.marks.filter(m => m.componentId !== comp.id)
+                                })));
                               }
-                              return sm;
-                            }),
+                            }}
+                          >
+                            ×
+                          </button>
+                        </div>
+                      </th>
+                    ))}
+
+                    {/* Add new lab column */}
+                    <th className="border px-3 py-2">
+                      <button
+                        className="text-green-600 text-xs font-semibold hover:bg-green-100 px-2 py-1 rounded"
+                        onClick={() => {
+                          const newComp = {
+                            id: generateTempId(),
+                            name: "New Column",
+                            type: "lab",
+                            maxMarks: 20,
+                            weightage: 100,
+                            obtainedMarks: 0,
                           };
-                        }
-                        return m;
-                      });
-                      setMarks(updatedMarks);
-                    }}
-                  />
-                </td>
-              );
-            })}
-            <td></td>
-            <td className="border border-gray-300 px-3 py-2 font-bold text-green-600">{labTotal}</td>
+                          setComponentsTest((prev) => [...prev, newComp]);
 
-            <td className="border border-gray-300 px-3 py-2 text-xs text-gray-500">
-              {new Date(mark.last_updated_at).toLocaleDateString()}
-            </td>
+                          // Add empty marks entry for all students
+                          setMarks((prev) => prev.map(student => ({
+                            ...student,
+                            marks: [...student.marks, {
+                              componentId: newComp.id,
+                              componentName: newComp.name,
+                              type: newComp.type,
+                              maxMarks: newComp.maxMarks,
+                              weightage: newComp.weightage,
+                              obtainedMarks: null
+                            }]
+                          })));
+                        }}
+                      >
+                        + Add
+                      </button>
+                    </th>
 
-            {/* Save Student Marks */}
-            <td className="border border-gray-300 px-3 py-2 text-center">
-              <button
-                className="bg-emerald-600 text-white px-2 py-1 text-xs rounded hover:bg-emerald-700"
-                onClick={() => saveMarks(marks)}
-              >
-                Save
-              </button>
-            </td>
-          </tr>
-        );
-      })
-    )}
-  </tbody>
-</table>
+                    <th className="border border-gray-300 px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Lab Total
+                    </th>
+                    <th></th>
+                    {/* Save Components Button */}
+                    <th className="border border-gray-300 px-3 py-2 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                      <button
+                        className={`text-xs px-2 py-1 rounded font-medium shadow-sm ${selectedCourse === 'all' ? 'bg-gray-300 text-gray-600 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700 transition-colors'}`}
+                        title={selectedCourse === 'all' ? 'Select a specific course to save its columns' : ''}
+                        disabled={selectedCourse === 'all'}
+                        onClick={async () => {
+                          try {
+                            await handleSaveComponents();
+                          } catch (error) {
+                            console.error('Error saving components:', error);
+                          }
+                        }}
+                      >
+                        Save Columns
+                      </button>
+                    </th>
+                  </tr>
+                </thead>
 
-{/* Bulk Save All Marks Button */}
+                <tbody className="bg-white">
+                  {marks.length === 0 ? (
+                    <tr>
+                      <td colSpan={componentsTest.length + 6} className="border border-gray-300 px-6 py-8 text-center">
+                        <div className="text-gray-500">
+                          <BookOpen className="w-8 h-8 mx-auto mb-2 text-gray-400" />
+                          <p className="font-medium">No marks data available</p>
+                          <p className="text-sm">Select a course to view and edit student marks</p>
+                        </div>
+                      </td>
+                    </tr>
+                  ) : (
+                    marks.map((mark) => {
+                      const round1 = (num: number) => Math.round(num * 10) / 10;
 
 
-              <div className="mt-4 flex justify-end">
-  <button
-    className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 text-sm"
-    onClick={() => { saveMarks(marks); }}
-  >
-    Save All Changes
-  </button>
-</div>
+                      // Show raw sum of marks for theory and lab
+                      const theoryTotal = mark.marks
+                        .filter((m) => m.type === "theory")
+                        .reduce((sum, m) => sum + (m.obtainedMarks ?? 0), 0);
+                      const labTotal = mark.marks
+                        .filter((m) => m.type === "lab")
+                        .reduce((sum, m) => sum + (m.obtainedMarks ?? 0), 0);
+
+                      return (
+                        <tr key={mark.enrollmentId} className="hover:bg-gray-50">
+                          <td className="border border-gray-300 px-3 py-2">
+                            <div className="font-mono text-sm font-bold">{mark.usn}</div>
+                            <div className="text-sm text-gray-600">{mark.student_name}</div>
+                          </td>
+                          <td className="border border-gray-300 px-3 py-2">
+                            <div className="font-mono text-sm font-bold">{mark.course_code}</div>
+                            <div className="text-sm text-gray-600">{mark.course_name}</div>
+                          </td>
+
+                          {/* Editable Theory Marks */}
+                          {componentsTest.filter((c) => c.type === "theory").map((comp) => {
+                            const studentMark = mark.marks.find((m) => m.componentId === comp.id);
+                            return (
+                              <td key={comp.id} className="border border-gray-300 px-3 py-2 text-center">
+                                <input
+                                  type="number"
+                                  min="0"
+                                  max={comp.maxMarks}
+                                  value={studentMark?.obtainedMarks ?? ""}
+                                  placeholder="-"
+                                  className="w-16 border px-1 py-1 text-sm rounded text-center focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                  onChange={(e) => {
+                                    const value = e.target.value;
+                                    const numValue = value === "" ? null : Number(value);
+
+                                    // Validate against max marks
+                                    if (numValue !== null && (numValue < 0 || numValue > comp.maxMarks)) {
+                                      return; // Don't update if invalid
+                                    }
+
+                                    const updatedMarks = marks.map((m) => {
+                                      if (m.enrollmentId === mark.enrollmentId) {
+                                        return {
+                                          ...m,
+                                          marks: m.marks.map((sm) => {
+                                            if (sm.componentId === comp.id) {
+                                              return { ...sm, obtainedMarks: numValue };
+                                            }
+                                            return sm;
+                                          }),
+                                        };
+                                      }
+                                      return m;
+                                    });
+                                    setMarks(updatedMarks);
+                                    setHasUnsavedChanges(true);
+                                  }}
+                                />
+                              </td>
+                            );
+                          })}
+                          <td></td>
+                          <td className="border border-gray-300 px-3 py-2 font-bold text-emerald-600">{theoryTotal}</td>
+
+                          {/* Editable Lab Marks */}
+                          {componentsTest.filter((c) => c.type === "lab").map((comp) => {
+                            const studentMark = mark.marks.find((m) => m.componentId === comp.id);
+                            return (
+                              <td key={comp.id} className="border border-gray-300 px-3 py-2 text-center">
+                                <input
+                                  type="number"
+                                  min="0"
+                                  max={comp.maxMarks}
+                                  value={studentMark?.obtainedMarks ?? ""}
+                                  placeholder="-"
+                                  className="w-16 border px-1 py-1 text-sm rounded text-center focus:outline-none focus:ring-2 focus:ring-green-500"
+                                  onChange={(e) => {
+                                    const value = e.target.value;
+                                    const numValue = value === "" ? null : Number(value);
+
+                                    // Validate against max marks
+                                    if (numValue !== null && (numValue < 0 || numValue > comp.maxMarks)) {
+                                      return; // Don't update if invalid
+                                    }
+
+                                    const updatedMarks = marks.map((m) => {
+                                      if (m.enrollmentId === mark.enrollmentId) {
+                                        return {
+                                          ...m,
+                                          marks: m.marks.map((sm) => {
+                                            if (sm.componentId === comp.id) {
+                                              return { ...sm, obtainedMarks: numValue };
+                                            }
+                                            return sm;
+                                          }),
+                                        };
+                                      }
+                                      return m;
+                                    });
+                                    setMarks(updatedMarks);
+                                    setHasUnsavedChanges(true);
+                                  }}
+                                />
+                              </td>
+                            );
+                          })}
+                          <td></td>
+                          <td className="border border-gray-300 px-3 py-2 font-bold text-green-600">{labTotal}</td>
+
+                          <td className="border border-gray-300 px-3 py-2 text-xs text-gray-500">
+                            {new Date(mark.last_updated_at).toLocaleDateString()}
+                          </td>
+
+                          {/* Save Student Marks */}
+                          <td className="border border-gray-300 px-3 py-2 text-center">
+                            <button
+                              className={`px-3 py-1.5 text-xs rounded font-medium shadow-sm ${selectedCourse === 'all' ? 'bg-gray-300 text-gray-600 cursor-not-allowed' : 'bg-emerald-600 text-white hover:bg-emerald-700 transition-colors'}`}
+                              disabled={selectedCourse === 'all'}
+                              title={selectedCourse === 'all' ? 'Select a specific course to save marks' : ''}
+                              onClick={async () => {
+                                try {
+                                  await saveMarks([mark]);
+                                  setHasUnsavedChanges(false);
+                                  alert(`Marks saved successfully for ${mark.student_name}!`);
+                                } catch (error) {
+                                  alert(`Failed to save marks for ${mark.student_name}`);
+                                }
+                              }}
+                            >
+                              Save
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
+
+              {/* Bulk Save All Marks Button */}
+              <div className="mt-4 flex justify-end px-4">
+                <button
+                  className={`px-4 py-2 rounded text-sm font-medium transition-colors shadow-sm ${hasUnsavedChanges && selectedCourse !== 'all'
+                    ? 'bg-blue-600 text-white hover:bg-blue-700'
+                    : 'bg-gray-300 text-gray-600 cursor-not-allowed'
+                    }`}
+                  disabled={!hasUnsavedChanges || selectedCourse === 'all'}
+                  title={selectedCourse === 'all' ? 'Select a specific course to save marks' : ''}
+                  onClick={async () => {
+                    try {
+                      await saveMarks(marks);
+                      setHasUnsavedChanges(false);
+                      alert('All marks saved successfully!');
+                    } catch (error) {
+                      alert('Failed to save marks. Please try again.');
+                    }
+                  }}
+                >
+                  {hasUnsavedChanges ? 'Save All Changes' : 'No Unsaved Changes'}
+                </button>
+              </div>
 
             </div>
           </CardContent>
         </Card>
-      ):<Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>
-              <span className="ml-2 text-gray-600">Loading...</span>
-            </div>
-          </CardContent>
-        </Card>        
-         }
+      ) : <Card>
+        <CardContent className="pt-6">
+          <div className="flex items-center justify-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>
+            <span className="ml-2 text-gray-600">Loading...</span>
+          </div>
+        </CardContent>
+      </Card>
+      }
 
 
 
@@ -1420,19 +1531,18 @@ const saveMarks = async (studentsToSave: FrontendStudent[]) => {
                           <td className="border border-gray-300 px-3 py-2">
                             <button
                               onClick={() => toggleAttendance(record.id)}
-                              className={`inline-flex items-center px-3 py-2 rounded-full text-xs font-medium transition-colors duration-200 ${
-                                record.status === "present"
-                                  ? "bg-green-100 text-green-800 hover:bg-green-200 cursor-pointer"
-                                  : record.status === "absent"
+                              className={`inline-flex items-center px-3 py-2 rounded-full text-xs font-medium transition-colors duration-200 ${record.status === "present"
+                                ? "bg-green-100 text-green-800 hover:bg-green-200 cursor-pointer"
+                                : record.status === "absent"
                                   ? "bg-red-100 text-red-800 hover:bg-red-200 cursor-pointer"
                                   : "bg-gray-100 text-gray-800 hover:bg-gray-200 cursor-pointer"
-                              } hover:scale-105`}
+                                } hover:scale-105`}
                               title={
                                 record.status === "unmarked"
                                   ? "Click to mark as Present"
                                   : record.status === "present"
-                                  ? "Click to mark as Absent"
-                                  : "Click to mark as Unmarked"
+                                    ? "Click to mark as Absent"
+                                    : "Click to mark as Unmarked"
                               }
                             >
                               {record.status === "present" ? (
@@ -1445,8 +1555,8 @@ const saveMarks = async (studentsToSave: FrontendStudent[]) => {
                               {record.status === "unmarked"
                                 ? "Unmarked"
                                 : record.status === "present"
-                                ? "Present"
-                                : "Absent"}
+                                  ? "Present"
+                                  : "Absent"}
                             </button>
                           </td>
                         </tr>

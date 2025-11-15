@@ -130,39 +130,39 @@ async function seed() {
 
         const departmentCourses: Record<string, CourseData[]> = {
             'CS': [
-                { code: 'CS201', name: 'Data Structures and Algorithms', type: 'core' },
-                { code: 'CS202', name: 'Operating Systems', type: 'core' },
-                { code: 'CS203', name: 'Database Management Systems', type: 'core' },
-                { code: 'CS204', name: 'Computer Networks', type: 'core' },
-                { code: 'CS205', name: 'Machine Learning', type: 'department_elective' }
+                { code: 'CS301', name: 'Data Structures and Algorithms', type: 'core' },
+                { code: 'CS302', name: 'Operating Systems', type: 'core' },
+                { code: 'CS303', name: 'Database Management Systems', type: 'core' },
+                { code: 'CS304', name: 'Computer Networks', type: 'core' },
+                { code: 'CS305', name: 'Machine Learning', type: 'department_elective' }
             ],
             'IS': [
-                { code: 'IS201', name: 'Information Systems', type: 'core' },
-                { code: 'IS202', name: 'Software Engineering', type: 'core' },
-                { code: 'IS203', name: 'Web Technologies', type: 'core' },
-                { code: 'IS204', name: 'Data Analytics', type: 'core' },
-                { code: 'IS205', name: 'Cloud Computing', type: 'department_elective' }
+                { code: 'IS301', name: 'Information Systems', type: 'core' },
+                { code: 'IS302', name: 'Software Engineering', type: 'core' },
+                { code: 'IS303', name: 'Web Technologies', type: 'core' },
+                { code: 'IS304', name: 'Data Analytics', type: 'core' },
+                { code: 'IS305', name: 'Cloud Computing', type: 'department_elective' }
             ],
             'ME': [
-                { code: 'ME201', name: 'Thermodynamics', type: 'core' },
-                { code: 'ME202', name: 'Fluid Mechanics', type: 'core' },
-                { code: 'ME203', name: 'Machine Design', type: 'core' },
-                { code: 'ME204', name: 'Heat Transfer', type: 'core' },
-                { code: 'ME205', name: 'Robotics', type: 'department_elective' }
+                { code: 'ME301', name: 'Thermodynamics', type: 'core' },
+                { code: 'ME302', name: 'Fluid Mechanics', type: 'core' },
+                { code: 'ME303', name: 'Machine Design', type: 'core' },
+                { code: 'ME304', name: 'Heat Transfer', type: 'core' },
+                { code: 'ME305', name: 'Robotics', type: 'department_elective' }
             ],
             'CE': [
-                { code: 'CE201', name: 'Structural Engineering', type: 'core' },
-                { code: 'CE202', name: 'Geotechnical Engineering', type: 'core' },
-                { code: 'CE203', name: 'Transportation Engineering', type: 'core' },
-                { code: 'CE204', name: 'Environmental Engineering', type: 'core' },
-                { code: 'CE205', name: 'Construction Management', type: 'department_elective' }
+                { code: 'CE301', name: 'Structural Engineering', type: 'core' },
+                { code: 'CE302', name: 'Geotechnical Engineering', type: 'core' },
+                { code: 'CE303', name: 'Transportation Engineering', type: 'core' },
+                { code: 'CE304', name: 'Environmental Engineering', type: 'core' },
+                { code: 'CE305', name: 'Construction Management', type: 'department_elective' }
             ],
             'EC': [
-                { code: 'EC201', name: 'Digital Electronics', type: 'core' },
-                { code: 'EC202', name: 'Analog Circuits', type: 'core' },
-                { code: 'EC203', name: 'Communication Systems', type: 'core' },
-                { code: 'EC204', name: 'Microprocessors', type: 'core' },
-                { code: 'EC205', name: 'VLSI Design', type: 'department_elective' }
+                { code: 'EC301', name: 'Digital Electronics', type: 'core' },
+                { code: 'EC302', name: 'Analog Circuits', type: 'core' },
+                { code: 'EC303', name: 'Communication Systems', type: 'core' },
+                { code: 'EC304', name: 'Microprocessors', type: 'core' },
+                { code: 'EC305', name: 'VLSI Design', type: 'department_elective' }
             ]
         };
 
@@ -181,6 +181,7 @@ async function seed() {
                             name: course.name,
                             departmentId: dept.id,
                             type: course.type,
+                            year: 3,
                             hasTheoryComponent: true,
                             hasLabComponent: course.code.endsWith('L')
                         }
