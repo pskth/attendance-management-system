@@ -354,9 +354,7 @@ router.get('/export-academic-year/:yearId', async (req, res) => {
             code: c.code,
             name: c.name,
             type: c.type,
-            year: c.year,
-            has_theory: c.hasTheoryComponent,
-            has_lab: c.hasLabComponent
+            year: c.year
         }));
         xlsx_1.default.utils.book_append_sheet(workbooks['courses'], xlsx_1.default.utils.json_to_sheet(coursesData), 'Courses');
         // 8. Academic Years
@@ -735,9 +733,7 @@ router.get('/export-all-data', async (req, res) => {
             code: c.code,
             name: c.name,
             type: c.type,
-            year: c.year,
-            has_theory: c.hasTheoryComponent,
-            has_lab: c.hasLabComponent
+            year: c.year
         }));
         xlsx_1.default.utils.book_append_sheet(workbooks['courses'], xlsx_1.default.utils.json_to_sheet(coursesData), 'Courses');
         // 8. Academic Years

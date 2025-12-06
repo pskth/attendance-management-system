@@ -77,8 +77,6 @@ router.get('/courses/by-semester', async (req, res) => {
       courses: coursesBySemester[parseInt(semester)].map((offering: any) => ({
         code: offering.course.code,
         name: offering.course.name,
-        hasTheory: offering.course.hasTheoryComponent,
-        hasLab: offering.course.hasLabComponent,
         teacher: offering.teacher?.user?.name || 'Not assigned',
         section: offering.sections?.section_name || 'Not assigned'
       }))

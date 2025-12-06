@@ -176,46 +176,11 @@ router.post('/fix-course-components', async (req, res) => {
         const courses = await prisma.course.findMany();
         console.log(`Found ${courses.length} courses to update`);
         let updatedCount = 0;
-        for (const course of courses) {
-            let hasTheory = false;
-            let hasLab = false;
-            // Check for theory test components
-            const theoryComponentsCount = await prisma.testComponent.count({
-                where: {
-                    courseOffering: {
-                        courseId: course.id
-                    },
-                    type: 'theory'
-                }
-            });
-            // Check for lab test components
-            const labComponentsCount = await prisma.testComponent.count({
-                where: {
-                    courseOffering: {
-                        courseId: course.id
-                    },
-                    type: 'lab'
-                }
-            });
-            hasTheory = theoryComponentsCount > 0;
-            hasLab = labComponentsCount > 0;
-            // Update course if flags are different
-            if (course.hasTheoryComponent !== hasTheory || course.hasLabComponent !== hasLab) {
-                await prisma.course.update({
-                    where: { id: course.id },
-                    data: {
-                        hasTheoryComponent: hasTheory,
-                        hasLabComponent: hasLab
-                    }
-                });
-                updatedCount++;
-                console.log(`Updated course ${course.code}: theory=${hasTheory}, lab=${hasLab}`);
-            }
-        }
+        // Components flags are deprecated; nothing to fix
         res.json({
             success: true,
-            message: `Fixed ${updatedCount} courses`,
-            updated: updatedCount,
+            message: 'Course component flags deprecated; no changes applied',
+            updated: 0,
             total: courses.length
         });
     }

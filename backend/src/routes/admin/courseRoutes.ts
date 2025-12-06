@@ -619,8 +619,6 @@ router.get('/course-management', async (req, res) => {
 				totalOfferings: course.courseOfferings.length,
 				offeringsWithTeacher: offeringsWithTeachers.length,
 				offeringsWithoutTeacher: offeringsWithoutTeachers.length,
-				hasTheoryComponent: course.hasTheoryComponent,
-				hasLabComponent: course.hasLabComponent,
 				// Include open elective restrictions
 				openElectiveRestrictions: course.openElectiveRestrictions?.map(restriction => ({
 					id: restriction.id,

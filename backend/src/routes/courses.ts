@@ -326,9 +326,7 @@ router.post('/', async (req, res) => {
         code: finalCode,
         departmentId: departmentRecord.id,
         year: yearNum, // Add year field
-        type: type || 'core',
-        hasTheoryComponent: req.body.hasTheoryComponent ?? true,
-        hasLabComponent: req.body.hasLabComponent ?? false
+        type: type || 'core'
       },
       include: {
         department: {
@@ -503,9 +501,7 @@ router.put('/:id', async (req, res) => {
         code: finalCode,
         departmentId: departmentRecord.id,
         year: yearNum, // Add year field to update
-        type: type || 'core',
-        hasTheoryComponent: req.body.hasTheoryComponent ?? true,
-        hasLabComponent: req.body.hasLabComponent ?? false
+        type: type || 'core'
       },
       include: {
         department: {

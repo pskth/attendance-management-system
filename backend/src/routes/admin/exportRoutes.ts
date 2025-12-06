@@ -389,9 +389,7 @@ router.get('/export-academic-year/:yearId', async (req: Request, res: Response) 
             code: c.code,
             name: c.name,
             type: c.type,
-            year: c.year,
-            has_theory: c.hasTheoryComponent,
-            has_lab: c.hasLabComponent
+            year: c.year
         }));
         XLSX.utils.book_append_sheet(workbooks['courses'], XLSX.utils.json_to_sheet(coursesData), 'Courses');
 
@@ -814,9 +812,7 @@ router.get('/export-all-data', async (req: Request, res: Response) => {
             code: c.code,
             name: c.name,
             type: c.type,
-            year: c.year,
-            has_theory: c.hasTheoryComponent,
-            has_lab: c.hasLabComponent
+            year: c.year
         }));
         XLSX.utils.book_append_sheet(workbooks['courses'], XLSX.utils.json_to_sheet(coursesData), 'Courses');
 

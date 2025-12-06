@@ -85,9 +85,7 @@ router.get('/assigned-courses', async (req, res) => {
             code: course.code,
             name: course.name,
             type: course.type,
-            department: course.department?.name,
-            hasTheoryComponent: course.hasTheoryComponent,
-            hasLabComponent: course.hasLabComponent
+            department: course.department?.name
         }));
         return res.json({
             status: 'success',

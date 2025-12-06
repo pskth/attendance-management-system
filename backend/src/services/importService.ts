@@ -408,9 +408,7 @@ export class ImportService {
             code: record.course_code,
             name: record.course_name,
             departmentId: department?.id,
-            type: record.course_type || 'core',
-            hasTheoryComponent: ['true', 'TRUE', '1', 'yes', 'YES', true].includes(record.has_theory_component),
-            hasLabComponent: ['true', 'TRUE', '1', 'yes', 'YES', true].includes(record.has_lab_component)
+            type: record.course_type || 'core'
           }
         });
         count++;

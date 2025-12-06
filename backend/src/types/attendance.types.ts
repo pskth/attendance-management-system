@@ -64,8 +64,6 @@ export interface CourseInfo {
     name: string;
     type: string;
     department?: string;
-    hasTheoryComponent: boolean;
-    hasLabComponent: boolean;
 }
 
 /**

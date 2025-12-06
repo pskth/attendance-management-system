@@ -305,18 +305,14 @@ router.post('/import-excel/:type', upload.single('file'), async (req, res) => {
                             update: {
                                 name: row.name,
                                 type: row.type || 'core',
-                                year: parseInt(row.year) || 1,
-                                hasTheoryComponent: row.has_theory === 'true' || row.has_theory === true || row.has_theory === 1,
-                                hasLabComponent: row.has_lab === 'true' || row.has_lab === true || row.has_lab === 1,
+                                year: parseInt(row.year) || 1
                             },
                             create: {
                                 code: row.code,
                                 name: row.name,
                                 departmentId: department.id,
                                 type: row.type || 'core',
-                                year: parseInt(row.year) || 1,
-                                hasTheoryComponent: row.has_theory === 'true' || row.has_theory === true || row.has_theory === 1,
-                                hasLabComponent: row.has_lab === 'true' || row.has_lab === true || row.has_lab === 1,
+                                year: parseInt(row.year) || 1
                             }
                         });
                         recordsProcessed++;

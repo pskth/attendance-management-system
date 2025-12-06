@@ -110,8 +110,6 @@ model Course {
   departmentId               String                      @map("department_id") @db.Uuid
   year                       Int?                        @map("year")
   type                       course_type?                @map("course_type")
-  hasTheoryComponent         Boolean                     @default(true) @map("has_theory_component")
-  hasLabComponent            Boolean                     @default(false) @map("has_lab_component")
   courseElectiveGroupMembers CourseElectiveGroupMember[]
   courseOfferings            CourseOffering[]
   department                 Department                  @relation(fields: [departmentId], references: [id], onUpdate: NoAction)
