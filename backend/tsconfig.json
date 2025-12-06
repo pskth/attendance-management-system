@@ -7,17 +7,16 @@
     "outDir": "dist",
 
     "moduleResolution": "node",
-  
+
     "lib": ["ES2020"],
+    "types": ["node"],
 
     "esModuleInterop": true,
     "resolveJsonModule": true,
 
     "strict": false,
-    "noImplicitAny": false,
-
     "skipLibCheck": true
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "prisma", "scripts"]
+  "exclude": ["node_modules", "generated", "prisma", "scripts"]
 }
