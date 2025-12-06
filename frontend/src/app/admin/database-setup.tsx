@@ -148,11 +148,8 @@ const importTable = async (stepId: string) => {
 
   setLoading(true)
   try {
-    const formData = new FormData()
-    formData.append('file', file)
-
     // ✅ use adminApi instead of fetch
-    const result: ImportStatus = await adminApi.importTable(stepId, formData)
+    const result: ImportStatus = await adminApi.importTable(stepId, file)
 
     setImportResults(prev => ({ ...prev, [stepId]: result }))
     await refreshStatus()

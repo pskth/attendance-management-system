@@ -12,6 +12,8 @@ export default function TeacherMarksAttendancePage() {
     const [courses, setCourses] = useState<CourseOffering[]>([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
+    const [teacherId, setTeacherId] = useState<string>('')
+    const [selectedCourseId, setSelectedCourseId] = useState<string>('')
 
     useEffect(() => {
         loadTeacherCourses()
@@ -27,8 +29,16 @@ export default function TeacherMarksAttendancePage() {
                 return
             }
 
+            const user = await authService.getCurrentUser()
+            if (user?.id) {
+                setTeacherId(user.id)
+            }
+
             const coursesData = await TeacherAPI.getCourses()
             setCourses(coursesData)
+            if (coursesData.length > 0) {
+                setSelectedCourseId(coursesData[0].offeringId)
+            }
         } catch (err) {
             console.error('Error loading teacher courses:', err)
             setError(err instanceof Error ? err.message : 'Failed to load courses')
@@ -92,6 +102,8 @@ export default function TeacherMarksAttendancePage() {
                 {/* Main Content */}
                 <TeacherMarksAttendanceManagement
                     courses={courses}
+                    selectedCourseId={selectedCourseId}
+                    teacherId={teacherId}
                     initialMode="marks"
                 />
             </div>

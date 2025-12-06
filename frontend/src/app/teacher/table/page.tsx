@@ -1,15 +1,16 @@
-"use client";
-import { useState, useEffect } from "react";
-import { TeacherAPI, Student } from "@/lib/teacher-api";
+import { MarksTableClient } from "./client";
 
-type SubColumn = { id: string; name: string; weight: number; maxMark: number };
-type ColumnGroup = { id: string; name: string; subColumns: SubColumn[] };
-
-interface MarksTableProps {
-  courseId: string;
+interface PageProps {
+  searchParams: Promise<{ courseId?: string }>;
 }
 
-export default function MarksTable({ courseId }: MarksTableProps) {
+export default async function Page({ searchParams }: PageProps) {
+  const params = await searchParams;
+  const courseId = params.courseId || '';
+  return <MarksTableClient courseId={courseId} />;
+}
+
+function MarksTable({ courseId }: { courseId: string }) {
   const [students, setStudents] = useState<Student[]>([]);
   const [columnGroups, setColumnGroups] = useState<ColumnGroup[]>([]);
   const [marks, setMarks] = useState<Record<string, Record<string, number>>>({});

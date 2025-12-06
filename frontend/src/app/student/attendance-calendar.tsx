@@ -13,29 +13,18 @@ import {
   RefreshCw
 } from 'lucide-react'
 import { studentApi } from '@/lib/api'
+import type { MonthlyAttendanceData } from '@/lib/types'
 
 interface AttendanceCalendarProps {
   studentId: string
   academicYear?: string
-  onDateSelect?: (date: string, data: MonthlyAttendance[string] | null) => void
-}
-
-interface MonthlyAttendance {
-  [date: string]: { 
-    present: number
-    absent: number
-    total: number
-    classes: Array<{      course_name: string
-      course_code: string
-      status: 'present' | 'absent'
-    }>
-  }
+  onDateSelect?: (date: string, data: MonthlyAttendanceData[string] | null) => void
 }
 
 export function AttendanceCalendar({ studentId, onDateSelect }: AttendanceCalendarProps) {
   const [currentDate, setCurrentDate] = useState(new Date())
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
-  const [monthlyData, setMonthlyData] = useState<MonthlyAttendance>({})
+  const [monthlyData, setMonthlyData] = useState<MonthlyAttendanceData>({})
   const [loading, setLoading] = useState(false)  // Load attendance data for current month
   const loadMonthlyAttendance = async () => {
     setLoading(true)
@@ -47,7 +36,21 @@ export function AttendanceCalendar({ studentId, onDateSelect }: AttendanceCalend
 
       const res = await studentApi.getMonthlyAttendance(studentId, currentDate.getFullYear(), currentDate.getMonth() + 1)
       console.log("Monthly attendance data:", res.data)
-      setMonthlyData(res.data)
+      // The API returns either keyed by date or a single month aggregation
+      // If it's a keyed object, use it directly; if not, wrap it
+      let monthlyAttendance: MonthlyAttendanceData = {}
+      if (res.data && typeof res.data === 'object') {
+        // Check if it has date keys or if it's a single month aggregation
+        const keys = Object.keys(res.data)
+        if (keys.length > 0 && (keys[0].includes('-') || keys[0].match(/^\d/))) {
+          // Looks like date keys, use directly
+          monthlyAttendance = res.data as unknown as MonthlyAttendanceData
+        } else if ('present' in res.data && 'absent' in res.data) {
+          // Single aggregation, wrap it with a generic key
+          monthlyAttendance = { 'aggregated': res.data as unknown as any }
+        }
+      }
+      setMonthlyData(monthlyAttendance)
     } catch (error) {
       console.error('Error loading monthly attendance:', error)
     } finally {

@@ -15,6 +15,7 @@ import {
 } from 'lucide-react'
 
 import { Course, Section } from './dropdown-navigation'
+import { CourseOffering } from '@/lib/teacher-api'
 
 interface CourseManagementProps {
   teacherId: string
@@ -22,7 +23,7 @@ interface CourseManagementProps {
   selectedYear: string
   selectedDepartment: string
   selectedSection: Section
-  courses?: [] // Add courses prop to pass to marks-attendance management
+  courses?: CourseOffering[] // Add courses prop to pass to marks-attendance management
 }
 
 export function CourseManagement({

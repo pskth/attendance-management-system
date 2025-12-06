@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChevronDown, ChevronRight, Loader2, AlertTriangle } from "lucide-react";
-import analyticsService, { MarksAnalyticsData, DepartmentMarksStats } from '@/lib/analytics-service';
+import analyticsService, { MarksAnalyticsData, DepartmentMarksStats, CourseStats } from '@/lib/analytics-service';
 
 interface MarksAnalyticsProps {
   studyYear: number;
@@ -168,7 +168,7 @@ export default function MarksAnalytics({ studyYear, collegeId }: MarksAnalyticsP
                       </div>
 
                       <div className="grid grid-cols-1 gap-2">
-                        {section.courseStats.map((course, courseIndex) => {
+                        {section.courseStats.map((course: CourseStats, courseIndex: number) => {
                           const courseKey = `${dept.code}-${section.section}-${course.code}`;
                           const isExpanded = expandedCourses.includes(courseKey);
 
@@ -205,13 +205,13 @@ export default function MarksAnalytics({ studyYear, collegeId }: MarksAnalyticsP
                                 </div>
                               </div>
 
-                              {isExpanded && course.students && course.students.length > 0 && (
+                              {isExpanded && course.enrolledStudents && course.enrolledStudents.length > 0 && (
                                 <div className="mt-2 pl-2 border-l-2 border-purple-200">
                                   <p className="text-xs font-medium text-gray-600 mb-1">
-                                    Enrolled Students ({course.students.length}):
+                                    Enrolled Students ({course.enrolledStudents.length}):
                                   </p>
                                   <div className="grid grid-cols-1 gap-1">
-                                    {course.students.map((student, studentIndex) => (
+                                    {course.enrolledStudents.map((student, studentIndex) => (
                                       <div key={student.id || studentIndex} className="text-xs bg-white p-2 rounded border">
                                         <div className="flex justify-between items-start">
                                           <div className="flex-1">
@@ -265,7 +265,7 @@ export default function MarksAnalytics({ studyYear, collegeId }: MarksAnalyticsP
                                 </div>
                               )}
 
-                              {isExpanded && (!course.students || course.students.length === 0) && (
+                              {isExpanded && (!course.enrolledStudents || course.enrolledStudents.length === 0) && (
                                 <div className="mt-2 pl-2 border-l-2 border-gray-200">
                                   <p className="text-xs text-gray-500">No students enrolled in this course</p>
                                 </div>

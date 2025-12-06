@@ -27,7 +27,7 @@ import { MarksDisplay } from '@/components/marks/MarksDisplay'
 
 export default function StudentDashboard() {
   const emptystud: StudentInfo = {
-    id: '',
+    user_id: '',
     name: '',
     email: '',
     phone: '',
@@ -36,6 +36,7 @@ export default function StudentDashboard() {
     college_name: '',
     usn: '',
     photo_url: '',
+    academic_year: '',
   };
   const [activeTab, setActiveTab] = useState('overview')
   const [UserId, setUserId] = useState<string>("");

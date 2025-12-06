@@ -51,6 +51,7 @@ export interface CourseStats {
   passRate?: number;
   failRate?: number;
   students: number;
+  enrolledStudents?: StudentInfo[];
   sections: SectionStats[];
 }
 
