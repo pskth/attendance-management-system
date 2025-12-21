@@ -55,7 +55,7 @@ const app = express();
 console.log('=== INDEX.TS LOADED ===');
 
 app.use(cors({
-	origin: ['https://attendance-management-system-1-5bbv.onrender.com/'],
+	origin: ['https://attendance-management-system-1-5bbv.onrender.com'],
 	credentials: true,
 	methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
 	allowedHeaders: ['Content-Type', 'Authorization']
