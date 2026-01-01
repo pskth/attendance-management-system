@@ -1,10 +1,12 @@
 // src/routes/users.ts
 import { Router } from 'express';
 import Database from '../lib/database';
+import bcrypt from 'bcrypt';
+
 import { autoEnrollFirstYearStudent, autoEnrollStudentBySemester, autoEnrollStudentForSemester } from '../services/autoEnrollmentService';
 
 const router = Router();
-
+const SALT_ROUNDS = 12;
 // Get all users with roles
 router.get('/', async (req, res) => {
   try {
@@ -195,11 +197,32 @@ router.get('/:id', async (req, res) => {
 // Create new user
 router.post('/', async (req, res) => {
   try {
-    const { name, username, phone, role, password, departmentId, year, section, email, usn, collegeId } = req.body;
-    
-    console.log(`🔍 Received request body:`, req.body);
-    console.log(`🔍 Extracted parameters:`, { name, username, phone, role, password, departmentId, year, section, email, usn, collegeId });
-    
+    const {
+      name,
+      username,
+      phone,
+      role,
+      password,
+      departmentId,
+      year,
+      section,
+      email,
+      usn,
+      collegeId
+    } = req.body;
+
+    console.log('🔍 Received request body (sanitized):', {
+      name,
+      username,
+      role,
+      departmentId,
+      year,
+      section,
+      email,
+      usn,
+      collegeId
+    });
+
     if (!name || !username || !role) {
       return res.status(400).json({
         status: 'error',
@@ -208,7 +231,6 @@ router.post('/', async (req, res) => {
       });
     }
 
-    // Validate role
     const validRoles = ['student', 'teacher', 'admin'];
     if (!validRoles.includes(role)) {
       return res.status(400).json({
@@ -220,9 +242,8 @@ router.post('/', async (req, res) => {
 
     const prisma = Database.getInstance();
 
-    // Check if user already exists
     const existingUser = await prisma.user.findFirst({
-      where: { username: username }
+      where: { username }
     });
 
     if (existingUser) {
@@ -233,34 +254,21 @@ router.post('/', async (req, res) => {
       });
     }
 
-    // Create user
+    // 🔐 PASSWORD HASHING (FIX)
+    const passwordHash = password
+      ? await bcrypt.hash(password, SALT_ROUNDS)
+      : await bcrypt.hash('default123', SALT_ROUNDS);
+
     const user = await prisma.user.create({
       data: {
         name: name.trim(),
         username: username.trim(),
         email: email?.trim() || null,
         phone: phone?.trim() || null,
-        passwordHash: password || 'default123' // Default password if not provided
-      },
-      include: {
-        userRoles: true,
-        student: {
-          include: {
-            colleges: true,
-            departments: true,
-            sections: true
-          }
-        },
-        teacher: {
-          include: {
-            colleges: true,
-            department: true
-          }
-        }
+        passwordHash
       }
     });
 
-    // Create user role assignment
     await prisma.userRoleAssignment.create({
       data: {
         userId: user.id,
@@ -268,29 +276,22 @@ router.post('/', async (req, res) => {
       }
     });
 
-    // Create role-specific records
+    // ---------------- STUDENT ----------------
     if (role === 'student') {
-      // Use provided collegeId if present, otherwise fallback to department or first college
       let collegeIdToUse = collegeId || null;
       let departmentIdToUse = null;
-      
+
       if (departmentId) {
-        console.log(`🔍 Looking up department with ID: ${departmentId}`);
-        // Get the department and its college
         const department = await prisma.department.findUnique({
-          where: { id: departmentId },
-          include: { colleges: true }
+          where: { id: departmentId }
         });
-        console.log(`🔍 Department lookup result:`, department);
+
         if (department) {
-          if (!collegeIdToUse) collegeIdToUse = department.college_id;
+          collegeIdToUse ??= department.college_id;
           departmentIdToUse = departmentId;
-          console.log(`✅ Department found. Using collegeId: ${collegeIdToUse}, departmentId: ${departmentIdToUse}`);
-        } else {
-          console.log(`❌ Department not found for ID: ${departmentId}`);
         }
       }
-      // Fallback to first college if not provided
+
       if (!collegeIdToUse) {
         const firstCollege = await prisma.college.findFirst();
         if (!firstCollege) {
@@ -302,70 +303,59 @@ router.post('/', async (req, res) => {
         }
         collegeIdToUse = firstCollege.id;
       }
-      // Calculate semester from year (1st year = semesters 1-2, 2nd year = semesters 3-4, etc.)
-      const semester = year ? (year * 2 - 1) : 1; // Default to semester 1 if no year provided
-      
-      console.log(`🔍 Final student creation parameters:`, {
-        collegeIdToUse, 
-        departmentIdToUse, 
-        calculatedSemester: semester,
-        providedYear: year
-      });
-      // Create section if provided
+
+      const semester = year ? year * 2 - 1 : 1;
+
       let sectionId = null;
-      if (section && section.trim()) {
-        // Try to find existing section or create new one
+      if (section?.trim() && departmentIdToUse) {
         const existingSection = await prisma.sections.findFirst({
           where: { section_name: section.trim() }
         });
-        if (existingSection) {
-          sectionId = existingSection.section_id;
-        } else if (departmentIdToUse) {
-          // Create new section only if we have a department
-          const newSection = await prisma.sections.create({
-            data: {
-              section_name: section.trim(),
-              department_id: departmentIdToUse
-            }
-          });
-          sectionId = newSection.section_id;
-        }
+
+        sectionId = existingSection
+          ? existingSection.section_id
+          : (
+              await prisma.sections.create({
+                data: {
+                  section_name: section.trim(),
+                  department_id: departmentIdToUse
+                }
+              })
+            ).section_id;
       }
-      const createdStudent = await prisma.student.create({
+
+      const student = await prisma.student.create({
         data: {
           userId: user.id,
           college_id: collegeIdToUse,
           department_id: departmentIdToUse,
           section_id: sectionId,
           usn: usn || `USN${Date.now()}`,
-          semester: semester,
+          semester,
           batchYear: new Date().getFullYear()
         }
       });
 
-      // Auto-enroll student in core courses for their department and semester
-      if (departmentIdToUse && semester) {
+      if (departmentIdToUse) {
         try {
-          // Use the specific semester enrollment function for better course separation
-          const enrollmentResult = await autoEnrollStudentForSemester(createdStudent.id, semester);
-          console.log(`Auto-enrollment for student ${createdStudent.id} (semester ${semester}):`, enrollmentResult);
-        } catch (enrollmentError) {
-          console.warn(`Failed to auto-enroll student ${createdStudent.id}:`, enrollmentError);
-          // Don't fail the user creation if auto-enrollment fails
+          await autoEnrollStudentForSemester(student.id, semester);
+        } catch (e) {
+          console.warn('Auto-enrollment failed:', e);
         }
       }
-    } else if (role === 'teacher') {
-      // Use provided collegeId if present, otherwise fallback to department or first college
-      let collegeIdToUse = collegeId || null;
+    }
+
+    // ---------------- TEACHER ----------------
+    if (role === 'teacher') {
+      let collegeIdToUse = collegeId;
+
       if (!collegeIdToUse && departmentId) {
         const department = await prisma.department.findUnique({
-          where: { id: departmentId },
-          include: { colleges: true }
+          where: { id: departmentId }
         });
-        if (department) {
-          collegeIdToUse = department.college_id;
-        }
+        collegeIdToUse = department?.college_id ?? null;
       }
+
       if (!collegeIdToUse) {
         const firstCollege = await prisma.college.findFirst();
         if (!firstCollege) {
@@ -377,21 +367,22 @@ router.post('/', async (req, res) => {
         }
         collegeIdToUse = firstCollege.id;
       }
+
       await prisma.teacher.create({
         data: {
           userId: user.id,
           college_id: collegeIdToUse
         }
       });
-    } else if (role === 'admin') {
+    }
+
+    // ---------------- ADMIN ----------------
+    if (role === 'admin') {
       await prisma.admin.create({
-        data: {
-          userId: user.id
-        }
+        data: { userId: user.id }
       });
     }
 
-    // Fetch the complete user with all relations
     const completeUser = await prisma.user.findUnique({
       where: { id: user.id },
       include: {
@@ -404,9 +395,7 @@ router.post('/', async (req, res) => {
             enrollments: {
               include: {
                 offering: {
-                  include: {
-                    course: true
-                  }
+                  include: { course: true }
                 }
               }
             }
@@ -421,7 +410,7 @@ router.post('/', async (req, res) => {
       }
     });
 
-    res.status(201).json({
+    return res.status(201).json({
       status: 'success',
       data: completeUser,
       timestamp: new Date().toISOString()
@@ -429,10 +418,9 @@ router.post('/', async (req, res) => {
 
   } catch (error) {
     console.error('Error creating user:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-    res.status(500).json({
+    return res.status(500).json({
       status: 'error',
-      error: errorMessage,
+      error: error instanceof Error ? error.message : 'Unknown error',
       timestamp: new Date().toISOString()
     });
   }
