@@ -1,7 +1,7 @@
 // lib/teacher-api.ts
 import Cookies from 'js-cookie';
 
-const API_BASE_URL = 'http://localhost:4000/api';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
 
 // Utility function to get auth headers
 function getAuthHeaders() {

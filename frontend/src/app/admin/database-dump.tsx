@@ -37,7 +37,7 @@ export default function DatabaseDump() {
                 return
             }
 
-            const response = await axios.get('http://localhost:4000/api/admin/dump-info', {
+            const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/admin/dump-info`, {
                 headers: { Authorization: `Bearer ${token}` }
             })
             setDumpAvailable(response.data.available)
@@ -70,7 +70,7 @@ export default function DatabaseDump() {
 
         try {
             const token = authService.getToken()
-            const response = await axios.get('http://localhost:4000/api/admin/export-dump', {
+            const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/admin/export-dump`, {
                 headers: { Authorization: `Bearer ${token}` },
                 responseType: 'blob'
             })
@@ -195,7 +195,7 @@ export default function DatabaseDump() {
             formData.append('dumpFile', selectedFile)
 
             const response = await axios.post(
-                'http://localhost:4000/api/admin/import-dump',
+                `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/admin/import-dump`,
                 formData,
                 {
                     headers: {
@@ -246,7 +246,7 @@ export default function DatabaseDump() {
         try {
             const token = authService.getToken()
             const response = await axios.post(
-                'http://localhost:4000/api/admin/clear-database',
+                `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/admin/clear-database`,
                 { confirmation: 'DELETE_ALL_DATA' },
                 {
                     headers: { Authorization: `Bearer ${token}` }

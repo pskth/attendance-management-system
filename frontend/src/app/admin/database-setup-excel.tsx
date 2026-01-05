@@ -128,7 +128,7 @@ export default function DatabaseSetupExcel() {
             const formData = new FormData()
             formData.append('file', file)
 
-            const response = await fetch(`http://localhost:4000/api/admin/import-excel/${tableId}`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/admin/import-excel/${tableId}`, {
                 method: 'POST',
                 body: formData
             })
