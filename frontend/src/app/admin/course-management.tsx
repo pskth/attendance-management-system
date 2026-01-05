@@ -22,6 +22,8 @@ import {
 import { adminApi } from '@/lib/api'
 import Cookies from 'js-cookie'
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
+
 interface CourseManagementProps {
   onNavigateToUsers?: (filters: {
     course?: string
@@ -753,7 +755,7 @@ export default function CourseManagement({ onNavigateToUsers, initialFilters }: 
       // Get auth token from cookies (consistent with API client)
       const token = Cookies.get('auth_token')
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/courses/${selectedCourse.id}/students/upload`, {
+      const response = await fetch(`${API_BASE_URL}/api/courses/${selectedCourse.id}/students/upload`, {
         method: 'POST',
         body: formData,
         credentials: 'include',

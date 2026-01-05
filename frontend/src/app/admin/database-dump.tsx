@@ -197,7 +197,7 @@ export default function DatabaseDump() {
             formData.append('dumpFile', selectedFile)
 
             const response = await axios.post(
-                `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/admin/import-dump`,
+                `${API_BASE_URL}/api/admin/import-dump`,
                 formData,
                 {
                     headers: {
@@ -248,7 +248,7 @@ export default function DatabaseDump() {
         try {
             const token = authService.getToken()
             const response = await axios.post(
-                `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/admin/clear-database`,
+                `${API_BASE_URL}/api/admin/clear-database`,
                 { confirmation: 'DELETE_ALL_DATA' },
                 {
                     headers: { Authorization: `Bearer ${token}` }
