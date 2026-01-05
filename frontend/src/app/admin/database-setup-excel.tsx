@@ -5,6 +5,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { Upload, Download, RefreshCw, AlertCircle, CheckCircle, FileSpreadsheet, Info } from 'lucide-react'
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
+
 interface ImportStatus {
     success: boolean;
     message: string;
@@ -128,7 +130,7 @@ export default function DatabaseSetupExcel() {
             const formData = new FormData()
             formData.append('file', file)
 
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/admin/import-excel/${tableId}`, {
+            const response = await fetch(`${API_BASE_URL}/api/admin/import-excel/${tableId}`, {
                 method: 'POST',
                 body: formData
             })

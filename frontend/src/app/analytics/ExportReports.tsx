@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Download, FileText, FileSpreadsheet, Printer, Loader2 } from "lucide-react";
 import Cookies from 'js-cookie';
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+
 interface ExportReportsProps {
   filters: {
     studyYear: number;
@@ -50,7 +52,6 @@ export default function ExportReports({ filters }: ExportReportsProps) {
         throw new Error('No authentication token found. Please log in again.');
       }
 
-      const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
       const collegeParam = filters.collegeId !== 'all' ? `&collegeId=${filters.collegeId}` : '';
       const url = `${API_BASE_URL}/api/export/${format}?studyYear=${filters.studyYear}${collegeParam}`;
 

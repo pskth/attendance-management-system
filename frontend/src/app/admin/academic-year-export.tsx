@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button'
 import { Download, Database, Calendar, CheckCircle, AlertCircle, Info, FileArchive, RefreshCw } from 'lucide-react'
 import { authService } from '@/lib/auth'
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
+
 interface AcademicYear {
     year_id: string
     year_name: string
@@ -39,7 +41,7 @@ export default function AcademicYearExport() {
     const fetchAcademicYears = async () => {
         try {
             const token = authService.getToken()
-            const response = await fetch('http://localhost:4000/api/admin/academic-years', {
+            const response = await fetch(`${API_BASE_URL}/api/admin/academic-years`, {
                 credentials: 'include',
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -61,7 +63,7 @@ export default function AcademicYearExport() {
 
         try {
             const token = authService.getToken()
-            const response = await fetch(`http://localhost:4000/api/admin/export-academic-year/${yearId}`, {
+            const response = await fetch(`${API_BASE_URL}/api/admin/export-academic-year/${yearId}`, {
                 method: 'GET',
                 credentials: 'include',
                 headers: {
@@ -119,7 +121,7 @@ export default function AcademicYearExport() {
 
         try {
             const token = authService.getToken()
-            const response = await fetch('http://localhost:4000/api/admin/export-all-data', {
+            const response = await fetch(`${API_BASE_URL}/api/admin/export-all-data`, {
                 method: 'GET',
                 credentials: 'include',
                 headers: {

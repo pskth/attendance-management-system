@@ -2,6 +2,8 @@
 
 import { useState } from 'react'
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
+
 export default function TestApiPage() {
   const [result, setResult] = useState<string>('')
   const [loading, setLoading] = useState(false)
@@ -11,7 +13,6 @@ export default function TestApiPage() {
     setResult('')
     
     try {
-      const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
       console.log('Testing backend at:', API_BASE_URL)
       
       const response = await fetch(`${API_BASE_URL}/api/health`, {
@@ -47,7 +48,6 @@ export default function TestApiPage() {
     setResult('')
     
     try {
-      const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
       console.log('Testing login at:', API_BASE_URL)
       
       const response = await fetch(`${API_BASE_URL}/api/auth/login`, {

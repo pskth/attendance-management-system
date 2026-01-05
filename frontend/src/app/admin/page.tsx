@@ -14,6 +14,8 @@ import DatabaseSetupExcel from '@/app/admin/database-setup-excel'
 import AcademicYearExport from '@/app/admin/academic-year-export'
 import DatabaseDump from '@/app/admin/database-dump'
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
+
 export default function AdminDashboard() {
   const { user } = useAuth()
   const [activeTab, setActiveTab] = useState('users')
@@ -162,7 +164,6 @@ function ConnectionStatus() {
   const checkBackendConnection = async () => {
     setBackendStatus('checking')
     try {
-      const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
       console.log('ConnectionStatus: Checking backend at:', API_BASE_URL)
 
       const response = await fetch(`${API_BASE_URL}/api/health`, {

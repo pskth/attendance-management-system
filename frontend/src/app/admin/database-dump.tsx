@@ -7,6 +7,8 @@ import { Database, Download, Upload, AlertTriangle, CheckCircle, AlertCircle, In
 import axios from 'axios'
 import { authService } from '@/lib/auth'
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
+
 interface StatusMessage {
     type: 'success' | 'error' | 'info' | 'warning';
     message: string;
@@ -37,7 +39,7 @@ export default function DatabaseDump() {
                 return
             }
 
-            const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/admin/dump-info`, {
+            const response = await axios.get(`${API_BASE_URL}/api/admin/dump-info`, {
                 headers: { Authorization: `Bearer ${token}` }
             })
             setDumpAvailable(response.data.available)
@@ -70,7 +72,7 @@ export default function DatabaseDump() {
 
         try {
             const token = authService.getToken()
-            const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/admin/export-dump`, {
+            const response = await axios.get(`${API_BASE_URL}/api/admin/export-dump`, {
                 headers: { Authorization: `Bearer ${token}` },
                 responseType: 'blob'
             })
