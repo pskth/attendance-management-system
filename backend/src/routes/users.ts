@@ -1,7 +1,7 @@
 // src/routes/users.ts
 import { Router } from 'express';
 import Database from '../lib/database';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 
 import { autoEnrollFirstYearStudent, autoEnrollStudentBySemester, autoEnrollStudentForSemester } from '../services/autoEnrollmentService';
 
