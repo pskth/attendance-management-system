@@ -145,7 +145,8 @@ async function verifyAdminPreservation() {
       "  ✓ PRESERVE admin users, their roles, and admin table entries"
     );
     console.log("\nTo proceed, make the following API call:");
-    console.log("\n  POST http://localhost:4000/api/admin/clear-database");
+    const apiUrl = process.env.API_URL || 'http://localhost:4000';
+    console.log(`\n  POST ${apiUrl}/api/admin/clear-database`);
     console.log('  Headers: { Authorization: "Bearer <your-token>" }');
     console.log('  Body: { "confirmation": "DELETE_ALL_DATA" }');
     console.log(
