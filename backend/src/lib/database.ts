@@ -8,6 +8,7 @@ class DatabaseService {
   public static getInstance(): PrismaClient {
     if (!DatabaseService.instance) {
       DatabaseService.instance = new PrismaClient({
+        datasourceUrl: process.env.DATABASE_URL,
         log: ['query', 'info', 'warn', 'error'],
         errorFormat: 'pretty',
       });

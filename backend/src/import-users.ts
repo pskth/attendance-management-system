@@ -3,7 +3,9 @@ import fs from 'fs';
 import csv from 'csv-parser';
 import path from 'path';
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient({
+  datasourceUrl: process.env.DATABASE_URL,
+});
 
 interface UserRow {
   username: string;
