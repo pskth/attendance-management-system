@@ -135,7 +135,8 @@ if (studentRoutes){
 }
 if (teacherRoutes) {
 	app.use('/api/teacher', teacherRoutes);
-	console.log('=== Teacher routes registered ===');
+	app.use('/teacher', teacherRoutes); // alias to support clients that omit /api prefix
+	console.log('=== Teacher routes registered (with /api and /teacher aliases) ===');
 }
 
 // Health check endpoint (legacy - also available at /api/db/health)
