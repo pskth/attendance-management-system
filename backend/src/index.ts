@@ -32,10 +32,10 @@ try {
 }
 let studentRoutes;
 try {
-  studentRoutes = require('./routes/student').default;
-  console.log('=== Student routes imported successfully ===');
+	studentRoutes = require('./routes/student').default;
+	console.log('=== Student routes imported successfully ===');
 } catch (error) {
-  console.error('=== Error importing student routes ===', error);
+	console.error('=== Error importing student routes ===', error);
 }
 console.log('=== About to import teacher routes ===');
 let teacherRoutes;
@@ -55,7 +55,11 @@ const app = express();
 console.log('=== INDEX.TS LOADED ===');
 
 app.use(cors({
-	origin: ['https://attendance-management-system-1-5bbv.onrender.com'],
+	origin: [
+		'https://attendance-management-system-1-5bbv.onrender.com',
+		'http://localhost:3000',
+		'http://localhost:3001'
+	],
 	credentials: true,
 	methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
 	allowedHeaders: ['Content-Type', 'Authorization']
@@ -129,9 +133,9 @@ if (adminRoutes) {
 	app.use('/api/admin', adminRoutes);
 	console.log('=== Admin routes registered ===');
 }
-if (studentRoutes){
-  app.use('/api/student', studentRoutes);
-  console.log('=== Student routes registered ===');
+if (studentRoutes) {
+	app.use('/api/student', studentRoutes);
+	console.log('=== Student routes registered ===');
 }
 if (teacherRoutes) {
 	app.use('/api/teacher', teacherRoutes);
