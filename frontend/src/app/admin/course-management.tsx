@@ -20,7 +20,7 @@ import {
 
 } from 'lucide-react'
 import { adminApi } from '@/lib/api'
-import Cookies from 'js-cookie'
+import Cookies from '@/lib/cookies'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
 
@@ -753,7 +753,7 @@ export default function CourseManagement({ onNavigateToUsers, initialFilters }: 
       formData.append('semester', enrollmentSemester)
 
       // Get auth token from cookies (consistent with API client)
-      const token = Cookies.get('auth_token')
+      const token = typeof window !== 'undefined' ? Cookies.get('auth_token') : null
 
       const response = await fetch(`${API_BASE_URL}/api/courses/${selectedCourse.id}/students/upload`, {
         method: 'POST',

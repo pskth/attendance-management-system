@@ -30,8 +30,16 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
+    // Mark as mounted to avoid hydration mismatch
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isMounted) return;
+
     const initializeAuth = async () => {
       try {
         const currentUser = authService.getUser();
@@ -71,7 +79,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }, 20 * 60 * 60 * 1000); // 20 hours
 
     return () => clearInterval(refreshInterval);
-  }, []);
+  }, [isMounted]);
 
   const login = async (username: string, password: string, role?: string): Promise<AuthResponse> => {
     setLoading(true);

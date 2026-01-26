@@ -1,18 +1,18 @@
 // API functions for student attendance system
-import { StudentInfo ,StudentMarksResponse, AttendanceReport } from '@/types/student';
-import { 
-  DailyAttendance, 
-  CourseAttendanceStats, 
+import { StudentInfo, StudentMarksResponse, AttendanceReport } from '@/types/student';
+import {
+  DailyAttendance,
+  CourseAttendanceStats,
 
-  MonthlyAttendanceData 
+  MonthlyAttendanceData
 } from './types'
 
-import { 
-  CourseEnrollmentData, 
-  EnrollmentResult, 
-  CourseEnrollment 
+import {
+  CourseEnrollmentData,
+  EnrollmentResult,
+  CourseEnrollment
 } from '@/types/admin'
-import Cookies from 'js-cookie'
+import Cookies from './cookies'
 
 // Base API URL - should be configured from environment
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
@@ -23,8 +23,8 @@ async function apiRequest<T>(endpoint: string, options?: RequestInit): Promise<T
 
   console.log('Making API request to:', url);
 
-  // Get auth token from cookies
-  const token = Cookies.get('auth_token')
+  // Get auth token from cookies (only on client side)
+  const token = typeof window !== 'undefined' ? Cookies.get('auth_token') : null
 
   const response = await fetch(url, {
     headers: {
@@ -77,7 +77,7 @@ async function apiRequest<T>(endpoint: string, options?: RequestInit): Promise<T
 export const studentApi = {
   // Get student profile information
   async getStudentProfile(UserId: string): Promise<StudentInfo> {
-    console.log(`/api/student/students/${UserId}`  )
+    console.log(`/api/student/students/${UserId}`)
     return apiRequest<StudentInfo>(`/api/student/students/${UserId}`)
   },
 
@@ -91,12 +91,12 @@ export const studentApi = {
   // Get attendance for a specific date
   async getAttendanceByDate(studentId: string, date: string): Promise<DailyAttendance[]> {
     return apiRequest<DailyAttendance[]>(`/api/students/${studentId}/attendance/daily?date=${date}`)
-  },    
+  },
 
   // Get monthly attendance data for calendar
   async getMonthlyAttendance(
-    userId: string, 
-    year: number, 
+    userId: string,
+    year: number,
     month: number
   ): Promise<MonthlyAttendanceData> {
     return apiRequest<MonthlyAttendanceData>(
@@ -111,13 +111,13 @@ export const studentApi = {
   // },
 
   // Get student marks
-async getStudentMarks(userId: string): Promise<StudentMarksResponse> {
-  return apiRequest<StudentMarksResponse>(`/api/student/${userId}/marks`);
-},
+  async getStudentMarks(userId: string): Promise<StudentMarksResponse> {
+    return apiRequest<StudentMarksResponse>(`/api/student/${userId}/marks`);
+  },
 
   // Get all stats at once
   async getAllStats(userId: string): Promise<AttendanceReport> {
-    
+
     return apiRequest<AttendanceReport>(`/api/student/${userId}/stats`)
   },
 
@@ -139,12 +139,12 @@ async getStudentMarks(userId: string): Promise<StudentMarksResponse> {
   //   return apiRequest<Array<{ period: string; percentage: number }>>(
   //     `/api/students/${studentId}/attendance/trend?${params.toString()}`
   //   )
-//   },  // Get student's enrolled courses
-//   async getEnrolledCourses(studentId: string, academicYear?: string): Promise<any[]> {
-//     const params = academicYear ? `?academic_year=${academicYear}` : ''
-//     return apiRequest<any[]>(`/api/students/${studentId}/courses${params}`)
-//   }
-// }
+  //   },  // Get student's enrolled courses
+  //   async getEnrolledCourses(studentId: string, academicYear?: string): Promise<any[]> {
+  //     const params = academicYear ? `?academic_year=${academicYear}` : ''
+  //     return apiRequest<any[]>(`/api/students/${studentId}/courses${params}`)
+  //   }
+  // }
 };
 
 // Admin API functions
@@ -152,24 +152,24 @@ export const adminApi = {
 
   //for imports
   async getImportStatus() {
-  return apiRequest<any>('/api/admin/import-status')
-},
-// Import management
-async importTable(stepId: string, file: File): Promise<any> {
-  const formData = new FormData()
-  formData.append("file", file)
+    return apiRequest<any>('/api/admin/import-status')
+  },
+  // Import management
+  async importTable(stepId: string, file: File): Promise<any> {
+    const formData = new FormData()
+    formData.append("file", file)
 
-  return apiRequest<any>(`/api/admin/import/${stepId}`, {
-    method: "POST",
-    body: formData
-  })
-},
+    return apiRequest<any>(`/api/admin/import/${stepId}`, {
+      method: "POST",
+      body: formData
+    })
+  },
 
-async clearDatabase(): Promise<any> {
-  return apiRequest<any>('/api/admin/clear-database', {
-    method: "POST"
-  })
-},
+  async clearDatabase(): Promise<any> {
+    return apiRequest<any>('/api/admin/clear-database', {
+      method: "POST"
+    })
+  },
 
   // User management
   async getAllUsers(): Promise<any> {
@@ -485,7 +485,7 @@ async clearDatabase(): Promise<any> {
   // Course Enrollment Management
   async getEligibleStudents(courseId: string, year: string, semester: string): Promise<{ status: string; data: CourseEnrollmentData }> {
     const params = new URLSearchParams()
-    params.append('courseId',courseId)
+    params.append('courseId', courseId)
     params.append('year', year)
     params.append('semester', semester)
 

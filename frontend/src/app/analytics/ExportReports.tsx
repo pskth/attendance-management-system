@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Download, FileText, FileSpreadsheet, Printer, Loader2 } from "lucide-react";
-import Cookies from 'js-cookie';
+import Cookies from '@/lib/cookies';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
@@ -39,7 +39,7 @@ export default function ExportReports({ filters }: ExportReportsProps) {
 
   const getAuthToken = () => {
     // Get token from cookie (matches the API client implementation)
-    return Cookies.get('auth_token');
+    return typeof window !== 'undefined' ? Cookies.get('auth_token') : null;
   };
 
   const handleExport = async (format: 'json' | 'csv') => {

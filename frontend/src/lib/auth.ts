@@ -1,5 +1,5 @@
 // lib/auth.ts
-import Cookies from 'js-cookie';
+import Cookies from './cookies';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
@@ -48,6 +48,8 @@ class AuthService {
   }
 
   private loadFromStorage() {
+    if (typeof window === 'undefined') return;
+
     const token = Cookies.get('auth_token');
     const userData = Cookies.get('user_data');
 
@@ -63,12 +65,14 @@ class AuthService {
   }
 
   private saveToStorage(user: User, token: string) {
-    Cookies.set('auth_token', token, { 
+    if (typeof window === 'undefined') return;
+
+    Cookies.set('auth_token', token, {
       expires: 1, // 1 day
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict'
     });
-    Cookies.set('user_data', JSON.stringify(user), { 
+    Cookies.set('user_data', JSON.stringify(user), {
       expires: 1,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict'
@@ -78,8 +82,10 @@ class AuthService {
   }
 
   private clearAuth() {
-    Cookies.remove('auth_token');
-    Cookies.remove('user_data');
+    if (typeof window !== 'undefined') {
+      Cookies.remove('auth_token');
+      Cookies.remove('user_data');
+    }
     this.token = null;
     this.user = null;
   }
@@ -150,7 +156,7 @@ class AuthService {
       if (response.ok) {
         const data = await response.json();
         if (data.status === 'success' && data.data?.token) {
-          Cookies.set('auth_token', data.data.token, { 
+          Cookies.set('auth_token', data.data.token, {
             expires: 1,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'strict'
@@ -159,7 +165,7 @@ class AuthService {
           return true;
         }
       }
-      
+
       this.clearAuth();
       return false;
     } catch (error) {
@@ -220,7 +226,7 @@ class AuthService {
             primaryRole: this.user?.primaryRole || data.data.roles[0]
           };
           this.user = updatedUser;
-          Cookies.set('user_data', JSON.stringify(updatedUser), { 
+          Cookies.set('user_data', JSON.stringify(updatedUser), {
             expires: 1,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'strict'

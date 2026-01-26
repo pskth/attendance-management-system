@@ -44,7 +44,10 @@ export default function StudentDashboard() {
   const [loading, setLoading] = useState(true);
   const [marksData, setMarksData] = useState<MarksDataItem[]>([]);
   const [marksLoading, setMarksLoading] = useState(true);
+  
   useEffect(() => {
+    // Only run on client side
+    if (typeof window === 'undefined') return;
 
     const match = document.cookie.match(/(^| )user_data=([^;]+)/);
     if (match) {

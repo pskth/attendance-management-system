@@ -1,13 +1,13 @@
 // lib/teacher-api.ts
-import Cookies from 'js-cookie';
+import Cookies from '../lib/cookies';
 
 // Ensure the base URL always includes the `/api` prefix (no trailing slash)
 const envUrl = process.env.NEXT_PUBLIC_API_URL ? process.env.NEXT_PUBLIC_API_URL.replace(/\/$/, '') : '';
 const API_BASE_URL = envUrl ? `${envUrl}/api` : 'http://localhost:4000/api';
- 
+
 // Utility function to get auth headers
 function getAuthHeaders() {
-    const token = Cookies.get('auth_token');
+    const token = typeof window !== 'undefined' ? Cookies.get('auth_token') : null;
     return {
         'Content-Type': 'application/json',
         ...(token && { 'Authorization': `Bearer ${token}` })
