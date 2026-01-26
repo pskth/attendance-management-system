@@ -57,7 +57,7 @@ dotenv_1.default.config();
 const app = (0, express_1.default)();
 console.log('=== INDEX.TS LOADED ===');
 app.use((0, cors_1.default)({
-    origin: ['http://localhost:3000', 'http://localhost:3001'],
+    origin: ['https://attendance-management-system-1-5bbv.onrender.com'],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
@@ -131,7 +131,8 @@ if (studentRoutes) {
 }
 if (teacherRoutes) {
     app.use('/api/teacher', teacherRoutes);
-    console.log('=== Teacher routes registered ===');
+    app.use('/teacher', teacherRoutes); // alias to support clients that omit /api prefix
+    console.log('=== Teacher routes registered (with /api and /teacher aliases) ===');
 }
 // Health check endpoint (legacy - also available at /api/db/health)
 app.get('/health', async (req, res) => {

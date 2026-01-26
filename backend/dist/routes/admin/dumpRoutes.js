@@ -74,24 +74,6 @@ const upload = (0, multer_1.default)({
     }
 });
 /**
- * Parse DATABASE_URL to extract connection parameters
- */
-function parseDatabaseUrl(databaseUrl) {
-    // Format: postgresql://user:password@host:port/database
-    const regex = /postgresql:\/\/([^:]+):([^@]+)@([^:]+):(\d+)\/([^?]+)/;
-    const match = databaseUrl.match(regex);
-    if (!match) {
-        throw new Error('Invalid DATABASE_URL format');
-    }
-    return {
-        user: match[1],
-        password: match[2],
-        host: match[3],
-        port: match[4],
-        database: match[5]
-    };
-}
-/**
  * GET /api/admin/export-dump
  * Export PostgreSQL database dump
  */
@@ -109,12 +91,6 @@ router.get('/export-dump', async (req, res) => {
             });
         }
         console.log('✓ DATABASE_URL found');
-        const dbParams = parseDatabaseUrl(databaseUrl);
-        console.log('✓ Database parameters parsed');
-        console.log(`  Host: ${dbParams.host}`);
-        console.log(`  Port: ${dbParams.port}`);
-        console.log(`  Database: ${dbParams.database}`);
-        console.log(`  User: ${dbParams.user}`);
         const timestamp = Date.now();
         const dumpFileName = `attendance-db-dump-${timestamp}.sql`;
         const dumpDir = path.join(__dirname, '../../../dumps');
@@ -129,13 +105,11 @@ router.get('/export-dump', async (req, res) => {
         else {
             console.log('✓ Dumps directory exists');
         }
-        // Set PGPASSWORD environment variable for pg_dump
-        const env = { ...process.env, PGPASSWORD: dbParams.password };
-        // Execute pg_dump command
-        const command = `pg_dump -h ${dbParams.host} -p ${dbParams.port} -U ${dbParams.user} -d ${dbParams.database} -F p -f "${dumpPath}"`;
+        // Execute pg_dump command using connection string directly
+        const command = `pg_dump "${databaseUrl}" -F p -f "${dumpPath}"`;
         console.log('Executing pg_dump command...');
-        console.log(`Command: pg_dump -h ${dbParams.host} -p ${dbParams.port} -U ${dbParams.user} -d ${dbParams.database} -F p -f "<dumpPath>"`);
-        await execAsync(command, { env, maxBuffer: 50 * 1024 * 1024 }); // 50MB buffer
+        console.log(`Command: pg_dump "<DATABASE_URL>" -F p -f "${dumpPath}"`);
+        await execAsync(command, { maxBuffer: 50 * 1024 * 1024 }); // 50MB buffer
         console.log('✓ pg_dump completed');
         // Check if file was created
         if (!fs.existsSync(dumpPath)) {
@@ -213,15 +187,11 @@ router.post('/import-dump', upload.single('dumpFile'), async (req, res) => {
                 error: 'DATABASE_URL not configured'
             });
         }
-        const dbParams = parseDatabaseUrl(databaseUrl);
         const dumpPath = req.file.path;
         console.log('Importing database dump:', req.file.originalname);
-        // Set PGPASSWORD environment variable for psql
-        const env = { ...process.env, PGPASSWORD: dbParams.password };
-        // Execute psql command to restore database
-        const command = `psql -h ${dbParams.host} -p ${dbParams.port} -U ${dbParams.user} -d ${dbParams.database} -f "${dumpPath}"`;
+        // Execute psql command to restore database using connection string
+        const command = `psql "${databaseUrl}" -f "${dumpPath}"`;
         const { stdout, stderr } = await execAsync(command, {
-            env,
             maxBuffer: 50 * 1024 * 1024 // 50MB buffer
         });
         // Clean up uploaded file

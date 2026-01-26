@@ -7,7 +7,9 @@ const prisma_1 = require("../generated/prisma");
 const fs_1 = __importDefault(require("fs"));
 const csv_parser_1 = __importDefault(require("csv-parser"));
 const path_1 = __importDefault(require("path"));
-const prisma = new prisma_1.PrismaClient();
+const prisma = new prisma_1.PrismaClient({
+    datasourceUrl: process.env.DATABASE_URL,
+});
 async function importUsers() {
     console.log('🚀 Starting user import...');
     try {

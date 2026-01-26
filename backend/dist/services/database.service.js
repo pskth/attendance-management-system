@@ -5,6 +5,7 @@ class DatabaseService {
     constructor() {
         this.connected = false;
         this.prisma = new prisma_1.PrismaClient({
+            datasourceUrl: process.env.DATABASE_URL,
             log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
         });
     }
