@@ -1,7 +1,9 @@
 // lib/teacher-api.ts
 import Cookies from 'js-cookie';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
+// Ensure the base URL always includes the `/api` prefix (no trailing slash)
+const envUrl = process.env.NEXT_PUBLIC_API_URL ? process.env.NEXT_PUBLIC_API_URL.replace(/\/$/, '') : '';
+const API_BASE_URL = envUrl ? `${envUrl}/api` : 'http://localhost:4000/api';
 
 // Utility function to get auth headers
 function getAuthHeaders() {
@@ -290,7 +292,7 @@ export class TeacherAPI {
 
     // Get teacher's courses
     static async getCourses(): Promise<CourseOffering[]> {
-        const response = await fetch(`${API_BASE_URL}/api/teacher/courses`, {
+        const response = await fetch(`${API_BASE_URL}/teacher/courses`, {
             method: 'GET',
             headers: getAuthHeaders(),
         });
@@ -310,7 +312,7 @@ export class TeacherAPI {
 
     // Get students for a specific course offering
     static async getCourseStudents(offeringId: string): Promise<Student[]> {
-        const response = await fetch(`${API_BASE_URL}/api/teacher/courses/${offeringId}/students`, {
+        const response = await fetch(`${API_BASE_URL}/teacher/courses/${offeringId}/students`, {
             method: 'GET',
             headers: getAuthHeaders(),
         });
@@ -356,7 +358,7 @@ export class TeacherAPI {
 
     // Get attendance history for a course
     static async getAttendanceHistory(offeringId: string, limit: number = 10): Promise<AttendanceHistory[]> {
-        const response = await fetch(`${API_BASE_URL}/api/teacher/courses/${offeringId}/attendance-history?limit=${limit}`, {
+        const response = await fetch(`${API_BASE_URL}/teacher/courses/${offeringId}/attendance-history?limit=${limit}`, {
             method: 'GET',
             headers: getAuthHeaders(),
         });
@@ -376,7 +378,7 @@ export class TeacherAPI {
 
     // Get student attendance analytics for a course
     static async getAttendanceAnalytics(offeringId: string): Promise<StudentAttendanceAnalytics[]> {
-        const response = await fetch(`${API_BASE_URL}/api/teacher/courses/${offeringId}/attendance-analytics`, {
+        const response = await fetch(`${API_BASE_URL}/teacher/courses/${offeringId}/attendance-analytics`, {
             method: 'GET',
             headers: getAuthHeaders(),
         });
@@ -427,7 +429,7 @@ export class TeacherAPI {
         overallAttendancePercentage: number;
     }> {
         try {
-            const response = await fetch(`${API_BASE_URL}/api/teacher/courses/${offeringId}/statistics`, {
+            const response = await fetch(`${API_BASE_URL}/teacher/courses/${offeringId}/statistics`, {
                 method: 'GET',
                 headers: getAuthHeaders(),
             });
