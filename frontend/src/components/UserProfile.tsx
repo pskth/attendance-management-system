@@ -100,7 +100,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({ compact = false }) => 
   };
 
   return (
-    <div ref={profileRef} className={compact ? "w-12 relative" : "w-full max-w-sm"}>
+    <div ref={profileRef} className={compact ? "relative w-12" : "relative w-full max-w-sm"}>
       {/* Compact Profile Button */}
       <Button
         variant="ghost"
@@ -146,7 +146,11 @@ export const UserProfile: React.FC<UserProfileProps> = ({ compact = false }) => 
 
       {/* Expanded Details */}
       {isExpanded && (
-        <Card className={`mt-2 border shadow-lg ${compact ? 'absolute top-14 left-0 z-50 w-80' : ''}`}>
+        <Card
+          className={`mt-2 border shadow-lg ${compact
+            ? 'absolute top-14 right-0 z-50 w-80'
+            : 'absolute right-0 top-[calc(100%+0.5rem)] z-50 w-80'}`}
+        >
           <CardContent className="p-4 space-y-3">
             {/* Compact mode: Show basic info at top */}
             {compact && (
