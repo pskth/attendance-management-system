@@ -1792,6 +1792,7 @@ export default function CourseManagement({ onNavigateToUsers, initialFilters }: 
                               onChange={(e) => {
                                 if (e.target.checked) {
                                   setSelectedStudents(eligibleStudents.map(s => s.id))
+                                  setSelectedSection('') // Clear section when students are selected
                                 } else {
                                   setSelectedStudents([])
                                 }
@@ -1811,6 +1812,7 @@ export default function CourseManagement({ onNavigateToUsers, initialFilters }: 
                                 onChange={(e) => {
                                   if (e.target.checked) {
                                     setSelectedStudents(prev => [...prev, student.id])
+                                    setSelectedSection('') // Clear section when students are selected
                                   } else {
                                     setSelectedStudents(prev => prev.filter(id => id !== student.id))
                                   }
@@ -1833,12 +1835,13 @@ export default function CourseManagement({ onNavigateToUsers, initialFilters }: 
 
                   {/* Teacher Selection */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-900 mb-1">Assign Teacher (Optional)</label>
+                    <label className="block text-sm font-medium text-gray-900 mb-1">Assign Teacher <span className="text-red-500">*</span></label>
                     <select
                       className="w-full px-3 py-2 border rounded-md bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
                       value={selectedTeacher}
                       onChange={(e) => setSelectedTeacher(e.target.value)}
                       title="Select Teacher"
+                      required
                     >
                       <option value="">Select Teacher</option>
                       {teachers.map(teacher => (
@@ -1868,6 +1871,9 @@ export default function CourseManagement({ onNavigateToUsers, initialFilters }: 
                     {sections.length === 0 && (
                       <p className="text-xs text-gray-500 mt-1">No sections available</p>
                     )}
+                    <p className="text-xs text-gray-500 mt-1">
+                      Select a section to enroll all students from that section, or manually select individual students
+                    </p>
                   </div>
 
                   {/* Action Buttons */}
@@ -1875,7 +1881,7 @@ export default function CourseManagement({ onNavigateToUsers, initialFilters }: 
                     <Button
                       type="submit"
                       className="flex-1"
-                      disabled={enrollmentLoading || (selectedCourse.type !== 'core' && selectedStudents.length === 0 && !selectedTeacher && !selectedSection)}
+                      disabled={enrollmentLoading || !selectedTeacher || (selectedStudents.length === 0 && !selectedSection)}
                     >
                       {enrollmentLoading ? 'Saving...' : 'Save'}
                     </Button>
