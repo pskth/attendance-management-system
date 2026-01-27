@@ -10,6 +10,13 @@ const execAsync = promisify(exec);
 const router = Router();
 const prisma = DatabaseService.getInstance().getPrisma();
 
+// Helper function to sanitize error messages containing database URLs
+const sanitizeError = (error: any): string => {
+    const message = error?.message || error?.toString() || 'Unknown error';
+    // Remove database credentials from error messages
+    return message.replace(/postgresql:\/\/[^@\s]+@[^\s"']+/g, 'postgresql://***:***@***/***');
+};
+
 // Configure multer for SQL file uploads
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -59,6 +66,10 @@ router.get('/export-dump', async (req: Request, res: Response) => {
 
         console.log('✓ DATABASE_URL found');
 
+        // Remove schema query parameter (Prisma-specific, not supported by pg_dump)
+        const cleanDatabaseUrl = databaseUrl.split('?')[0];
+        console.log('✓ DATABASE_URL cleaned for pg_dump');
+
         const timestamp = Date.now();
         const dumpFileName = `attendance-db-dump-${timestamp}.sql`;
         const dumpDir = path.join(__dirname, '../../../dumps');
@@ -76,7 +87,7 @@ router.get('/export-dump', async (req: Request, res: Response) => {
         }
 
         // Execute pg_dump command using connection string directly
-        const command = `pg_dump "${databaseUrl}" -F p -f "${dumpPath}"`;
+        const command = `pg_dump "${cleanDatabaseUrl}" -F p -f "${dumpPath}"`;
 
         console.log('Executing pg_dump command...');
         console.log(`Command: pg_dump "<DATABASE_URL>" -F p -f "${dumpPath}"`);
@@ -134,14 +145,13 @@ router.get('/export-dump', async (req: Request, res: Response) => {
         });
 
     } catch (error: any) {
-        console.error('❌ Export dump error:', error);
-        console.error('   Error message:', error.message);
-        console.error('   Error stack:', error.stack);
+        const sanitizedError = sanitizeError(error);
+        console.error('❌ Export dump error:', sanitizedError);
         console.log('='.repeat(70) + '\n');
         if (!res.headersSent) {
             res.status(500).json({
                 success: false,
-                error: error.message || 'Failed to export database dump'
+                error: sanitizedError
             });
         }
     }
@@ -168,12 +178,15 @@ router.post('/import-dump', upload.single('dumpFile'), async (req: Request, res:
             });
         }
 
+        // Remove schema query parameter (Prisma-specific, not supported by psql)
+        const cleanDatabaseUrl = databaseUrl.split('?')[0];
+
         const dumpPath = req.file.path;
 
         console.log('Importing database dump:', req.file.originalname);
 
         // Execute psql command to restore database using connection string
-        const command = `psql "${databaseUrl}" -f "${dumpPath}"`;
+        const command = `psql "${cleanDatabaseUrl}" -f "${dumpPath}"`;
 
         const { stdout, stderr } = await execAsync(command, {
             maxBuffer: 50 * 1024 * 1024 // 50MB buffer
@@ -200,10 +213,11 @@ router.post('/import-dump', upload.single('dumpFile'), async (req: Request, res:
             fs.unlinkSync(req.file.path);
         }
 
-        console.error('Import dump error:', error);
+        const sanitizedError = sanitizeError(error);
+        console.error('Import dump error:', sanitizedError);
         res.status(500).json({
             success: false,
-            error: error.message || 'Failed to import database dump'
+            error: sanitizedError
         });
     }
 });
@@ -409,10 +423,11 @@ router.post('/clear-database', async (req: Request, res: Response) => {
         });
 
     } catch (error: any) {
-        console.error('Clear database error:', error);
+        const sanitizedError = sanitizeError(error);
+        console.error('Clear database error:', sanitizedError);
         res.status(500).json({
             success: false,
-            error: error.message || 'Failed to clear database'
+            error: sanitizedError
         });
     }
 });

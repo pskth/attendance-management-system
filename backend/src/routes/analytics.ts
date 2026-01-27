@@ -233,10 +233,15 @@ router.get('/attendance/:studyYear?', authenticateToken, async (req: Authenticat
       // Collect all offerings from all sections
       const allOfferings = dept.sections.flatMap(section => section.course_offerings);
 
+      // Deduplicate offerings by offering ID (same offering might appear under multiple sections)
+      const uniqueOfferings = Array.from(
+        new Map(allOfferings.map(offering => [offering.id, offering])).values()
+      );
+
       // Group offerings by course code
       const courseMap = new Map();
 
-      for (const offering of allOfferings) {
+      for (const offering of uniqueOfferings) {
         const courseKey = offering.course.code;
 
         if (!courseMap.has(courseKey)) {
@@ -264,11 +269,22 @@ router.get('/attendance/:studyYear?', authenticateToken, async (req: Authenticat
         deptTotalRecords += courseTotalRecords;
         deptPresentRecords += coursePresentRecords;
 
-        // Get students for this section offering
-        const students = await Promise.all(offering.enrollments.map(async enrollment => {
+        // Get students for this offering with their section info
+        const studentsWithSections = await Promise.all(offering.enrollments.map(async enrollment => {
           if (!enrollment.student) return null;
 
           departmentUniqueStudentIds.add(enrollment.student.id);
+
+          // Fetch student with section info
+          const studentWithSection = await prisma.student.findUnique({
+            where: { id: enrollment.student.id },
+            include: {
+              user: true,
+              sections: true
+            }
+          });
+
+          if (!studentWithSection) return null;
 
           // Calculate individual student attendance for this course
           const studentAttendanceRecords = await prisma.attendanceRecord.findMany({
@@ -285,21 +301,50 @@ router.get('/attendance/:studyYear?', authenticateToken, async (req: Authenticat
           const studentAttendancePercent = studentTotalCount > 0 ? (studentPresentCount / studentTotalCount) * 100 : 0;
 
           return {
-            id: enrollment.student.id,
-            name: enrollment.student.user?.name,
-            usn: enrollment.student.usn,
-            semester: enrollment.student.semester,
+            id: studentWithSection.id,
+            name: studentWithSection.user?.name,
+            usn: studentWithSection.usn,
+            semester: studentWithSection.semester,
+            sectionName: studentWithSection.sections?.section_name || offering.sections?.section_name || 'N/A',
             attendancePercent: parseFloat(studentAttendancePercent.toFixed(1))
           };
         })).then(results => results.filter(student => student !== null));
 
-        // Add section data to the course
-        courseMap.get(courseKey).sections.push({
-          section: offering.sections?.section_name || 'N/A',
-          attendance: parseFloat(courseAttendance.toFixed(1)),
-          students: students.length,
-          enrolledStudents: students
-        });
+        // Group students by their section
+        const studentsBySection = studentsWithSections.reduce((acc: any, student: any) => {
+          const sectionName = student.sectionName;
+          if (!acc[sectionName]) {
+            acc[sectionName] = [];
+          }
+          acc[sectionName].push(student);
+          return acc;
+        }, {});
+
+        // Add section data to the course (one entry per section with students)
+        for (const [sectionName, sectionStudents] of Object.entries(studentsBySection)) {
+          const students = sectionStudents as any[];
+
+          // Calculate attendance for this specific section
+          const sectionAttendanceRecords = await prisma.attendanceRecord.findMany({
+            where: {
+              studentId: { in: students.map((s: any) => s.id) },
+              attendance: {
+                offeringId: offering.id
+              }
+            }
+          });
+
+          const sectionPresentCount = sectionAttendanceRecords.filter(record => record.status === 'present').length;
+          const sectionTotalCount = sectionAttendanceRecords.length;
+          const sectionAttendance = sectionTotalCount > 0 ? (sectionPresentCount / sectionTotalCount) * 100 : 0;
+
+          courseMap.get(courseKey).sections.push({
+            section: sectionName,
+            attendance: parseFloat(sectionAttendance.toFixed(1)),
+            students: students.length,
+            enrolledStudents: students
+          });
+        }
       }
 
       // Convert courseMap to array

@@ -211,11 +211,19 @@ router.post('/courses/:courseId/enroll-students', async (req, res) => {
     try {
         const { courseId } = req.params;
         const { studentIds, year, semester, teacherId, sectionId } = req.body;
-        // Only error if both studentIds is empty and no teacherId/sectionId is provided
-        if ((!studentIds || !Array.isArray(studentIds) || studentIds.length === 0) && !teacherId && !sectionId) {
+        // Validate required fields
+        if (!teacherId) {
             res.status(400).json({
                 status: 'error',
-                error: 'At least one student, teacher assignment, or section assignment is required'
+                error: 'Teacher assignment is mandatory'
+            });
+            return;
+        }
+        // Either students or section must be provided
+        if ((!studentIds || !Array.isArray(studentIds) || studentIds.length === 0) && !sectionId) {
+            res.status(400).json({
+                status: 'error',
+                error: 'Either select students or a section'
             });
             return;
         }
@@ -287,20 +295,24 @@ router.post('/courses/:courseId/enroll-students', async (req, res) => {
                     semester: parseInt(semester),
                     year_id: academicYear.year_id,
                     teacherId: resolvedTeacherId || null,
+                    // Only set section_id if explicitly provided AND students don't already have sections
                     section_id: sectionId || null
                 }
             });
         }
         else {
-            // Update teacher and/or section if provided and different
+            // Update teacher if provided and different
+            // Only update section_id if explicitly provided
             const needsUpdate = (resolvedTeacherId && courseOffering.teacherId !== resolvedTeacherId) ||
                 (sectionId && courseOffering.section_id !== sectionId);
             if (needsUpdate) {
                 const updateData = {};
                 if (resolvedTeacherId)
                     updateData.teacherId = resolvedTeacherId;
-                if (sectionId)
+                // Only update section if explicitly changing it
+                if (sectionId && courseOffering.section_id !== sectionId) {
                     updateData.section_id = sectionId;
+                }
                 courseOffering = await prisma.courseOffering.update({
                     where: { id: courseOffering.id },
                     data: updateData
@@ -311,7 +323,50 @@ router.post('/courses/:courseId/enroll-students', async (req, res) => {
         let enrolledCount = 0;
         let alreadyEnrolledCount = 0;
         let errorCount = 0;
-        if (studentIds && Array.isArray(studentIds) && studentIds.length > 0) {
+        // If section is provided, enroll all students from that section
+        if (sectionId && (!studentIds || studentIds.length === 0)) {
+            const studentsInSection = await prisma.student.findMany({
+                where: {
+                    section_id: sectionId,
+                    semester: parseInt(semester)
+                }
+            });
+            // Create enrollments for all students in the section
+            const enrollmentPromises = studentsInSection.map(async (student) => {
+                try {
+                    const existingEnrollment = await prisma.studentEnrollment.findFirst({
+                        where: {
+                            studentId: student.id,
+                            offeringId: courseOffering.id
+                        }
+                    });
+                    if (existingEnrollment) {
+                        alreadyEnrolledCount++;
+                        return { studentId: student.id, status: 'already_enrolled' };
+                    }
+                    await prisma.studentEnrollment.create({
+                        data: {
+                            studentId: student.id,
+                            offeringId: courseOffering.id,
+                            year_id: academicYear.year_id,
+                            attemptNumber: 1
+                        }
+                    });
+                    enrolledCount++;
+                    return { studentId: student.id, status: 'enrolled' };
+                }
+                catch (error) {
+                    errorCount++;
+                    return {
+                        studentId: student.id,
+                        status: 'error',
+                        error: error instanceof Error ? error.message : 'Unknown error'
+                    };
+                }
+            });
+            results = await Promise.all(enrollmentPromises);
+        }
+        else if (studentIds && Array.isArray(studentIds) && studentIds.length > 0) {
             // Create enrollments if students are provided
             const enrollmentPromises = studentIds.map(async (studentId) => {
                 try {
@@ -323,6 +378,7 @@ router.post('/courses/:courseId/enroll-students', async (req, res) => {
                         }
                     });
                     if (existingEnrollment) {
+                        alreadyEnrolledCount++;
                         return { studentId, status: 'already_enrolled' };
                     }
                     // Create new enrollment

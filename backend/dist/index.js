@@ -57,7 +57,11 @@ dotenv_1.default.config();
 const app = (0, express_1.default)();
 console.log('=== INDEX.TS LOADED ===');
 app.use((0, cors_1.default)({
-    origin: ['https://attendance-management-system-1-5bbv.onrender.com'],
+    origin: [
+        'https://attendance-management-system-1-5bbv.onrender.com',
+        'http://localhost:3000',
+        'http://localhost:3001'
+    ],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']

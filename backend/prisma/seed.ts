@@ -330,10 +330,10 @@ async function seed() {
                     }
                 }
             });
-            console.log('✓ Admin user created');
+            console.log('Admin user created');
         } else {
             admin = existingAdmin;
-            console.log('✓ Admin user already exists');
+            console.log('Admin user already exists');
         }
 
         console.log('Seed completed successfully');
