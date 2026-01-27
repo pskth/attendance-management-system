@@ -201,6 +201,18 @@ export default function TeacherMarksAttendanceManagement({
     fetchComponentsAndMarks();
   }, [selectedCourseId, teacherId]); // run when course or teacher changes
 
+  // Load attendance whenever tab, course, or date changes
+  useEffect(() => {
+    if (activeTab === "attendance") {
+      if (selectedCourse && selectedCourse !== "all") {
+        loadAttendanceData();
+      } else {
+        // Clear list when "All My Courses" is selected
+        setAttendanceRecords([]);
+      }
+    }
+  }, [activeTab, selectedCourse, selectedDate]);
+
   // const loadMarksData = async () => {
   //   setLoading(true);
   //   setError(null);
@@ -934,17 +946,17 @@ export default function TeacherMarksAttendanceManagement({
         </Card>
       )}
 
-      {loading && (
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>
-              <span className="ml-2 text-gray-600">Loading...</span>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-      {!loading && activeTab === "marks" && componentsR ? (
+      {activeTab === "marks" && (
+        loading ? (
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>
+                <span className="ml-2 text-gray-600">Loading...</span>
+              </div>
+            </CardContent>
+          </Card>
+        ) : componentsR ? (
         <Card>
           <CardHeader>
             <CardTitle className="text-xl font-bold">Student Marks</CardTitle>
@@ -1341,15 +1353,17 @@ export default function TeacherMarksAttendanceManagement({
             </div>
           </CardContent>
         </Card>
-      ) : <Card>
-        <CardContent className="pt-6">
-          <div className="flex items-center justify-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>
-            <span className="ml-2 text-gray-600">Loading...</span>
-          </div>
-        </CardContent>
-      </Card>
-      }
+        ) : (
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>
+                <span className="ml-2 text-gray-600">Loading components...</span>
+              </div>
+            </CardContent>
+          </Card>
+        )
+      )}
 
 
 
