@@ -316,7 +316,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "C:\\Users\\himan\\Documents\\GitHub\\attendance-management-system\\backend\\generated\\prisma",
+      "value": "E:\\Projects\\attendance-management-system\\backend\\generated\\prisma",
       "fromEnvVar": null
     },
     "config": {
@@ -330,7 +330,7 @@ const config = {
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "C:\\Users\\himan\\Documents\\GitHub\\attendance-management-system\\backend\\prisma\\schema.prisma",
+    "sourceFilePath": "E:\\Projects\\attendance-management-system\\backend\\prisma\\schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
@@ -344,7 +344,6 @@ const config = {
     "db"
   ],
   "activeProvider": "postgresql",
-  "postinstall": false,
   "inlineDatasources": {
     "db": {
       "url": {
