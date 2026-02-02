@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { TeacherAPI, type CourseOffering } from '@/lib/teacher-api'
 import { authService } from '@/lib/auth'
@@ -14,8 +14,11 @@ export default function TeacherMarksAttendancePage() {
     const [error, setError] = useState<string | null>(null)
     const [teacherId, setTeacherId] = useState<string>('')
     const [selectedCourseId, setSelectedCourseId] = useState<string>('')
+    const hasLoadedRef = useRef(false)
 
     useEffect(() => {
+        if (hasLoadedRef.current) return
+        hasLoadedRef.current = true
         loadTeacherCourses()
     }, [])
 
@@ -25,19 +28,18 @@ export default function TeacherMarksAttendancePage() {
             setError(null)
 
             if (!authService.isAuthenticated()) {
-                router.push('/login')
+                router.push('/login/teacher')
                 return
-            }
-
-            const user = await authService.getCurrentUser()
-            if (user?.id) {
-                setTeacherId(user.id)
             }
 
             const coursesData = await TeacherAPI.getCourses()
             setCourses(coursesData)
             if (coursesData.length > 0) {
                 setSelectedCourseId(coursesData[0].offeringId)
+                // Use teacherId from the course data
+                if (coursesData[0].teacherId) {
+                    setTeacherId(coursesData[0].teacherId)
+                }
             }
         } catch (err) {
             console.error('Error loading teacher courses:', err)

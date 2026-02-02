@@ -355,6 +355,18 @@ export default function TeacherMarksAttendanceManagement({
     console.log("loadMarksData called with components:", currentComponents);
     try {
       const courseMarks: StudentMark[] = [];
+      
+      // Find the course object to get the actual courseId (not offeringId)
+      const courseObj = courses.find(c => c.offeringId === selectedCourse);
+      const actualCourseId = courseObj?.course?.id || selectedCourse;
+      
+      const cnc = await TeacherAPI.getCourseNameAndCode(actualCourseId);
+      let course_code = "";
+      let course_name = "";
+      if (cnc.status === "success") {
+        course_code = cnc.data.code;
+        course_name = cnc.data.name;
+      }
       const marksResponse = await TeacherAPI.getCourseStudentMarks(
         selectedCourse,
         teacherId
@@ -378,13 +390,6 @@ export default function TeacherMarksAttendanceManagement({
             if (comp) comp.obtainedMarks = m.obtainedMarks;
           });
 
-          const cnc = await TeacherAPI.getCourseNameAndCode(selectedCourse);
-          let course_code = "";
-          let course_name = "";
-          if (cnc.status === "success") {
-            course_code = cnc.data.code;
-            course_name = cnc.data.name;
-          }
           // Build student row
           courseMarks.push({
             id: student.studentId,

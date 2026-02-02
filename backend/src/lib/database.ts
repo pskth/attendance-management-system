@@ -1,5 +1,6 @@
 // src/lib/database.ts
 import { PrismaClient } from '../../generated/prisma';
+import { requestContext } from './request-context';
 
 // Create a singleton Prisma client instance
 class DatabaseService {
@@ -7,11 +8,23 @@ class DatabaseService {
 
   public static getInstance(): PrismaClient {
     if (!DatabaseService.instance) {
-      DatabaseService.instance = new PrismaClient({
+      const baseClient = new PrismaClient({
         datasourceUrl: process.env.DATABASE_URL,
         log: ['query', 'info', 'warn', 'error'],
         errorFormat: 'pretty',
       });
+
+      DatabaseService.instance = baseClient.$extends({
+        query: {
+          $allOperations({ query, args }) {
+            const ctx = requestContext.get();
+            if (ctx) {
+              ctx.queryCount += 1;
+            }
+            return query(args);
+          }
+        }
+      }) as PrismaClient;
     }
     return DatabaseService.instance;
   }

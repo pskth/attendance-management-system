@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { Card, CardHeader } from '@/components/ui/card'
 import { DropdownNavigation, type Course, type Section } from '@/app/teacher/dropdown-navigation'
@@ -21,11 +22,13 @@ import {
 
 
 export default function TeacherDashboard() {
+  const router = useRouter()
   const [dashboardData, setDashboardData] = useState<TeacherDashboardData | null>(null)
   const [courses, setCourses] = useState<CourseOffering[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [courseStatsLoading, setCourseStatsLoading] = useState(false)
+  const hasLoadedRef = useRef(false)
 
   // Modal states
   const [showCoursesModal, setShowCoursesModal] = useState(false)
@@ -41,6 +44,8 @@ export default function TeacherDashboard() {
 
   // Load teacher data
   useEffect(() => {
+    if (hasLoadedRef.current) return
+    hasLoadedRef.current = true
     loadTeacherData()
   }, [])
 
@@ -50,7 +55,8 @@ export default function TeacherDashboard() {
       setError(null)
 
       if (!authService.isAuthenticated()) {
-        throw new Error('Not authenticated')
+        router.push('/login/teacher')
+        return
       }
 
       // Load dashboard data and courses in parallel

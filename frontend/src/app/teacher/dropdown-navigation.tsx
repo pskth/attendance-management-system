@@ -104,6 +104,8 @@ export function DropdownNavigation({
   const [departments, setDepartments] = useState<Department[]>([])
   const [courses, setCourses] = useState<Course[]>([])
   const [sections, setSections] = useState<Section[]>([])
+  const hasInitializedRef = useRef(false)
+  const lastCollegeRef = useRef<string | undefined>(undefined)
   const [loading, setLoading] = useState({
     years: false,
     departments: false,
@@ -139,6 +141,9 @@ export function DropdownNavigation({
 
   // Load initial data
   useEffect(() => {
+    if (hasInitializedRef.current && lastCollegeRef.current === teacherCollege) return
+    hasInitializedRef.current = true
+    lastCollegeRef.current = teacherCollege
     loadYears()
     loadDepartments()
   }, [teacherCollege]) // Reload departments when teacher college changes

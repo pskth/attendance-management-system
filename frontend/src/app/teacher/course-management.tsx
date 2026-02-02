@@ -128,7 +128,7 @@ export function CourseManagement({
           <TeacherMarksAttendanceManagement
             courses={courses}
             teacherId={teacherId}
-            selectedCourseId={courseOffering.course_id}
+            selectedCourseId={courseOffering.offering_id || courseOffering.course_id}
             initialMode="marks"
           />
         </TabsContent>

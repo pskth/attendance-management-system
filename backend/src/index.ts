@@ -12,6 +12,7 @@ import coursesRoutes from './routes/courses';
 import departmentsRoutes from './routes/departments';
 import collegesRoutes from './routes/colleges';
 import analyticsRoutes from './routes/analytics';
+import { createRequestId, requestContext } from './lib/request-context';
 
 console.log('=== About to import export routes ===');
 let exportRoutes;
@@ -65,6 +66,25 @@ app.use(cors({
 	allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.json());
+
+// Request context + summary logging (duration + DB queries per request)
+app.use((req, res, next) => {
+	const ctx = {
+		id: createRequestId(),
+		startTime: Date.now(),
+		queryCount: 0,
+		method: req.method,
+		path: req.path
+	};
+
+	requestContext.run(ctx, () => {
+		res.on('finish', () => {
+			const durationMs = Date.now() - ctx.startTime;
+			console.log(`[REQ] ${ctx.method} ${ctx.path} ${res.statusCode} - ${durationMs}ms - db:${ctx.queryCount}`);
+		});
+		next();
+	});
+});
 
 // Add request logging to debug API calls
 app.use((req, res, next) => {

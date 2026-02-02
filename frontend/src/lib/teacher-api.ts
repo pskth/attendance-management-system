@@ -55,15 +55,43 @@ export interface TodaySchedule {
     studentsEnrolled: number;
 }
 
+type CourseStats = {
+    totalClasses: number;
+    classesCompleted: number;
+    overallAttendancePercentage: number;
+};
+
+type CourseNameCode = { status: string; data: { name: string; code: string } };
+const courseNameCodeCache = new Map<string, { data: CourseNameCode; ts: number }>();
+const courseNameCodeInflight = new Map<string, Promise<CourseNameCode>>();
+const COURSE_NAME_CODE_TTL_MS = 5 * 60 * 1000;
+
+const courseStatsCache = new Map<string, { data: CourseStats; ts: number }>();
+const courseStatsInflight = new Map<string, Promise<CourseStats>>();
+const COURSE_STATS_TTL_MS = 5 * 60 * 1000;
+
+const attendanceAnalyticsCache = new Map<string, { data: StudentAttendanceAnalytics[]; ts: number }>();
+const attendanceAnalyticsInflight = new Map<string, Promise<StudentAttendanceAnalytics[]>>();
+const ATTENDANCE_ANALYTICS_TTL_MS = 2 * 60 * 1000;
+
+const courseComponentsCache = new Map<string, { data: any; ts: number }>();
+const courseComponentsInflight = new Map<string, Promise<any>>();
+const COURSE_COMPONENTS_TTL_MS = 5 * 60 * 1000;
+
+const courseStudentMarksCache = new Map<string, { data: CourseStudentMarksResponse; ts: number }>();
+const courseStudentMarksInflight = new Map<string, Promise<CourseStudentMarksResponse>>();
+const COURSE_STUDENT_MARKS_TTL_MS = 2 * 60 * 1000;
+
 export interface TeacherDashboardData {
     teacher: TeacherProfile;
     statistics: TeacherStatistics;
     recentSessions: RecentSession[];
-    todaySchedule: TodaySchedule[];
+    teacherDashboardId: string; // New line to replace user id with teacher dashboard id
 }
 
 export interface CourseOffering {
     offeringId: string;
+    teacherId?: string; // Add teacherId to the interface
     course: {
         id: string;
         name: string;
@@ -253,20 +281,37 @@ export class TeacherAPI {
     //get course name and code
 
     static async getCourseNameAndCode(courseId: string): Promise<{ status: string; data: { name: string; code: string }; }> {
+        const cached = courseNameCodeCache.get(courseId);
+        if (cached && Date.now() - cached.ts < COURSE_NAME_CODE_TTL_MS) {
+            return cached.data;
+        }
 
-        const response = await fetch(`${API_BASE_URL}/teacher/coursecnc/${courseId}`, {
+        const inflight = courseNameCodeInflight.get(courseId);
+        if (inflight) {
+            return inflight;
+        }
 
-            method: 'GET',
-            headers: getAuthHeaders(),
+        const requestPromise = (async () => {
+            const response = await fetch(`${API_BASE_URL}/teacher/coursecnc/${courseId}`, {
+                method: 'GET',
+                headers: getAuthHeaders(),
+            });
+            if (!response.ok) {
+                throw new Error(`Failed to fetch course name and code: ${response.statusText}`);
+            }
+            const result = await response.json();
+            if (result.status !== 'success') {
+                throw new Error(result.message || 'Failed to fetch course name and code');
+            }
+            const data = result as CourseNameCode;
+            courseNameCodeCache.set(courseId, { data, ts: Date.now() });
+            return data;
+        })().finally(() => {
+            courseNameCodeInflight.delete(courseId);
         });
-        if (!response.ok) {
-            throw new Error(`Failed to fetch course name and code: ${response.statusText}`);
-        }
-        const result = await response.json();
-        if (result.status !== 'success') {
-            throw new Error(result.message || 'Failed to fetch course name and code');
-        }
-        return result;
+
+        courseNameCodeInflight.set(courseId, requestPromise);
+        return requestPromise;
     }
 
 
@@ -378,22 +423,41 @@ export class TeacherAPI {
 
     // Get student attendance analytics for a course
     static async getAttendanceAnalytics(offeringId: string): Promise<StudentAttendanceAnalytics[]> {
-        const response = await fetch(`${API_BASE_URL}/teacher/courses/${offeringId}/attendance-analytics`, {
-            method: 'GET',
-            headers: getAuthHeaders(),
+        const cached = attendanceAnalyticsCache.get(offeringId);
+        if (cached && Date.now() - cached.ts < ATTENDANCE_ANALYTICS_TTL_MS) {
+            return cached.data;
+        }
+
+        const inflight = attendanceAnalyticsInflight.get(offeringId);
+        if (inflight) {
+            return inflight;
+        }
+
+        const requestPromise = (async () => {
+            const response = await fetch(`${API_BASE_URL}/teacher/courses/${offeringId}/attendance-analytics`, {
+                method: 'GET',
+                headers: getAuthHeaders(),
+            });
+
+            if (!response.ok) {
+                throw new Error(`Failed to fetch attendance analytics: ${response.statusText}`);
+            }
+
+            const result = await response.json();
+
+            if (result.status !== 'success') {
+                throw new Error(result.message || 'Failed to fetch attendance analytics');
+            }
+
+            const data = result.data as StudentAttendanceAnalytics[];
+            attendanceAnalyticsCache.set(offeringId, { data, ts: Date.now() });
+            return data;
+        })().finally(() => {
+            attendanceAnalyticsInflight.delete(offeringId);
         });
 
-        if (!response.ok) {
-            throw new Error(`Failed to fetch attendance analytics: ${response.statusText}`);
-        }
-
-        const result = await response.json();
-
-        if (result.status !== 'success') {
-            throw new Error(result.message || 'Failed to fetch attendance analytics');
-        }
-
-        return result.data;
+        attendanceAnalyticsInflight.set(offeringId, requestPromise);
+        return requestPromise;
     }
 
     // Get marks for students in a course
@@ -428,53 +492,71 @@ export class TeacherAPI {
         classesCompleted: number;
         overallAttendancePercentage: number;
     }> {
-        try {
-            const response = await fetch(`${API_BASE_URL}/teacher/courses/${offeringId}/statistics`, {
-                method: 'GET',
-                headers: getAuthHeaders(),
-            });
-
-            if (!response.ok) {
-                throw new Error(`Failed to fetch course statistics: ${response.statusText}`);
-            }
-
-            const result = await response.json();
-
-            if (result.status !== 'success') {
-                throw new Error(result.message || 'Failed to fetch course statistics');
-            }
-
-            return result.data;
-        } catch (error) {
-            console.error('Error fetching course statistics:', error);
-            // Fallback to existing method if new endpoint fails
-            try {
-                const [historyData, analyticsData] = await Promise.all([
-                    this.getAttendanceHistory(offeringId, 100),
-                    this.getAttendanceAnalytics(offeringId)
-                ]);
-
-                const totalClasses = historyData.length;
-                const classesCompleted = historyData.length;
-
-                const overallAttendancePercentage = analyticsData.length > 0
-                    ? analyticsData.reduce((sum, student) => sum + student.attendance.attendancePercentage, 0) / analyticsData.length
-                    : 0;
-
-                return {
-                    totalClasses,
-                    classesCompleted,
-                    overallAttendancePercentage: Math.round(overallAttendancePercentage * 10) / 10
-                };
-            } catch (fallbackError) {
-                console.error('Error with fallback course statistics:', fallbackError);
-                return {
-                    totalClasses: 0,
-                    classesCompleted: 0,
-                    overallAttendancePercentage: 0
-                };
-            }
+        const cached = courseStatsCache.get(offeringId);
+        if (cached && Date.now() - cached.ts < COURSE_STATS_TTL_MS) {
+            return cached.data;
         }
+
+        const inflight = courseStatsInflight.get(offeringId);
+        if (inflight) {
+            return inflight;
+        }
+
+        const requestPromise = (async () => {
+            try {
+                const response = await fetch(`${API_BASE_URL}/teacher/courses/${offeringId}/statistics`, {
+                    method: 'GET',
+                    headers: getAuthHeaders(),
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch course statistics: ${response.statusText}`);
+                }
+
+                const result = await response.json();
+
+                if (result.status !== 'success') {
+                    throw new Error(result.message || 'Failed to fetch course statistics');
+                }
+                const data = result.data as CourseStats;
+                courseStatsCache.set(offeringId, { data, ts: Date.now() });
+                return data;
+            } catch (error) {
+                console.error('Error fetching course statistics:', error);
+                // Fallback to existing method if new endpoint fails
+                try {
+                    const [historyData, analyticsData] = await Promise.all([
+                        this.getAttendanceHistory(offeringId, 100),
+                        this.getAttendanceAnalytics(offeringId)
+                    ]);
+
+                    const totalClasses = historyData.length;
+                    const classesCompleted = historyData.length;
+
+                    const overallAttendancePercentage = analyticsData.length > 0
+                        ? analyticsData.reduce((sum, student) => sum + student.attendance.attendancePercentage, 0) / analyticsData.length
+                        : 0;
+
+                    return {
+                        totalClasses,
+                        classesCompleted,
+                        overallAttendancePercentage: Math.round(overallAttendancePercentage * 10) / 10
+                    };
+                } catch (fallbackError) {
+                    console.error('Error with fallback course statistics:', fallbackError);
+                    return {
+                        totalClasses: 0,
+                        classesCompleted: 0,
+                        overallAttendancePercentage: 0
+                    };
+                }
+            } finally {
+                courseStatsInflight.delete(offeringId);
+            }
+        })();
+
+        courseStatsInflight.set(offeringId, requestPromise);
+        return requestPromise;
     }
 
     // Search functionality for master search
@@ -716,23 +798,42 @@ export class TeacherAPI {
     }
     // Get test components for a course
     static async getCourseTestComponents(courseId: string, teacherId: string) {
-        const response = await fetch(`${API_BASE_URL}/teacher/course/${courseId}/teacher/${teacherId}/components`, {
-            method: 'GET',
-            headers: getAuthHeaders()
+        const key = `${courseId}:${teacherId}`;
+        const cached = courseComponentsCache.get(key);
+        if (cached && Date.now() - cached.ts < COURSE_COMPONENTS_TTL_MS) {
+            return cached.data;
+        }
+
+        const inflight = courseComponentsInflight.get(key);
+        if (inflight) {
+            return inflight;
+        }
+
+        const requestPromise = (async () => {
+            const response = await fetch(`${API_BASE_URL}/teacher/course/${courseId}/teacher/${teacherId}/components`, {
+                method: 'GET',
+                headers: getAuthHeaders()
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+            }
+
+            const result = await response.json();
+
+            if (result.status !== 'success') {
+                throw new Error(result.error || 'Failed to fetch test components');
+            }
+
+            courseComponentsCache.set(key, { data: result, ts: Date.now() });
+            return result;
+        })().finally(() => {
+            courseComponentsInflight.delete(key);
         });
 
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
-        }
-
-        const result = await response.json();
-
-        if (result.status !== 'success') {
-            throw new Error(result.error || 'Failed to fetch test components');
-        }
-
-        return result;
+        courseComponentsInflight.set(key, requestPromise);
+        return requestPromise;
     }
     //upadte component details
     // API.ts (or wherever you keep your API methods)
@@ -910,45 +1011,66 @@ export class TeacherAPI {
     // }
 
     static async getCourseStudentMarks(courseId: string, teacherId: string): Promise<CourseStudentMarksResponse> {
-        const response = await fetch(`${API_BASE_URL}/teacher/course/${courseId}/teacher/${teacherId}/marks`, {
-            method: 'GET',
-            headers: getAuthHeaders(),
+        const key = `${courseId}:${teacherId}`;
+        const cached = courseStudentMarksCache.get(key);
+        if (cached && Date.now() - cached.ts < COURSE_STUDENT_MARKS_TTL_MS) {
+            return cached.data;
+        }
+
+        const inflight = courseStudentMarksInflight.get(key);
+        if (inflight) {
+            return inflight;
+        }
+
+        const requestPromise = (async () => {
+            const response = await fetch(`${API_BASE_URL}/teacher/course/${courseId}/teacher/${teacherId}/marks`, {
+                method: 'GET',
+                headers: getAuthHeaders(),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+            }
+
+            const result = await response.json();
+
+            if (result.status !== 'success') {
+                throw new Error(result.error || 'Failed to fetch student marks');
+            }
+
+            // Map API response to our typed structure
+            const students: StudentWithMarks[] = result.students.map((s: any) => ({
+                studentId: s.studentId,
+                usn: s.usn,
+                studentName: s.studentName,
+                studentEmail: s.studentEmail,
+                marks: s.marks.map((m: any): StudentMarkComponent => ({
+                    componentId: m.componentId,
+                    componentName: m.componentName,
+                    type: m.type,
+                    obtainedMarks: m.obtainedMarks ?? null,
+                    maxMarks: m.maxMarks,
+                    weightage: m.weightage
+                }))
+            }));
+
+            const data = {
+                status: result.status,
+                offeringId: result.offeringId,
+                courseId: result.courseId,
+                teacherId: result.teacherId,
+                students
+            } as CourseStudentMarksResponse;
+
+            courseStudentMarksCache.set(key, { data, ts: Date.now() });
+            return data;
+        })().finally(() => {
+            courseStudentMarksInflight.delete(key);
         });
 
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
-        }
-
-        const result = await response.json();
-
-        if (result.status !== 'success') {
-            throw new Error(result.error || 'Failed to fetch student marks');
-        }
-
-        // Map API response to our typed structure
-        const students: StudentWithMarks[] = result.students.map((s: any) => ({
-            studentId: s.studentId,
-            usn: s.usn,
-            studentName: s.studentName,
-            studentEmail: s.studentEmail,
-            marks: s.marks.map((m: any): StudentMarkComponent => ({
-                componentId: m.componentId,
-                componentName: m.componentName,
-                type: m.type,
-                obtainedMarks: m.obtainedMarks ?? null,
-                maxMarks: m.maxMarks,
-                weightage: m.weightage
-            }))
-        }));
-
-        return {
-            status: result.status,
-            offeringId: result.offeringId,
-            courseId: result.courseId,
-            teacherId: result.teacherId,
-            students
-        };
+        courseStudentMarksInflight.set(key, requestPromise);
+        return requestPromise;
     }
 
 
