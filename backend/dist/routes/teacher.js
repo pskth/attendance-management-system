@@ -246,6 +246,7 @@ router.get('/courses', auth_1.authenticateToken, async (req, res) => {
         }
         const coursesData = teacher.courseOfferings.map(offering => ({
             offeringId: offering.id,
+            teacherId: teacher.id, // Include teacher ID
             course: {
                 id: offering.course.id,
                 name: offering.course.name,
@@ -268,7 +269,8 @@ router.get('/courses', auth_1.authenticateToken, async (req, res) => {
         }));
         res.json({
             status: 'success',
-            data: coursesData
+            data: coursesData,
+            teacherId: teacher.id // Also include at top level for convenience
         });
     }
     catch (error) {
@@ -1647,23 +1649,43 @@ router.get('/course/:courseId/teacher/:teacherId/components', async (req, res) =
     try {
         const prisma = database_1.default.getInstance();
         const { courseId, teacherId } = req.params;
+        console.log('[COMPONENTS] Request params:', { courseId, teacherId });
         // Find course offering for this teacher & course
         // Accept either actual courseId or an offeringId passed as courseId from UI
         let offering = await prisma.courseOffering.findFirst({
             where: { courseId, teacherId },
             include: { testComponents: true }
         });
+        console.log('[COMPONENTS] First query (by courseId):', offering ? 'Found' : 'Not found');
         if (!offering) {
             // Fallback: treat courseId param as offeringId
             offering = await prisma.courseOffering.findFirst({
                 where: { id: courseId, teacherId },
                 include: { testComponents: true }
             });
+            console.log('[COMPONENTS] Second query (by offeringId):', offering ? 'Found' : 'Not found');
         }
         if (!offering) {
+            // Debug: check if teacherId exists
+            const teacherExists = await prisma.teacher.findUnique({
+                where: { id: teacherId }
+            });
+            console.log('[COMPONENTS] Teacher exists:', !!teacherExists);
+            // Debug: check offerings for this teacher
+            const teacherOfferings = await prisma.courseOffering.findMany({
+                where: { teacherId },
+                select: { id: true, courseId: true }
+            });
+            console.log('[COMPONENTS] Teacher offerings:', teacherOfferings);
             return res.status(404).json({
                 status: 'error',
-                error: 'Course offering not found for this teacher/course'
+                error: 'Course offering not found for this teacher/course',
+                debug: {
+                    teacherExists: !!teacherExists,
+                    teacherOfferings: teacherOfferings,
+                    requestedCourseId: courseId,
+                    requestedTeacherId: teacherId
+                }
             });
         }
         // Map test components into table-usable structure

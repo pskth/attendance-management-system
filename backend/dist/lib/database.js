@@ -2,14 +2,26 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 // src/lib/database.ts
 const prisma_1 = require("../../generated/prisma");
+const request_context_1 = require("./request-context");
 // Create a singleton Prisma client instance
 class DatabaseService {
     static getInstance() {
         if (!DatabaseService.instance) {
-            DatabaseService.instance = new prisma_1.PrismaClient({
+            const baseClient = new prisma_1.PrismaClient({
                 datasourceUrl: process.env.DATABASE_URL,
                 log: ['query', 'info', 'warn', 'error'],
                 errorFormat: 'pretty',
+            });
+            DatabaseService.instance = baseClient.$extends({
+                query: {
+                    $allOperations({ query, args }) {
+                        const ctx = request_context_1.requestContext.get();
+                        if (ctx) {
+                            ctx.queryCount += 1;
+                        }
+                        return query(args);
+                    }
+                }
             });
         }
         return DatabaseService.instance;

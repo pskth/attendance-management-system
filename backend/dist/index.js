@@ -16,6 +16,7 @@ const courses_1 = __importDefault(require("./routes/courses"));
 const departments_1 = __importDefault(require("./routes/departments"));
 const colleges_1 = __importDefault(require("./routes/colleges"));
 const analytics_1 = __importDefault(require("./routes/analytics"));
+const request_context_1 = require("./lib/request-context");
 console.log('=== About to import export routes ===');
 let exportRoutes;
 try {
@@ -56,17 +57,48 @@ catch (error) {
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 console.log('=== INDEX.TS LOADED ===');
-app.use((0, cors_1.default)({
-    origin: [
-        'https://attendance-management-system-1-5bbv.onrender.com',
-        'http://localhost:3000',
-        'http://localhost:3001'
-    ],
+const corsOptions = {
+    origin: (origin, callback) => {
+        const defaultOrigins = [
+            'https://attendance-management-system-navy.vercel.app',
+            'https://attendance-management-system-1-5bbv.onrender.com',
+            'http://localhost:3000',
+            'http://localhost:3001'
+        ];
+        const envOrigins = (process.env.CORS_ORIGINS || '')
+            .split(',')
+            .map((value) => value.trim())
+            .filter(Boolean);
+        const allowedOrigins = new Set([...defaultOrigins, ...envOrigins]);
+        if (!origin || allowedOrigins.has(origin)) {
+            return callback(null, true);
+        }
+        return callback(new Error(`CORS blocked: ${origin}`));
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
-}));
+};
+app.use((0, cors_1.default)(corsOptions));
+app.options('*', (0, cors_1.default)(corsOptions));
 app.use(express_1.default.json());
+// Request context + summary logging (duration + DB queries per request)
+app.use((req, res, next) => {
+    const ctx = {
+        id: (0, request_context_1.createRequestId)(),
+        startTime: Date.now(),
+        queryCount: 0,
+        method: req.method,
+        path: req.path
+    };
+    request_context_1.requestContext.run(ctx, () => {
+        res.on('finish', () => {
+            const durationMs = Date.now() - ctx.startTime;
+            console.log(`[REQ] ${ctx.method} ${ctx.path} ${res.statusCode} - ${durationMs}ms - db:${ctx.queryCount}`);
+        });
+        next();
+    });
+});
 // Add request logging to debug API calls
 app.use((req, res, next) => {
     if (req.path.includes('/teacher/courses/') && req.path.includes('/statistics')) {

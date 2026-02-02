@@ -58,10 +58,11 @@ console.log('=== INDEX.TS LOADED ===');
 app.use(cors({
 	origin: (origin, callback) => {
 		const defaultOrigins = [
+			'https://attendance-management-system-navy.vercel.app',
 			'https://attendance-management-system-1-5bbv.onrender.com',
 			'http://localhost:3000',
 			'http://localhost:3001',
-			'https://attendance-management-system-navy.vercel.app'
+
 		];
 		const envOrigins = (process.env.CORS_ORIGINS || '')
 			.split(',')
