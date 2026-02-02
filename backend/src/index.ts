@@ -55,14 +55,13 @@ const app = express();
 
 console.log('=== INDEX.TS LOADED ===');
 
-app.use(cors({
+const corsOptions: cors.CorsOptions = {
 	origin: (origin, callback) => {
 		const defaultOrigins = [
 			'https://attendance-management-system-navy.vercel.app',
 			'https://attendance-management-system-1-5bbv.onrender.com',
 			'http://localhost:3000',
-			'http://localhost:3001',
-
+			'http://localhost:3001'
 		];
 		const envOrigins = (process.env.CORS_ORIGINS || '')
 			.split(',')
@@ -79,7 +78,10 @@ app.use(cors({
 	credentials: true,
 	methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
 	allowedHeaders: ['Content-Type', 'Authorization']
-}));
+};
+
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 app.use(express.json());
 
 // Request context + summary logging (duration + DB queries per request)
