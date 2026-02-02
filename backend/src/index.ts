@@ -59,7 +59,8 @@ app.use(cors({
 	origin: [
 		'https://attendance-management-system-1-5bbv.onrender.com',
 		'http://localhost:3000',
-		'http://localhost:3001'
+		'http://localhost:3001',
+		"https://attendance-management-system-navy.vercel.app/"
 	],
 	credentials: true,
 	methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
