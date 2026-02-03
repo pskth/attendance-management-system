@@ -214,11 +214,15 @@ process.on('SIGTERM', async () => {
 	process.exit(0);
 });
 
-// Export app for Vercel serverless
+// Export app for serverless platforms
 export default app;
 
-// For local development
-if (process.env.NODE_ENV !== 'production') {
+// Start server unless running in a serverless environment (e.g., Vercel)
+const isServerless = Boolean(
+	process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME
+);
+
+if (!isServerless) {
 	app.listen(PORT, () => {
 		console.log(`🚀 Server running on port ${PORT}`);
 		console.log(`📊 Health check available at http://localhost:${PORT}/health`);
