@@ -54,25 +54,7 @@ const app = express();
 console.log('=== INDEX.TS LOADED ===');
 
 const corsOptions: cors.CorsOptions = {
-	origin: (origin, callback) => {
-		const defaultOrigins = [
-			'https://attendance-management-system-navy.vercel.app',
-			'https://attendance-management-system-1-5bbv.onrender.com',
-			'http://localhost:3000',
-			'http://localhost:3001'
-		];
-		const envOrigins = (process.env.CORS_ORIGINS || '')
-			.split(',')
-			.map((value) => value.trim())
-			.filter(Boolean);
-		const allowedOrigins = new Set([...defaultOrigins, ...envOrigins]);
-
-		if (!origin || allowedOrigins.has(origin)) {
-			return callback(null, true);
-		}
-
-		return callback(new Error(`CORS blocked: ${origin}`));
-	},
+	origin: true, // Allow all origins
 	credentials: true,
 	methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
 	allowedHeaders: ['Content-Type', 'Authorization']
