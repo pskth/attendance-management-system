@@ -1,7 +1,7 @@
 // src/index.ts
+import './config/env';
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import DatabaseService from './lib/database';
 
 // Import routes
@@ -48,8 +48,6 @@ try {
 } catch (error) {
 	console.error('=== Error importing teacher routes ===', error);
 }
-
-dotenv.config();
 
 const app = express();
 
