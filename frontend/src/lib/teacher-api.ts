@@ -320,6 +320,7 @@ export class TeacherAPI {
         const response = await fetch(`${API_BASE_URL}/teacher/dashboard`, {
             method: 'GET',
             headers: getAuthHeaders(),
+            credentials: 'include',
         });
 
         if (!response.ok) {
@@ -340,6 +341,7 @@ export class TeacherAPI {
         const response = await fetch(`${API_BASE_URL}/teacher/courses`, {
             method: 'GET',
             headers: getAuthHeaders(),
+            credentials: 'include',
         });
 
         if (!response.ok) {
@@ -360,6 +362,7 @@ export class TeacherAPI {
         const response = await fetch(`${API_BASE_URL}/teacher/courses/${offeringId}/students`, {
             method: 'GET',
             headers: getAuthHeaders(),
+            credentials: 'include',
         });
 
         if (!response.ok) {
@@ -385,6 +388,7 @@ export class TeacherAPI {
         const response = await fetch(`${API_BASE_URL}/teacher/attendance`, {
             method: 'POST',
             headers: getAuthHeaders(),
+            credentials: 'include',
             body: JSON.stringify(attendanceData),
         });
 
@@ -406,6 +410,7 @@ export class TeacherAPI {
         const response = await fetch(`${API_BASE_URL}/teacher/courses/${offeringId}/attendance-history?limit=${limit}`, {
             method: 'GET',
             headers: getAuthHeaders(),
+            credentials: 'include',
         });
 
         if (!response.ok) {
@@ -437,6 +442,7 @@ export class TeacherAPI {
             const response = await fetch(`${API_BASE_URL}/teacher/courses/${offeringId}/attendance-analytics`, {
                 method: 'GET',
                 headers: getAuthHeaders(),
+                credentials: 'include',
             });
 
             if (!response.ok) {
@@ -471,6 +477,7 @@ export class TeacherAPI {
         const response = await fetch(url, {
             method: 'GET',
             headers: getAuthHeaders(),
+            credentials: 'include',
         });
 
         if (!response.ok) {
@@ -507,6 +514,7 @@ export class TeacherAPI {
                 const response = await fetch(`${API_BASE_URL}/teacher/courses/${offeringId}/statistics`, {
                     method: 'GET',
                     headers: getAuthHeaders(),
+                    credentials: 'include',
                 });
 
                 if (!response.ok) {
@@ -669,6 +677,7 @@ export class TeacherAPI {
         const response = await fetch(`${API_BASE_URL}/teacher/marks?${params.toString()}`, {
             method: 'GET',
             headers: getAuthHeaders(),
+            credentials: 'include',
         });
 
         if (!response.ok) {
@@ -693,7 +702,8 @@ export class TeacherAPI {
 
         const response = await fetch(`${API_BASE_URL}/teacher/attendance?${params.toString()}`, {
             method: 'GET',
-            headers: getAuthHeaders()
+            headers: getAuthHeaders(),
+            credentials: 'include'
         });
 
         if (!response.ok) {
@@ -713,6 +723,7 @@ export class TeacherAPI {
         const response = await fetch(`${API_BASE_URL}/teacher/attendance`, {
             method: 'POST',
             headers: getAuthHeaders(),
+            credentials: 'include',
             body: JSON.stringify(data)
         });
 
@@ -728,6 +739,7 @@ export class TeacherAPI {
         const response = await fetch(`${API_BASE_URL}/teacher/attendance/${attendanceId}`, {
             method: 'PUT',
             headers: getAuthHeaders(),
+            credentials: 'include',
             body: JSON.stringify({ status })
         });
 
