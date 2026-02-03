@@ -390,7 +390,7 @@ export default function StudentDashboard() {
                           </td>
 
                           <td className="px-2 sm:px-3 py-2 sm:py-3 text-center bg-purple-50">
-                            <span className="font-bold text-sm sm:text-lg text-purple-600">{course.totalMarks || '-'}</span>
+                            <span className="font-bold text-sm sm:text-lg text-purple-600">{course.total_marks || '-'}</span>
                           </td>
                         </tr>
                       ))}

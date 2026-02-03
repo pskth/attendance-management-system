@@ -776,9 +776,12 @@ export class TeacherAPI {
         params.append('courseId', courseId);
         params.append('date', date);
 
+        console.log('Fetching attendance for:', { courseId, date, fullUrl: `${API_BASE_URL}/teacher/attendance/students?${params.toString()}` });
+
         const response = await fetch(`${API_BASE_URL}/teacher/attendance/students?${params.toString()}`, {
             method: 'GET',
-            headers: getAuthHeaders()
+            headers: getAuthHeaders(),
+            credentials: 'include'
         });
 
         if (!response.ok) {
