@@ -212,9 +212,15 @@ process.on('SIGTERM', async () => {
 	process.exit(0);
 });
 
-app.listen(PORT, () => {
-	console.log(`🚀 Server running on port ${PORT}`);
-	console.log(`📊 Health check available at http://localhost:${PORT}/health`);
-	console.log(`📋 Database summary at http://localhost:${PORT}/api/db/summary`);
-	console.log(`👥 Users API at http://localhost:${PORT}/api/users`);
-});
+// Export app for Vercel serverless
+export default app;
+
+// For local development
+if (process.env.NODE_ENV !== 'production') {
+	app.listen(PORT, () => {
+		console.log(`🚀 Server running on port ${PORT}`);
+		console.log(`📊 Health check available at http://localhost:${PORT}/health`);
+		console.log(`📋 Database summary at http://localhost:${PORT}/api/db/summary`);
+		console.log(`👥 Users API at http://localhost:${PORT}/api/users`);
+	});
+}
