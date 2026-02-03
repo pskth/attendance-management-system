@@ -217,16 +217,10 @@ process.on('SIGTERM', async () => {
 // Export app for serverless platforms
 export default app;
 
-// Start server unless running in a serverless environment (e.g., Vercel)
-const isServerless = Boolean(
-	process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME
-);
-
-if (!isServerless) {
-	app.listen(PORT, () => {
-		console.log(`🚀 Server running on port ${PORT}`);
-		console.log(`📊 Health check available at http://localhost:${PORT}/health`);
-		console.log(`📋 Database summary at http://localhost:${PORT}/api/db/summary`);
-		console.log(`👥 Users API at http://localhost:${PORT}/api/users`);
-	});
-}
+// Start server
+app.listen(PORT, () => {
+	console.log(`🚀 Server running on port ${PORT}`);
+	console.log(`📊 Health check available at http://localhost:${PORT}/health`);
+	console.log(`📋 Database summary at http://localhost:${PORT}/api/db/summary`);
+	console.log(`👥 Users API at http://localhost:${PORT}/api/users`);
+});
