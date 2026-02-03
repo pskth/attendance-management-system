@@ -177,6 +177,11 @@ export default function TeacherMarksAttendanceManagement({
 
   useEffect(() => {
     const fetchComponentsAndMarks = async () => {
+      if (!selectedCourseId || !teacherId) {
+        console.log("Waiting for course and teacher selection...");
+        return;
+      }
+
       try {
         const structureResponse = await TeacherAPI.getCourseTestComponents(
           selectedCourseId,

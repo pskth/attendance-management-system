@@ -2231,6 +2231,12 @@ router.post('/course/:courseId/teacher/:teacherId/marks', async (req, res) => {
             const updatedMarks: any[] = [];
 
             for (const mark of student.marks) {
+                // Skip temporary IDs generated on the client side
+                if (mark.componentId.startsWith('temp-')) {
+                    console.log(`Skipping temporary component ID: ${mark.componentId}`);
+                    continue;
+                }
+
                 const existing = await prisma.studentMark.findUnique({
                     where: {
                         enrollmentId_testComponentId: {

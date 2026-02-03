@@ -824,7 +824,8 @@ export class TeacherAPI {
         const requestPromise = (async () => {
             const response = await fetch(`${API_BASE_URL}/teacher/course/${courseId}/teacher/${teacherId}/components`, {
                 method: 'GET',
-                headers: getAuthHeaders()
+                headers: getAuthHeaders(),
+                credentials: 'include'
             });
 
             if (!response.ok) {
