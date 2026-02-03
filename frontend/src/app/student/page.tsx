@@ -112,6 +112,21 @@ export default function StudentDashboard() {
 
 
 
+  // Calculate all unique theory and lab test components
+  const allTheoryComponents = Array.from(
+    new Set(marksData.flatMap(course => course.theoryMarks?.map(m => m.testName) || []))
+  );
+  
+  const allLabComponents = Array.from(
+    new Set(marksData.flatMap(course => course.labMarks?.map(m => m.testName) || []))
+  );
+
+  const getMarkValue = (marks: any[] | undefined, testName: string): number | null => {
+    if (!marks) return null;
+    const mark = marks.find(m => m.testName === testName);
+    return mark?.marksObtained ?? null;
+  };
+
   const [currentDate] = useState(new Date())
   const [selectedDate, setSelectedDate] = useState<string>(
     new Date().toISOString().split("T")[0] // "YYYY-MM-DD"
@@ -306,17 +321,16 @@ export default function StudentDashboard() {
                         <th className="hidden lg:table-cell sticky left-0 z-10 bg-gray-50 px-2 sm:px-3 py-2 sm:py-3 text-left text-xs sm:text-sm font-medium text-gray-700 border-r border-gray-200">Course Code</th>
                         <th className="hidden lg:table-cell px-2 sm:px-3 py-2 sm:py-3 text-left text-xs sm:text-sm font-medium text-gray-700">Course Name</th>
                         <th className="px-2 sm:px-3 py-2 sm:py-3 text-center text-xs sm:text-sm font-medium text-gray-700">Type</th>
-                        <th className="px-2 sm:px-3 py-2 sm:py-3 text-center text-xs sm:text-sm font-medium text-gray-700">MSE I</th>
-                        <th className="px-2 sm:px-3 py-2 sm:py-3 text-center text-xs sm:text-sm font-medium text-gray-700">MSE II</th>
-                        <th className="px-2 sm:px-3 py-2 sm:py-3 text-center text-xs sm:text-sm font-medium text-gray-700">MSE III</th>
-                        <th className="px-2 sm:px-3 py-2 sm:py-3 text-center text-xs sm:text-sm font-medium text-gray-700">Task I</th>
-                        <th className="px-2 sm:px-3 py-2 sm:py-3 text-center text-xs sm:text-sm font-medium text-gray-700">Task II</th>
-                        <th className="px-2 sm:px-3 py-2 sm:py-3 text-center text-xs sm:text-sm font-medium text-gray-700">Task III</th>
-                        <th className="px-2 sm:px-3 py-2 sm:py-3 text-center text-xs sm:text-sm font-medium text-gray-700">Theory</th>
-                        <th className="px-2 sm:px-3 py-2 sm:py-3 text-center text-xs sm:text-sm font-medium text-gray-700">Record</th>
-                        <th className="px-2 sm:px-3 py-2 sm:py-3 text-center text-xs sm:text-sm font-medium text-gray-700">CE</th>
-                        <th className="px-2 sm:px-3 py-2 sm:py-3 text-center text-xs sm:text-sm font-medium text-gray-700">Lab MSE</th>
-                        <th className="px-2 sm:px-3 py-2 sm:py-3 text-center text-xs sm:text-sm font-medium text-gray-700">Lab</th>
+                        {/* Dynamic Theory Columns */}
+                        {allTheoryComponents.map((component) => (
+                          <th key={`theory-${component}`} className="px-2 sm:px-3 py-2 sm:py-3 text-center text-xs sm:text-sm font-medium text-gray-700">{component}</th>
+                        ))}
+                        <th className="px-2 sm:px-3 py-2 sm:py-3 text-center text-xs sm:text-sm font-medium text-gray-700 bg-blue-50">Theory</th>
+                        {/* Dynamic Lab Columns */}
+                        {allLabComponents.map((component) => (
+                          <th key={`lab-${component}`} className="px-2 sm:px-3 py-2 sm:py-3 text-center text-xs sm:text-sm font-medium text-gray-700">{component}</th>
+                        ))}
+                        <th className="px-2 sm:px-3 py-2 sm:py-3 text-center text-xs sm:text-sm font-medium text-gray-700 bg-green-50">Lab</th>
                         <th className="px-2 sm:px-3 py-2 sm:py-3 text-center text-xs sm:text-sm font-medium text-gray-700 bg-purple-50">Total</th>
                       </tr>
                     </thead>
@@ -354,19 +368,29 @@ export default function StudentDashboard() {
                                   : 'Open'}
                             </span>
                           </td>
-                          <MarksDisplay
-                            theoryMarks={course.theoryMarks}
-                            labMarks={course.labMarks}
-                            testComponents={course.testComponents}
-                            legacyTheoryMarks={course.theory_marks ?? undefined}
-                            legacyLabMarks={course.lab_marks ?? undefined}
-                            hasTheoryComponent={course.has_theory_component}
-                            hasLabComponent={course.has_lab_component}
-                            theoryTotal={course.theoryTotal ?? course.total_theory_marks}
-                            labTotal={course.labTotal ?? course.total_lab_marks}
-                          />
+                          
+                          {/* Dynamic Theory Marks */}
+                          {allTheoryComponents.map((component) => (
+                            <td key={`theory-${component}`} className="px-2 sm:px-3 py-2 sm:py-3 text-center text-xs sm:text-sm">
+                              <span className="font-medium">{getMarkValue(course.theoryMarks, component) ?? '-'}</span>
+                            </td>
+                          ))}
+                          <td className="px-2 sm:px-3 py-2 sm:py-3 text-center bg-blue-50">
+                            <span className="font-bold text-sm sm:text-lg text-blue-600">{course.theoryTotal ?? '-'}</span>
+                          </td>
+
+                          {/* Dynamic Lab Marks */}
+                          {allLabComponents.map((component) => (
+                            <td key={`lab-${component}`} className="px-2 sm:px-3 py-2 sm:py-3 text-center text-xs sm:text-sm">
+                              <span className="font-medium">{getMarkValue(course.labMarks, component) ?? '-'}</span>
+                            </td>
+                          ))}
+                          <td className="px-2 sm:px-3 py-2 sm:py-3 text-center bg-green-50">
+                            <span className="font-bold text-sm sm:text-lg text-green-600">{course.labTotal ?? '-'}</span>
+                          </td>
+
                           <td className="px-2 sm:px-3 py-2 sm:py-3 text-center bg-purple-50">
-                            <span className="font-bold text-sm sm:text-lg text-purple-600">{course.total_marks || '-'}</span>
+                            <span className="font-bold text-sm sm:text-lg text-purple-600">{course.totalMarks || '-'}</span>
                           </td>
                         </tr>
                       ))}

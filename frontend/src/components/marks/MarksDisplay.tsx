@@ -59,27 +59,26 @@ export const MarksDisplay: React.FC<MarksDisplayProps> = ({
 
     if (isNewSchema) {
         // New schema: Display dynamic test components
+        // Group marks by type
+        const theoryList = theoryMarks || [];
+        const labList = labMarks || [];
+
         return (
             <>
-                {/* Theory marks columns */}
-                <td className="px-2 sm:px-3 py-2 sm:py-3 text-center text-xs sm:text-sm">
-                    {renderMarkCell(getMarkByTestName('mse1', 'theory') || getMarkByTestName('mse 1', 'theory'), hasTheoryComponent)}
-                </td>
-                <td className="px-2 sm:px-3 py-2 sm:py-3 text-center text-xs sm:text-sm">
-                    {renderMarkCell(getMarkByTestName('mse2', 'theory') || getMarkByTestName('mse 2', 'theory'), hasTheoryComponent)}
-                </td>
-                <td className="px-2 sm:px-3 py-2 sm:py-3 text-center text-xs sm:text-sm">
-                    {renderMarkCell(getMarkByTestName('mse3', 'theory') || getMarkByTestName('mse 3', 'theory'), hasTheoryComponent && (theoryTotal ?? 0) < 20)}
-                </td>
-                <td className="px-2 sm:px-3 py-2 sm:py-3 text-center text-xs sm:text-sm">
-                    {renderMarkCell(getMarkByTestName('task1', 'theory') || getMarkByTestName('task 1', 'theory'), hasTheoryComponent)}
-                </td>
-                <td className="px-2 sm:px-3 py-2 sm:py-3 text-center text-xs sm:text-sm">
-                    {renderMarkCell(getMarkByTestName('task2', 'theory') || getMarkByTestName('task 2', 'theory'), hasTheoryComponent)}
-                </td>
-                <td className="px-2 sm:px-3 py-2 sm:py-3 text-center text-xs sm:text-sm">
-                    {renderMarkCell(getMarkByTestName('task3', 'theory') || getMarkByTestName('task 3', 'theory'), hasTheoryComponent)}
-                </td>
+                {/* Theory marks columns - display all theory marks */}
+                {theoryList.length > 0 ? (
+                    theoryList.map((mark) => (
+                        <td key={`theory-${mark.testName}`} className="px-2 sm:px-3 py-2 sm:py-3 text-center text-xs sm:text-sm" title={mark.testName}>
+                            <span className="font-medium">{mark.marksObtained ?? '-'}</span>
+                        </td>
+                    ))
+                ) : (
+                    <td colSpan={4} className="px-2 sm:px-3 py-2 sm:py-3 text-center text-xs sm:text-sm text-gray-400">
+                        N/A
+                    </td>
+                )}
+
+                {/* Theory Total */}
                 <td className="px-2 sm:px-3 py-2 sm:py-3 text-center text-xs sm:text-sm">
                     {hasTheoryComponent ? (
                         <span className="font-medium text-blue-600">{theoryTotal ?? '-'}</span>
@@ -88,16 +87,20 @@ export const MarksDisplay: React.FC<MarksDisplayProps> = ({
                     )}
                 </td>
 
-                {/* Lab marks columns */}
-                <td className="px-2 sm:px-3 py-2 sm:py-3 text-center text-xs sm:text-sm">
-                    {renderMarkCell(getMarkByTestName('record', 'lab'), hasLabComponent)}
-                </td>
-                <td className="px-2 sm:px-3 py-2 sm:py-3 text-center text-xs sm:text-sm">
-                    {renderMarkCell(getMarkByTestName('ce', 'lab') || getMarkByTestName('continuous', 'lab'), hasLabComponent)}
-                </td>
-                <td className="px-2 sm:px-3 py-2 sm:py-3 text-center text-xs sm:text-sm">
-                    {renderMarkCell(getMarkByTestName('lab mse', 'lab') || getMarkByTestName('mse', 'lab'), hasLabComponent)}
-                </td>
+                {/* Lab marks columns - display all lab marks */}
+                {labList.length > 0 ? (
+                    labList.map((mark) => (
+                        <td key={`lab-${mark.testName}`} className="px-2 sm:px-3 py-2 sm:py-3 text-center text-xs sm:text-sm" title={mark.testName}>
+                            <span className="font-medium">{mark.marksObtained ?? '-'}</span>
+                        </td>
+                    ))
+                ) : (
+                    <td colSpan={3} className="px-2 sm:px-3 py-2 sm:py-3 text-center text-xs sm:text-sm text-gray-400">
+                        N/A
+                    </td>
+                )}
+
+                {/* Lab Total */}
                 <td className="px-2 sm:px-3 py-2 sm:py-3 text-center text-xs sm:text-sm">
                     {hasLabComponent ? (
                         <span className="font-medium text-green-600">{labTotal ?? '-'}</span>

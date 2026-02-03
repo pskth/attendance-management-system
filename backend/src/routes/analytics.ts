@@ -476,6 +476,9 @@ router.get('/marks/:studyYear?', authenticateToken, async (req: AuthenticatedReq
 
         // Get actual courses for this section with real marks data
         const actualCourses = await Promise.all(section.course_offerings.map(async offering => {
+          console.log(`\n=== Processing offering ${offering.id} (${offering.course.code}) ===`);
+          console.log(`Enrollments in this offering: ${offering.enrollments.length}`);
+
           // TODO: Get marks using new StudentMark/TestComponent system
           const studentMarks = await prisma.studentMark.findMany({
             where: {
@@ -487,6 +490,11 @@ router.get('/marks/:studyYear?', authenticateToken, async (req: AuthenticatedReq
               testComponent: true
             }
           });
+
+          console.log(`Fetching marks for offering ${offering.id} (${offering.course.code}): found ${studentMarks.length} marks`);
+          if (studentMarks.length > 0) {
+            console.log('Sample mark:', studentMarks[0]);
+          }
 
           // Calculate course averages
           let courseTotalMarks = 0;
@@ -518,7 +526,7 @@ router.get('/marks/:studyYear?', authenticateToken, async (req: AuthenticatedReq
             passRate: parseFloat(coursePassRate.toFixed(1)),
             failRate: parseFloat(courseFailRate.toFixed(1)),
             enrollments: offering.enrollments.length,
-            students: await Promise.all(offering.enrollments.map(async enrollment => {
+            enrolledStudents: await Promise.all(offering.enrollments.map(async enrollment => {
               if (!enrollment.student) return null;
 
               // TODO: Get student's marks using new system
@@ -539,7 +547,7 @@ router.get('/marks/:studyYear?', authenticateToken, async (req: AuthenticatedReq
 
               const totalMarks = theoryTotal + labTotal;
 
-              return {
+              const studentData = {
                 id: enrollment.student.id,
                 name: enrollment.student.user?.name,
                 usn: enrollment.student.usn,
@@ -548,6 +556,10 @@ router.get('/marks/:studyYear?', authenticateToken, async (req: AuthenticatedReq
                 labMarks: labTotal,
                 totalMarks: totalMarks
               };
+
+              console.log(`Student ${studentData.name} in course ${offering.course.code}:`, studentData);
+
+              return studentData;
             })).then(results => results.filter(student => student !== null))
           };
         }));

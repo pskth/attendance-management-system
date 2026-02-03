@@ -250,6 +250,19 @@ router.get("/:userId/marks", async (req, res) => {
       let theoryMaxTotal = 0;
       let labMaxTotal = 0;
 
+      console.log(`Processing enrollment for student:`, {
+        studentId: student.id,
+        courseCode: course?.code,
+        studentMarksCount: enrollment.studentMarks.length,
+        marks: enrollment.studentMarks.map(m => ({
+          id: m.id,
+          marksObtained: m.marksObtained,
+          testComponentId: m.testComponentId,
+          testComponentType: m.testComponent?.type,
+          testComponentName: m.testComponent?.name
+        }))
+      });
+
       enrollment.studentMarks.forEach(mark => {
         const markData = {
           testName: mark.testComponent.name,

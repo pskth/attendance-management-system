@@ -58,23 +58,7 @@ dotenv_1.default.config();
 const app = (0, express_1.default)();
 console.log('=== INDEX.TS LOADED ===');
 const corsOptions = {
-    origin: (origin, callback) => {
-        const defaultOrigins = [
-            'https://attendance-management-system-navy.vercel.app',
-            'https://attendance-management-system-1-5bbv.onrender.com',
-            'http://localhost:3000',
-            'http://localhost:3001'
-        ];
-        const envOrigins = (process.env.CORS_ORIGINS || '')
-            .split(',')
-            .map((value) => value.trim())
-            .filter(Boolean);
-        const allowedOrigins = new Set([...defaultOrigins, ...envOrigins]);
-        if (!origin || allowedOrigins.has(origin)) {
-            return callback(null, true);
-        }
-        return callback(new Error(`CORS blocked: ${origin}`));
-    },
+    origin: true, // Allow all origins
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
@@ -220,9 +204,14 @@ process.on('SIGTERM', async () => {
     await database_1.default.disconnect();
     process.exit(0);
 });
-app.listen(PORT, () => {
-    console.log(`🚀 Server running on port ${PORT}`);
-    console.log(`📊 Health check available at http://localhost:${PORT}/health`);
-    console.log(`📋 Database summary at http://localhost:${PORT}/api/db/summary`);
-    console.log(`👥 Users API at http://localhost:${PORT}/api/users`);
-});
+// Export app for Vercel serverless
+exports.default = app;
+// For local development
+if (process.env.NODE_ENV !== 'production') {
+    app.listen(PORT, () => {
+        console.log(`🚀 Server running on port ${PORT}`);
+        console.log(`📊 Health check available at http://localhost:${PORT}/health`);
+        console.log(`📋 Database summary at http://localhost:${PORT}/api/db/summary`);
+        console.log(`👥 Users API at http://localhost:${PORT}/api/users`);
+    });
+}

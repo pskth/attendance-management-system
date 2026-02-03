@@ -1019,6 +1019,8 @@ router.get('/attendance/students', authenticateToken, async (req: AuthenticatedR
         const userId = req.user?.id;
         const { date, courseId } = req.query;
 
+        console.log('Attendance endpoint called with:', { userId, date, courseId });
+
         if (!userId) {
             return res.status(401).json({ status: 'error', message: 'User authentication required' });
         }
@@ -1032,6 +1034,8 @@ router.get('/attendance/students', authenticateToken, async (req: AuthenticatedR
             where: { userId: userId }
         });
 
+        console.log('Teacher found:', teacher?.id);
+
         if (!teacher) {
             return res.status(403).json({ status: 'error', message: 'Teacher access required' });
         }
@@ -1044,6 +1048,8 @@ router.get('/attendance/students', authenticateToken, async (req: AuthenticatedR
             }
         });
 
+        console.log('First courseOffering query (by id):', { courseId, teacherId: teacher.id, found: !!courseOffering });
+
         if (!courseOffering) {
             courseOffering = await prisma.courseOffering.findFirst({
                 where: {
@@ -1051,6 +1057,7 @@ router.get('/attendance/students', authenticateToken, async (req: AuthenticatedR
                     teacherId: teacher.id
                 }
             });
+            console.log('Second courseOffering query (by courseId):', { courseId, teacherId: teacher.id, found: !!courseOffering });
         }
 
         if (!courseOffering) {
@@ -1078,6 +1085,8 @@ router.get('/attendance/students', authenticateToken, async (req: AuthenticatedR
                 }
             }
         });
+
+        console.log('Enrollments found:', enrollments.length, 'offeringId:', courseOffering.id);
 
         // Get existing attendance records for this date and course
         const validStudentIds = enrollments

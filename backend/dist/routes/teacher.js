@@ -897,6 +897,7 @@ router.get('/attendance/students', auth_1.authenticateToken, async (req, res) =>
         const prisma = database_1.default.getInstance();
         const userId = req.user?.id;
         const { date, courseId } = req.query;
+        console.log('Attendance endpoint called with:', { userId, date, courseId });
         if (!userId) {
             return res.status(401).json({ status: 'error', message: 'User authentication required' });
         }
@@ -907,6 +908,7 @@ router.get('/attendance/students', auth_1.authenticateToken, async (req, res) =>
         const teacher = await prisma.teacher.findFirst({
             where: { userId: userId }
         });
+        console.log('Teacher found:', teacher?.id);
         if (!teacher) {
             return res.status(403).json({ status: 'error', message: 'Teacher access required' });
         }
@@ -917,6 +919,7 @@ router.get('/attendance/students', auth_1.authenticateToken, async (req, res) =>
                 teacherId: teacher.id
             }
         });
+        console.log('First courseOffering query (by id):', { courseId, teacherId: teacher.id, found: !!courseOffering });
         if (!courseOffering) {
             courseOffering = await prisma.courseOffering.findFirst({
                 where: {
@@ -924,6 +927,7 @@ router.get('/attendance/students', auth_1.authenticateToken, async (req, res) =>
                     teacherId: teacher.id
                 }
             });
+            console.log('Second courseOffering query (by courseId):', { courseId, teacherId: teacher.id, found: !!courseOffering });
         }
         if (!courseOffering) {
             return res.status(403).json({ status: 'error', message: 'Access denied to this course' });
@@ -948,6 +952,7 @@ router.get('/attendance/students', auth_1.authenticateToken, async (req, res) =>
                 }
             }
         });
+        console.log('Enrollments found:', enrollments.length, 'offeringId:', courseOffering.id);
         // Get existing attendance records for this date and course
         const validStudentIds = enrollments
             .map(e => e.studentId)
@@ -1984,6 +1989,11 @@ router.post('/course/:courseId/teacher/:teacherId/marks', async (req, res) => {
                 continue;
             const updatedMarks = [];
             for (const mark of student.marks) {
+                // Skip temporary IDs generated on the client side
+                if (mark.componentId.startsWith('temp-')) {
+                    console.log(`Skipping temporary component ID: ${mark.componentId}`);
+                    continue;
+                }
                 const existing = await prisma.studentMark.findUnique({
                     where: {
                         enrollmentId_testComponentId: {

@@ -424,6 +424,17 @@ export default function TeacherMarksAttendanceManagement({
       return;
     }
 
+    // Check if selected date is in the future
+    const dateObj = new Date(selectedDate);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    dateObj.setHours(0, 0, 0, 0);
+    if (dateObj > today) {
+      setError("Cannot mark attendance for future dates");
+      setAttendanceRecords([]);
+      return;
+    }
+
     setLoading(true);
     setError(null);
     try {
@@ -684,17 +695,28 @@ export default function TeacherMarksAttendanceManagement({
       )}-${String(day).padStart(2, "0")}`;
       const hasData = false; // We'll load this from API later
       const isSelected = date === selectedDate;
+      
+      // Disable future dates
+      const dateObj = new Date(date);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      dateObj.setHours(0, 0, 0, 0);
+      const isFutureDate = dateObj > today;
 
       days.push(
         <button
           key={day}
-          onClick={() => setSelectedDate(date)}
-          className={`h-8 w-8 text-sm rounded ${isSelected
+          onClick={() => !isFutureDate && setSelectedDate(date)}
+          disabled={isFutureDate}
+          className={`h-8 w-8 text-sm rounded ${isFutureDate
+            ? "bg-gray-200 text-gray-400 cursor-not-allowed opacity-50"
+            : isSelected
             ? "bg-emerald-600 text-white"
             : hasData
               ? "bg-green-100 text-green-800 hover:bg-green-200"
               : "hover:bg-gray-100"
             }`}
+          title={isFutureDate ? "Cannot mark attendance for future dates" : ""}
         >
           {day}
         </button>
