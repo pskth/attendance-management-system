@@ -130,10 +130,18 @@ export default function TeacherMarksAttendanceManagement({
   );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [componentsLoading, setComponentsLoading] = useState(false);
+  const [componentsError, setComponentsError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [componentsTest, setComponentsTest] = useState<TestComponent[]>([]); // to store test components structure
   const [componentsR, setComponentsR] = useState<true | false>(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+
+  useEffect(() => {
+    if (selectedCourseId && (selectedCourse === "all" || !selectedCourse)) {
+      setSelectedCourse(selectedCourseId);
+    }
+  }, [selectedCourseId, selectedCourse]);
 
 
 
@@ -177,34 +185,49 @@ export default function TeacherMarksAttendanceManagement({
 
   useEffect(() => {
     const fetchComponentsAndMarks = async () => {
-      if (!selectedCourseId || !teacherId) {
+      if (!selectedCourse || !teacherId) {
         console.log("Waiting for course and teacher selection...");
+        setComponentsLoading(false);
         return;
       }
 
+      if (selectedCourse === "all") {
+        setComponentsTest([]);
+        setComponentsR(false);
+        setComponentsError(null);
+        setMarks([]);
+        setComponentsLoading(false);
+        return;
+      }
+
+      setComponentsLoading(true);
+      setComponentsError(null);
+
       try {
         const structureResponse = await TeacherAPI.getCourseTestComponents(
-          selectedCourseId,
+          selectedCourse,
           teacherId
         );
 
-        if (structureResponse.status === "success") {
-          const fetchedComponents: TestComponent[] = structureResponse.components || [];
-          console.log("Fetched components:", fetchedComponents);
-          setComponentsR(true);
-          // 1️⃣ Update state
-          setComponentsTest(fetchedComponents);
+        const fetchedComponents: TestComponent[] = structureResponse.components || [];
+        console.log("Fetched components:", fetchedComponents);
+        setComponentsR(true);
+        // 1️⃣ Update state
+        setComponentsTest(fetchedComponents);
 
-          // 2️⃣ Fetch marks AFTER components are ready
-          await loadMarksData(fetchedComponents); // pass components directly
-        }
+        // 2️⃣ Fetch marks AFTER components are ready
+        await loadMarksData(fetchedComponents); // pass components directly
       } catch (err) {
         console.error("Failed to fetch components or marks:", err);
+        setComponentsR(false);
+        setComponentsError("Failed to load components. Please try again.");
+      } finally {
+        setComponentsLoading(false);
       }
     };
 
     fetchComponentsAndMarks();
-  }, [selectedCourseId, teacherId]); // run when course or teacher changes
+  }, [selectedCourse, teacherId]); // run when course or teacher changes
 
   // Load attendance whenever tab, course, or date changes
   useEffect(() => {
@@ -988,6 +1011,27 @@ export default function TeacherMarksAttendanceManagement({
               </div>
             </CardContent>
           </Card>
+        ) : componentsLoading ? (
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>
+                <span className="ml-2 text-gray-600">Loading components...</span>
+              </div>
+            </CardContent>
+          </Card>
+        ) : componentsError ? (
+          <Card className="border-red-200 bg-red-50">
+            <CardContent className="pt-6">
+              <p className="text-red-600">{componentsError}</p>
+            </CardContent>
+          </Card>
+        ) : selectedCourse === "all" ? (
+          <Card>
+            <CardContent className="pt-6">
+              <p className="text-gray-600">Select a specific course to load marks components.</p>
+            </CardContent>
+          </Card>
         ) : componentsR ? (
         <Card>
           <CardHeader>
@@ -1388,10 +1432,7 @@ export default function TeacherMarksAttendanceManagement({
         ) : (
           <Card>
             <CardContent className="pt-6">
-              <div className="flex items-center justify-center py-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>
-                <span className="ml-2 text-gray-600">Loading components...</span>
-              </div>
+              <p className="text-gray-600">No components found for this course.</p>
             </CardContent>
           </Card>
         )
